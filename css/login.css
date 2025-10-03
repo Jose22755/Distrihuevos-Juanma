@@ -1,0 +1,310 @@
+:root {
+  --amarillo: #FFD54F;
+  --verde: #4CAF50;
+  --gris-oscuro: #333333;
+  --gris-claro: #F5F5F5;
+  --radius: 12px;
+  --shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  color: var(--gris-oscuro);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+
+  /* Fondo: cielo degradado */
+  background: linear-gradient(to bottom, #87CEEB 0%, #a0d8ff 60%, #FFF8E1 100%);
+  position: relative;
+}
+
+/* Nubes animadas */
+body::before {
+  content: "";
+  position: absolute;
+  width: 200%;
+  height: 200px;
+  top: 50px;
+  left: -50%;
+  background: url('https://i.imgur.com/6y0Uptn.png') repeat-x;
+  background-size: contain;
+  animation: moveClouds 60s linear infinite;
+  z-index: 0;
+}
+
+@keyframes moveClouds {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(50%); }
+}
+
+/* Pasto animado */
+body::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 150px;
+  background: url('https://i.imgur.com/Grn6jti.png') repeat-x;
+  background-size: contain;
+  animation: moveGrass 20s linear infinite;
+  z-index: 0;
+}
+
+@keyframes moveGrass {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Tarjeta centrada */
+.login-container {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+  padding: 20px;
+}
+
+/* Tarjeta */
+.login-card {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+  text-align: center;
+  z-index: 10;
+}
+
+/* Logo */
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+
+.logo {
+  width: 220px;       /* más ancho */
+  height: 180px;      /* un poco menos de alto para abrirlo */
+  object-fit: cover;  /* mantiene proporción recortando lo que sobra */
+  border-radius: 50%; 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  margin-bottom: 10px;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+/* ANCHO PARA EL LOGO */
+
+.logo-wrapper {
+  width: 260px;    /* más ancho */
+  height: 180px;   /* un poquito más alto para que no quede tan achatado */
+  overflow: hidden;
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  margin-bottom: 10px;
+}
+
+.logo-wrapper .logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.logo-container h1 {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.logo-container h1 span {
+  color: var(--verde);
+}
+
+h2 {
+  margin: 20px 0 15px;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+}
+
+/* Labels alineados a la izquierda */
+form label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  font-weight: 500;
+  color: #333;
+}
+
+/* Inputs */
+input[type="email"],
+input[type="password"],
+input[type="text"],
+input[type="tel"] {
+  width: 100%;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus {
+  border-color: var(--verde);
+  box-shadow: 0 0 0 4px rgba(76,175,80,0.1);
+}
+
+/* Contenedor y ojo de contraseña */
+.password-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.password-container input {
+  flex: 1;
+  padding: 10px 40px 10px 12px;
+}
+
+.toggle-pass {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s;
+}
+
+.toggle-pass:hover svg {
+  opacity: 0.7;
+}
+
+/* Botones */
+button[type="submit"] {
+  width: 100%;
+  height: 45px;
+  background: var(--amarillo);
+  color: var(--gris-oscuro);
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 700;
+  font-family: "Montserrat", sans-serif;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button[type="submit"]:hover {
+  background: #ffca28;
+}
+
+/* Botón Google */
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #DB4437;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  height: 45px;
+  margin-top: 10px;
+}
+
+.google-btn img {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.google-btn:hover {
+  background-color: #c33c2f;
+}
+
+/* Enlaces */
+.link {
+  color: var(--verde);
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.link:hover {
+  text-decoration: underline;
+  transform: translateY(-2px);
+}
+
+/* Mensajes de error */
+.error-msg {
+  color: #d32f2f;
+  font-size: 0.9rem;
+  margin-top: 6px;
+  display: none;
+}
+
+input.invalid {
+  border-color: #d32f2f !important;
+  box-shadow: 0 0 0 4px rgba(211,47,47,0.06);
+  animation: shake 0.3s;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+/* Mensajes de éxito */
+#login-success-message,
+#register-success-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--verde);
+  color: white;
+  padding: 20px 30px;
+  font-size: 1.2rem;
+  font-weight: 500;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  opacity: 0;
+  visibility: hidden;
+  z-index: 10000;
+  transition: opacity 0.3s ease;
+}
+
+#login-success-message.show,
+#register-success-message.show {
+  opacity: 1;
+  visibility: visible;
+}

@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login - Distrihuevos JUANMA</title>
+  <link rel="stylesheet" href="../css/login.css">
+  <style>
+    .error-msg { color: #d32f2f; font-size: 0.9rem; margin-top: 6px; display:none; }
+    input.invalid { border-color: #d32f2f !important; box-shadow: 0 0 0 4px rgba(211,47,47,0.06); animation: shake 0.3s; }
+    .success-msg { color: #1b5e20; font-size: 0.95rem; display:none; margin-top:10px; }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+
+    #spinner-overlay {
+      position: fixed;
+      top:0; left:0; width:100%; height:100%;
+      background: rgba(255,255,255,0.8);
+      display: flex; flex-direction: column; justify-content:center; align-items:center;
+      z-index: 9999; opacity:0; visibility:hidden;
+      transition: opacity 0.3s ease;
+    }
+    #spinner-overlay.show { opacity:1; visibility:visible; }
+    .spinner {
+      border:8px solid #f3f3f3;
+      border-top:8px solid #4caf50;
+      border-radius:50%;
+      width:70px; height:70px;
+      animation: spin 1s linear infinite;
+      margin-bottom:15px;
+    }
+    @keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+    #spinner-message { font-size:1.2rem; font-weight:500; color:#333; }
+
+    input[type="email"], input[type="password"]{
+      width:100%;
+      padding:10px 12px;
+      box-sizing:border-box;
+      border:1px solid #ccc;
+      border-radius:6px;
+      font-size:1rem;
+      outline:none;
+      transition:border-color 0.3s, box-shadow 0.3s;
+    }
+    input:focus{
+      border-color:#4caf50;
+      box-shadow:0 0 0 4px rgba(76,175,80,0.1);
+    }
+
+    .password-container { position: relative; width: 100%; display: flex; align-items:center; }
+    .password-container input { flex:1; padding:10px 40px 10px 12px; }
+    .toggle-pass { position:absolute; right:10px; cursor:pointer; user-select:none; }
+
+    #login-success-message {
+      position: fixed;
+      top:50%; left:50%;
+      transform: translate(-50%, -50%);
+      background:#4caf50;
+      color:white;
+      padding:20px 30px;
+      font-size:1.2rem;
+      font-weight:500;
+      border-radius:10px;
+      box-shadow:0 4px 15px rgba(0,0,0,0.2);
+      opacity:0; visibility:hidden;
+      z-index:10000;
+      transition:opacity 0.3s ease;
+    }
+    #login-success-message.show { opacity:1; visibility:visible; }
+
+    /* BOTON GOOGLE */
+    .google-btn {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      background-color:#DB4437;
+      color:white;
+      border:none;
+      border-radius:6px;
+      font-size:1rem;
+      font-weight:500;
+      cursor:pointer;
+      width:100%;
+      height:45px; /* igual al botón Ingresar */
+      line-height:1;
+      margin-top:10px;
+    }
+    .google-btn img { width:20px; height:20px; }
+    .google-btn:hover { background-color:#c33c2f; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="logo-container">
+  <div class="logo-wrapper">
+    <img src="../html/images/LogoDistrihuevosJUANMA.jpg" alt="Logo" class="logo">
+  </div>
+  <h1>Distrihuevos <span>JUANMA</span></h1>
+</div>
+
+      <h2>Iniciar Sesión</h2>
+
+      <form id="loginForm" novalidate>
+        <label>Correo electrónico
+          <input type="email" id="loginEmail" required autocomplete="email">
+          <div id="err-email" class="error-msg"></div>
+        </label>
+
+        <label>Contraseña
+          <div class="password-container">
+            <input type="password" id="loginPassword" required minlength="6" autocomplete="current-password">
+            <span class="toggle-pass">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#333" viewBox="0 0 24 24">
+                <path d="M12 5c-7.633 0-11.531 7-11.531 7s3.898 7 11.531 7 11.531-7 11.531-7-3.898-7-11.531-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z"/>
+              </svg>
+            </span>
+          </div>
+          <div id="err-pass" class="error-msg"></div>
+        </label>
+
+        <button type="submit">Ingresar</button>
+      </form>
+
+      <button id="googleLogin" class="google-btn">
+        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
+        Iniciar sesión con Google
+      </button>
+
+      <p style="margin-top:12px">¿No tienes cuenta? <a href="register.html" class="link">Regístrate</a></p>
+    </div>
+  </div>
+
+  <div class="grass"></div>
+
+  <div id="spinner-overlay">
+    <div class="spinner"></div>
+    <div id="spinner-message">Iniciando sesión...</div>
+  </div>
+
+  <div id="login-success-message">✅ ¡Bienvenido de nuevo!</div>
+  <footer>© 2025 Distrihuevos JUANMA</footer>
+
+  <script type="module">
+import { auth, db } from "../js/firebase-config.js";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } 
+  from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+const form = document.getElementById("loginForm");
+const spinner = document.getElementById('spinner-overlay');
+const successMessage = document.getElementById('login-success-message');
+
+const fields = {
+  email: document.getElementById("loginEmail"),
+  pass: document.getElementById("loginPassword")
+};
+
+const errs = {
+  email: document.getElementById("err-email"),
+  pass: document.getElementById("err-pass")
+};
+
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+function showSpinner(){ spinner.classList.add('show'); }
+function hideSpinner(){ spinner.classList.remove('show'); }
+function showSuccess(){ successMessage.classList.add('show'); }
+function hideSuccess(){ successMessage.classList.remove('show'); }
+
+function validateField(key){
+  const el = fields[key];
+  const val = el.value.trim();
+  let valid = true;
+  let msg = '';
+
+  if(!val){ valid=false; msg='Este campo es obligatorio'; }
+  else{
+    if(key==='email' && !emailRegex.test(val)){ valid=false; msg='Correo inválido. Ejemplo: usuario@dominio.com'; }
+    if(key==='pass' && val.length<6){ valid=false; msg='Mínimo 6 caracteres'; }
+  }
+
+  if(!valid){ errs[key].textContent=msg; errs[key].style.display='block'; el.classList.add('invalid'); }
+  else{ errs[key].style.display='none'; el.classList.remove('invalid'); }
+
+  return valid;
+}
+
+Object.keys(fields).forEach(k=>{
+  fields[k].addEventListener('input',()=>{ validateField(k); hideSuccess(); });
+  fields[k].addEventListener('blur',()=>{ validateField(k); });
+});
+
+document.querySelector('.toggle-pass').addEventListener('click',()=>{
+  const input = fields.pass;
+  input.type = input.type==='password' ? 'text' : 'password';
+});
+
+form.addEventListener('submit', async(e)=>{
+  e.preventDefault();
+  showSpinner();
+
+  setTimeout(async()=>{
+    let allValid = true;
+    Object.keys(fields).forEach(k=>{ if(!validateField(k)) allValid=false; });
+    if(!allValid){ hideSpinner(); return; }
+
+    const email = fields.email.value.trim();
+    const password = fields.pass.value.trim();
+
+    try{
+      const userCredential = await signInWithEmailAndPassword(auth,email,password);
+      hideSpinner();
+      showSuccess();
+      setTimeout(()=>{ hideSuccess(); window.location.href='index.html'; },2000);
+
+    }catch(error){
+  hideSpinner();
+
+  // Resetea errores previos
+  errs.email.style.display='none';
+  errs.pass.style.display='none';
+  fields.email.classList.remove('invalid');
+  fields.pass.classList.remove('invalid');
+
+  // Mostrar error correspondiente
+  if(error.code==='auth/user-not-found'){
+    errs.email.textContent='❌ Este correo no está registrado';
+    errs.email.style.display='block';
+    fields.email.classList.add('invalid');
+  } else if(error.code==='auth/wrong-password'){
+    errs.pass.textContent='❌ Contraseña incorrecta';
+    errs.pass.style.display='block';
+    fields.pass.classList.add('invalid');
+  } else if(error.code==='auth/invalid-credential'){
+    errs.email.textContent='❌ Correo inválido, revisa tus datos';
+    errs.email.style.display='block';
+    fields.email.classList.add('invalid');
+  } else {
+    errs.email.textContent='❌ '+error.message;
+    errs.email.style.display='block';
+    fields.email.classList.add('invalid');
+  }
+}
+  },500);
+});
+
+// LOGIN GOOGLE
+const googleBtn = document.getElementById('googleLogin');
+googleBtn.addEventListener('click', async()=>{
+  showSpinner();
+  const provider = new GoogleAuthProvider();
+
+  try{
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    const userRef = doc(db,"users",user.uid);
+    const userSnap = await getDoc(userRef);
+
+    if(!userSnap.exists()){
+      // Crear usuario automáticamente en Firestore
+      await setDoc(userRef,{
+        "Nombres": user.displayName || "",
+        "Correo Electronico": user.email || ""
+      });
+    }
+
+    hideSpinner();
+    showSuccess();
+    setTimeout(()=>{ hideSuccess(); window.location.href='index.html'; },2000);
+
+  }catch(error){
+    hideSpinner();
+    errs.email.textContent="❌ Error al iniciar con Google: "+error.message;
+    errs.email.style.display='block';
+  }
+});
+  </script>
+</body>
+</html>

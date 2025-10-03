@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Registro - Distrihuevos JUANMA</title>
+  <link rel="stylesheet" href="../css/login.css">
+  <style>
+    /* Errores y éxito */
+    .error-msg { color: #d32f2f; font-size: 0.9rem; margin-top: 6px; display:none; }
+    input.invalid { border-color: #d32f2f !important; box-shadow: 0 0 0 4px rgba(211,47,47,0.06); animation: shake 0.3s; }
+    .success-msg { color: #1b5e20; font-size: 0.95rem; display:none; margin-top:10px; }
+
+    /* Shake animation */
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+
+    /* Spinner premium */
+    #spinner-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.8);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      z-index: 9999;
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.3s ease;
+    }
+    #spinner-overlay.show { opacity: 1; visibility: visible; }
+    .spinner {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #4caf50;
+      border-radius: 50%;
+      width: 70px; height: 70px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    #spinner-message { font-size: 1.2rem; font-weight: 500; color: #333; }
+
+    /* Mensaje registro exitoso */
+    #register-success-message {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: #4caf50;
+      color: white;
+      padding: 20px 30px;
+      font-size: 1.2rem;
+      font-weight: 500;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      opacity: 0; visibility: hidden;
+      z-index: 10000;
+      transition: opacity 0.3s ease;
+    }
+    #register-success-message.show { opacity: 1; visibility: visible; }
+
+    /* Inputs con icono de ojo */
+    .password-container { position: relative; width: 100%; display: flex; align-items: center; }
+    .password-container input { flex: 1; padding: 10px 40px 10px 12px; box-sizing: border-box; }
+    .toggle-pass, .toggle-pass2 { position: absolute; right:10px; cursor:pointer; user-select:none; }
+    
+    /* Inputs generales */
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px 12px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    /* Inputs focus */
+    input:focus {
+      border-color: #4caf50;
+      box-shadow: 0 0 0 4px rgba(76,175,80,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="logo-container">
+        <img src="../html/images/LogoDistrihuevosJUANMA.jpg" alt="Logo" class="logo" style="width:64px">
+        <h1>Distrihuevos <span>JUANMA</span></h1>
+      </div>
+      <h2>Crear Cuenta</h2>
+
+      <form id="registerForm" novalidate>
+        <label>Nombres
+          <input type="text" id="registerName" required>
+          <div id="err-name" class="error-msg"></div>
+        </label>
+
+        <label>Apellidos
+          <input type="text" id="registerLastName" required>
+          <div id="err-lastname" class="error-msg"></div>
+        </label>
+
+        <label>Dirección
+          <input type="text" id="registerAddress" required>
+          <div id="err-address" class="error-msg"></div>
+        </label>
+
+        <label>Teléfono
+          <input type="tel" id="registerPhone" required>
+          <div id="err-phone" class="error-msg"></div>
+        </label>
+
+        <label>Correo Electrónico
+          <input type="email" id="registerEmail" required>
+          <div id="err-email" class="error-msg"></div>
+        </label>
+
+        <label>Contraseña
+          <div class="password-container">
+            <input type="password" id="registerPassword" required minlength="8">
+            <span class="toggle-pass">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#333" viewBox="0 0 24 24">
+                <path d="M12 5c-7.633 0-11.531 7-11.531 7s3.898 7 11.531 7 11.531-7 11.531-7-3.898-7-11.531-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z"/>
+              </svg>
+            </span>
+          </div>
+          <div id="err-pass1" class="error-msg"></div>
+        </label>
+
+        <label>Repetir Contraseña
+          <div class="password-container">
+            <input type="password" id="registerPassword2" required minlength="8">
+            <span class="toggle-pass2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#333" viewBox="0 0 24 24">
+                <path d="M12 5c-7.633 0-11.531 7-11.531 7s3.898 7 11.531 7 11.531-7 11.531-7-3.898-7-11.531-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z"/>
+              </svg>
+            </span>
+          </div>
+          <div id="err-pass2" class="error-msg"></div>
+        </label>
+
+        <button type="submit">Registrarme</button>
+        <div id="success" class="success-msg">✅ Registro exitoso, redirigiendo...</div>
+      </form>
+
+      <p style="margin-top:12px">¿Ya tienes cuenta? <a href="login.html" class="link">Inicia Sesión</a></p>
+    </div>
+  </div>
+
+  <!-- Spinner y mensaje éxito -->
+  <div id="spinner-overlay">
+    <div class="spinner"></div>
+    <div id="spinner-message">Registrando...</div>
+  </div>
+  <div id="register-success-message">✅ ¡Te has registrado correctamente!</div>
+
+  <footer>© 2025 Distrihuevos JUANMA</footer>
+
+  <!-- Firebase y lógica -->
+  <script type="module">
+import { auth, db } from "../js/firebase-config.js";
+import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+const form = document.getElementById("registerForm");
+const spinner = document.getElementById('spinner-overlay');
+const successMessage = document.getElementById('register-success-message');
+
+const fields = {
+  name: document.getElementById('registerName'),
+  lastname: document.getElementById('registerLastName'),
+  address: document.getElementById('registerAddress'),
+  phone: document.getElementById('registerPhone'),
+  email: document.getElementById('registerEmail'),
+  pass1: document.getElementById('registerPassword'),
+  pass2: document.getElementById('registerPassword2')
+};
+
+const errs = {
+  name: document.getElementById('err-name'),
+  lastname: document.getElementById('err-lastname'),
+  address: document.getElementById('err-address'),
+  phone: document.getElementById('err-phone'),
+  email: document.getElementById('err-email'),
+  pass1: document.getElementById('err-pass1'),
+  pass2: document.getElementById('err-pass2'),
+  success: document.getElementById('success')
+};
+
+// Regex más estrictos
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
+
+// Spinner y mensaje éxito
+function showSpinner(){ spinner.classList.add('show'); }
+function hideSpinner(){ spinner.classList.remove('show'); }
+function showSuccessMessage(){ successMessage.classList.add('show'); }
+function hideSuccessMessage(){ successMessage.classList.remove('show'); }
+
+// Validación de campos
+function validateField(key) {
+  const el = fields[key];
+  const val = el.value.trim();
+  let valid = true;
+  let msg = "";
+
+  if (!val) { valid = false; msg = "Este campo es obligatorio"; }
+  else {
+    if (key === "phone") {
+      if (!/^[0-9]+$/.test(val)) valid=false, msg="Solo números";
+      else if(val.length !==10) valid=false, msg="Debe tener 10 dígitos";
+    }
+    if (key === "email") {
+      if(!emailRegex.test(val)){ valid=false; msg="Correo inválido (ej: ejemplo@correo.com)"; }
+    }
+    if (key === "pass1") {
+      if(!passwordRegex.test(val)){
+        valid=false;
+        msg="Contraseña: mínimo 8 caracteres, mayúscula, minúscula, número y símbolo (!@#$%^&*)";
+      }
+    }
+    if(key==="pass2"){
+      if(val!==fields.pass1.value){ valid=false; msg="Las contraseñas no coinciden"; }
+    }
+    if(key==="name" || key==="lastname"){
+      if(!/^[a-zA-ZÀ-ÿ\s]+$/.test(val)){ valid=false; msg="Solo se permiten letras"; }
+    }
+  }
+
+  if(!valid){ errs[key].textContent=msg; errs[key].style.display="block"; el.classList.add("invalid"); }
+  else{ errs[key].style.display="none"; el.classList.remove("invalid"); }
+
+  return valid;
+}
+
+// Validación en tiempo real
+Object.keys(fields).forEach(k=>{
+  fields[k].addEventListener("input",()=>{ validateField(k); errs.success.style.display="none"; });
+  fields[k].addEventListener("blur",()=>{ validateField(k); }); // mantener mensaje si hay error
+});
+
+// Mostrar/ocultar contraseña
+document.querySelector('.toggle-pass').addEventListener('click',()=>{
+  const input = fields.pass1;
+  input.type = input.type==='password' ? 'text' : 'password';
+});
+document.querySelector('.toggle-pass2').addEventListener('click',()=>{
+  const input = fields.pass2;
+  input.type = input.type==='password' ? 'text' : 'password';
+});
+
+// Envío del formulario con spinner antes de validar
+form.addEventListener("submit", async(ev)=>{
+  ev.preventDefault();
+  showSpinner();
+
+  setTimeout(async()=>{
+    let allValid=true;
+    Object.keys(fields).forEach(k=>{
+      if(!validateField(k)) allValid=false;
+    });
+
+    if(!allValid){ hideSpinner(); return; }
+
+    try{
+      const email = fields.email.value.trim();
+      const password = fields.pass1.value.trim();
+
+      const userCredential = await createUserWithEmailAndPassword(auth,email,password)
+        .catch(error=>{
+          hideSpinner();
+          if(error.code==="auth/email-already-in-use"){
+            errs.email.textContent="❌ Este correo ya está registrado, usa otro";
+            errs.email.style.display="block";
+            fields.email.classList.add("invalid");
+          } else {
+            errs.email.textContent="❌ "+error.message;
+            errs.email.style.display="block";
+            fields.email.classList.add("invalid");
+          }
+          throw error;
+        });
+
+      const user = userCredential.user;
+
+      await setDoc(doc(db,"users",user.uid),{
+        "Nombres": fields.name.value.trim(),
+        "Apellidos": fields.lastname.value.trim(),
+        "Direccion": fields.address.value.trim(),
+        "Telefono": fields.phone.value.trim(),
+        "Correo Electronico": email
+      });
+
+      hideSpinner();
+      showSuccessMessage();
+      setTimeout(()=>{
+        hideSuccessMessage();
+        window.location.href="login.html";
+      },2000);
+
+    }catch(error){
+      console.log("Registro detenido por error.");
+      hideSpinner();
+    }
+
+  }, 500); // delay para efecto de spinner
+});
+  </script>
+</body>
+</html>
+ 
