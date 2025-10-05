@@ -93,7 +93,7 @@
   <div class="login-container">
     <div class="login-card">
       <div class="logo-container">
-        <img src="../html/images/LogoDistrihuevosJUANMA.jpg" alt="Logo" class="logo" style="width:64px">
+        <img src="../html/images/LogoRegistroDistrihuevosJUANMA.png" alt="Logo" class="logo-register">
         <h1>Distrihuevos <span>JUANMA</span></h1>
       </div>
       <h2>Crear Cuenta</h2>
@@ -166,7 +166,7 @@
   <footer>© 2025 Distrihuevos JUANMA</footer>
 
   <!-- Firebase y lógica -->
-  <script type="module">
+<script type="module">
 import { auth, db } from "../js/firebase-config.js";
 import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
@@ -196,15 +196,15 @@ const errs = {
   success: document.getElementById('success')
 };
 
-// Regex más estrictos
+// Regex
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
 
-// Spinner y mensaje éxito
-function showSpinner(){ spinner.classList.add('show'); }
-function hideSpinner(){ spinner.classList.remove('show'); }
-function showSuccessMessage(){ successMessage.classList.add('show'); }
-function hideSuccessMessage(){ successMessage.classList.remove('show'); }
+// Spinner y mensaje de éxito
+const showSpinner = () => spinner.classList.add('show');
+const hideSpinner = () => spinner.classList.remove('show');
+const showSuccessMessage = () => successMessage.classList.add('show');
+const hideSuccessMessage = () => successMessage.classList.remove('show');
 
 // Validación de campos
 function validateField(key) {
@@ -217,7 +217,7 @@ function validateField(key) {
   else {
     if (key === "phone") {
       if (!/^[0-9]+$/.test(val)) valid=false, msg="Solo números";
-      else if(val.length !==10) valid=false, msg="Debe tener 10 dígitos";
+      else if(val.length !== 10) valid=false, msg="Debe tener 10 dígitos";
     }
     if (key === "email") {
       if(!emailRegex.test(val)){ valid=false; msg="Correo inválido (ej: ejemplo@correo.com)"; }
@@ -236,19 +236,28 @@ function validateField(key) {
     }
   }
 
-  if(!valid){ errs[key].textContent=msg; errs[key].style.display="block"; el.classList.add("invalid"); }
-  else{ errs[key].style.display="none"; el.classList.remove("invalid"); }
+  if(!valid){ 
+    errs[key].textContent = msg; 
+    errs[key].style.display = "block"; 
+    el.classList.add("invalid"); 
+  } else { 
+    errs[key].style.display = "none"; 
+    el.classList.remove("invalid"); 
+  }
 
   return valid;
 }
 
 // Validación en tiempo real
 Object.keys(fields).forEach(k=>{
-  fields[k].addEventListener("input",()=>{ validateField(k); errs.success.style.display="none"; });
-  fields[k].addEventListener("blur",()=>{ validateField(k); }); // mantener mensaje si hay error
+  fields[k].addEventListener("input",()=>{ 
+    validateField(k); 
+    errs.success.style.display="none"; 
+  });
+  fields[k].addEventListener("blur",()=>{ validateField(k); });
 });
 
-// Mostrar/ocultar contraseña
+// Toggle de contraseña
 document.querySelector('.toggle-pass').addEventListener('click',()=>{
   const input = fields.pass1;
   input.type = input.type==='password' ? 'text' : 'password';
@@ -258,13 +267,13 @@ document.querySelector('.toggle-pass2').addEventListener('click',()=>{
   input.type = input.type==='password' ? 'text' : 'password';
 });
 
-// Envío del formulario con spinner antes de validar
+// Envío del formulario
 form.addEventListener("submit", async(ev)=>{
   ev.preventDefault();
   showSpinner();
 
   setTimeout(async()=>{
-    let allValid=true;
+    let allValid = true;
     Object.keys(fields).forEach(k=>{
       if(!validateField(k)) allValid=false;
     });
@@ -275,7 +284,7 @@ form.addEventListener("submit", async(ev)=>{
       const email = fields.email.value.trim();
       const password = fields.pass1.value.trim();
 
-      const userCredential = await createUserWithEmailAndPassword(auth,email,password)
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
         .catch(error=>{
           hideSpinner();
           if(error.code==="auth/email-already-in-use"){
@@ -292,12 +301,14 @@ form.addEventListener("submit", async(ev)=>{
 
       const user = userCredential.user;
 
+      // Guardar en Firestore con rol "usuario"
       await setDoc(doc(db,"users",user.uid),{
         "Nombres": fields.name.value.trim(),
         "Apellidos": fields.lastname.value.trim(),
         "Direccion": fields.address.value.trim(),
         "Telefono": fields.phone.value.trim(),
-        "Correo Electronico": email
+        "Correo Electronico": email,
+        "rol": "usuario" 
       });
 
       hideSpinner();
@@ -308,13 +319,30 @@ form.addEventListener("submit", async(ev)=>{
       },2000);
 
     }catch(error){
-      console.log("Registro detenido por error.");
+      console.log("Registro detenido por error.", error);
       hideSpinner();
     }
 
-  }, 500); // delay para efecto de spinner
+  }, 500); // delay para spinner
 });
-  </script>
+
+// Bloquear deshacer/rehacer en inputs y textareas
+document.querySelectorAll('input, textarea').forEach(el => {
+  el.addEventListener('keydown', function(e) {
+    const isUndo = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z';
+    const isRedoWin = (e.ctrlKey && e.key.toLowerCase() === 'y');
+    const isRedoMac = (e.metaKey && e.shiftKey && e.key.toLowerCase() === 'z');
+
+    if (isUndo || isRedoWin || isRedoMac) {
+      e.preventDefault();
+      // Mensaje opcional
+      console.log('Deshacer/Rehacer deshabilitado en este campo');
+      // alert("❌ Deshacer/Rehacer está deshabilitado en este formulario"); // opcional
+    }
+  });
+});
+</script>
+
 </body>
 </html>
  

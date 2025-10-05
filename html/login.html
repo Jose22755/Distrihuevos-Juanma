@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Login - Distrihuevos JUANMA</title>
   <link rel="stylesheet" href="../css/login.css">
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <!-- jQuery -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <!-- Lettering.js (necesario para Textillate) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/textillate/0.4.0/assets/jquery.lettering.min.js"></script>
+  <!-- Textillate.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/textillate/0.4.0/jquery.textillate.min.js"></script>
+
   <style>
     .error-msg { color: #d32f2f; font-size: 0.9rem; margin-top: 6px; display:none; }
     input.invalid { border-color: #d32f2f !important; box-shadow: 0 0 0 4px rgba(211,47,47,0.06); animation: shake 0.3s; }
@@ -88,23 +97,34 @@
       font-weight:500;
       cursor:pointer;
       width:100%;
-      height:45px; /* igual al botón Ingresar */
+      height:45px;
       line-height:1;
       margin-top:10px;
     }
     .google-btn img { width:20px; height:20px; }
     .google-btn:hover { background-color:#c33c2f; }
+
+    /* Enlace recuperar contraseña */
+    .forgot-pass {
+      display:block;
+      text-align:center;
+      color:#1565c0;
+      cursor:pointer;
+      margin-top:10px;
+      text-decoration:underline;
+    }
+    .forgot-pass:hover { color:#0d47a1; }
   </style>
 </head>
 <body>
   <div class="login-container">
     <div class="login-card">
       <div class="logo-container">
-  <div class="logo-wrapper">
-    <img src="../html/images/LogoDistrihuevosJUANMA.jpg" alt="Logo" class="logo">
-  </div>
-  <h1>Distrihuevos <span>JUANMA</span></h1>
-</div>
+        <div class="logo-wrapper">
+          <img src="../html/images/LogoDistrihuevosJUANMA_FINAL.png" alt="Logo" class="logo">
+        </div>
+        <h1>Distrihuevos <span>JUANMA</span></h1>
+      </div>
 
       <h2>Iniciar Sesión</h2>
 
@@ -134,9 +154,16 @@
         Iniciar sesión con Google
       </button>
 
+      <!-- RECUPERAR CONTRASEÑA -->
+    <a href="forgot_password.html" id="forgot-pass-link" class="link">¿Olvidaste tu contraseña?</a>
+
+
       <p style="margin-top:12px">¿No tienes cuenta? <a href="register.html" class="link">Regístrate</a></p>
     </div>
   </div>
+
+  <!-- Mensaje de éxito central -->
+  <div id="reset-success-message">✅ Se ha enviado un correo para restablecer tu contraseña</div>
 
   <div class="grass"></div>
 
@@ -146,35 +173,59 @@
   </div>
 
   <div id="login-success-message">✅ ¡Bienvenido de nuevo!</div>
+  
   <footer>© 2025 Distrihuevos JUANMA</footer>
 
-  <script type="module">
+<script type="module">
 import { auth, db } from "../js/firebase-config.js";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } 
-  from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
-import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import { 
+  signInWithEmailAndPassword, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  sendPasswordResetEmail 
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+import { doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
+// === CONFIGURACIÓN DE BLOQUEO ===
+const MAX_ATTEMPTS = 5;
+const BLOCK_TIME_MS = 5 * 60 * 1000;
+
+// === ELEMENTOS ===
 const form = document.getElementById("loginForm");
 const spinner = document.getElementById('spinner-overlay');
 const successMessage = document.getElementById('login-success-message');
+const googleBtn = document.getElementById('googleLogin');
+const forgotPass = document.getElementById('forgotPassword');
+const resetMessage = document.getElementById('reset-success-message');
 
-const fields = {
-  email: document.getElementById("loginEmail"),
-  pass: document.getElementById("loginPassword")
+// Crear contador dinámico si no existe
+let countdownEl = document.getElementById("block-countdown");
+if (!countdownEl) {
+  countdownEl = document.createElement("p");
+  countdownEl.id = "block-countdown";
+  countdownEl.className = "error-message"; // mismo estilo que los errores
+  countdownEl.style.display = "none";
+  const passError = document.getElementById("err-pass");
+  passError.insertAdjacentElement("afterend", countdownEl);
+}
+
+const fields = { 
+  email: document.getElementById("loginEmail"), 
+  pass: document.getElementById("loginPassword") 
 };
-
-const errs = {
-  email: document.getElementById("err-email"),
-  pass: document.getElementById("err-pass")
+const errs = { 
+  email: document.getElementById("err-email"), 
+  pass: document.getElementById("err-pass") 
 };
-
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+// === SPINNER Y MENSAJES ===
 function showSpinner(){ spinner.classList.add('show'); }
 function hideSpinner(){ spinner.classList.remove('show'); }
-function showSuccess(){ successMessage.classList.add('show'); }
-function hideSuccess(){ successMessage.classList.remove('show'); }
+function showMessage(msgElement){ msgElement.classList.add('show'); }
+function hideMessage(msgElement){ msgElement.classList.remove('show'); }
 
+// === VALIDACIÓN ===
 function validateField(key){
   const el = fields[key];
   const val = el.value.trim();
@@ -183,106 +234,249 @@ function validateField(key){
 
   if(!val){ valid=false; msg='Este campo es obligatorio'; }
   else{
-    if(key==='email' && !emailRegex.test(val)){ valid=false; msg='Correo inválido. Ejemplo: usuario@dominio.com'; }
+    if(key==='email' && !emailRegex.test(val)){ valid=false; msg='Correo inválido. Ej: usuario@dominio.com'; }
     if(key==='pass' && val.length<6){ valid=false; msg='Mínimo 6 caracteres'; }
   }
 
-  if(!valid){ errs[key].textContent=msg; errs[key].style.display='block'; el.classList.add('invalid'); }
-  else{ errs[key].style.display='none'; el.classList.remove('invalid'); }
+  if(!valid){ 
+    errs[key].textContent = msg; 
+    errs[key].style.display = 'block'; 
+    el.classList.add('invalid'); 
+  } else { 
+    errs[key].style.display = 'none'; 
+    el.classList.remove('invalid'); 
+  }
 
   return valid;
 }
 
+// Validación en tiempo real
 Object.keys(fields).forEach(k=>{
-  fields[k].addEventListener('input',()=>{ validateField(k); hideSuccess(); });
+  fields[k].addEventListener('input',()=>{ 
+    validateField(k); 
+    hideMessage(successMessage); 
+    hideMessage(resetMessage); 
+  });
   fields[k].addEventListener('blur',()=>{ validateField(k); });
 });
 
-document.querySelector('.toggle-pass').addEventListener('click',()=>{
+// === TOGGLE CONTRASEÑA ===
+document.querySelector('.toggle-pass').addEventListener('click', ()=>{ 
   const input = fields.pass;
   input.type = input.type==='password' ? 'text' : 'password';
 });
 
-form.addEventListener('submit', async(e)=>{
+// === BLOQUEO DE INTENTOS ===
+function getLoginAttempts() {
+  return JSON.parse(localStorage.getItem("loginAttempts") || "{}");
+}
+function setLoginAttempts(attempts, blockedUntil = null) {
+  localStorage.setItem("loginAttempts", JSON.stringify({ attempts, blockedUntil }));
+}
+function isBlocked() {
+  const { blockedUntil } = getLoginAttempts();
+  if (!blockedUntil) return false;
+  const now = Date.now();
+  if (now >= blockedUntil) {
+    setLoginAttempts(0, null);
+    countdownEl.textContent = "";
+    return false;
+  }
+  return true;
+}
+function getRemainingTime() {
+  const { blockedUntil } = getLoginAttempts();
+  if (!blockedUntil) return 0;
+  return Math.max(0, Math.ceil((blockedUntil - Date.now()) / 1000));
+}
+
+// === MOSTRAR CUENTA REGRESIVA ===
+let countdownTimer = null;
+function startCountdown() {
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(() => {
+    if (!isBlocked()) {
+      countdownEl.textContent = "";
+      clearInterval(countdownTimer);
+      return;
+    }
+    const seconds = getRemainingTime();
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    countdownEl.textContent = `🚫 Cuenta bloqueada. Intenta nuevamente en ${mins}:${secs.toString().padStart(2,'0')} minutos`;
+    countdownEl.style.display = "block";
+  }, 1000);
+}
+
+// === LOGIN EMAIL/PASSWORD ===
+form.addEventListener('submit', async (e)=>{
   e.preventDefault();
+
+  if (isBlocked()) {
+    startCountdown();
+    errs.pass.textContent = "🚫 Has superado el número de intentos permitidos.";
+    errs.pass.style.display = 'block';
+    fields.pass.classList.add('invalid');
+    return;
+  }
+
   showSpinner();
+  let allValid = true;
+  Object.keys(fields).forEach(k=>{ if(!validateField(k)) allValid=false; });
+  if(!allValid){ hideSpinner(); return; }
 
-  setTimeout(async()=>{
-    let allValid = true;
-    Object.keys(fields).forEach(k=>{ if(!validateField(k)) allValid=false; });
-    if(!allValid){ hideSpinner(); return; }
+  try{
+    const userCredential = await signInWithEmailAndPassword(auth, fields.email.value.trim(), fields.pass.value.trim());
+    const user = userCredential.user;
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
 
-    const email = fields.email.value.trim();
-    const password = fields.pass.value.trim();
+    hideSpinner();
+    setLoginAttempts(0, null);
+    countdownEl.textContent = "";
 
-    try{
-      const userCredential = await signInWithEmailAndPassword(auth,email,password);
-      hideSpinner();
-      showSuccess();
-      setTimeout(()=>{ hideSuccess(); window.location.href='index.html'; },2000);
+    if(userSnap.exists()){
+      const rol = ((userSnap.data().rol || "")).trim().toLowerCase();
+      showMessage(successMessage);
+      setTimeout(()=>{
+        hideMessage(successMessage);
+        if(rol==="admin") window.location.href="../html/admin_orders.html";
+        else window.location.href="index.html";
+      },1500);
+    } else {
+      errs.pass.textContent = "❌ Correo o contraseña incorrectos";
+      errs.pass.style.display="block";
+      fields.pass.classList.add("invalid");
+    }
 
-    }catch(error){
-  hideSpinner();
+  } catch(error){
+    hideSpinner();
+    const { attempts } = getLoginAttempts();
+    const newAttempts = (attempts || 0) + 1;
 
-  // Resetea errores previos
-  errs.email.style.display='none';
-  errs.pass.style.display='none';
-  fields.email.classList.remove('invalid');
-  fields.pass.classList.remove('invalid');
-
-  // Mostrar error correspondiente
-  if(error.code==='auth/user-not-found'){
-    errs.email.textContent='❌ Este correo no está registrado';
-    errs.email.style.display='block';
-    fields.email.classList.add('invalid');
-  } else if(error.code==='auth/wrong-password'){
-    errs.pass.textContent='❌ Contraseña incorrecta';
+    if (newAttempts >= MAX_ATTEMPTS) {
+      const blockedUntil = Date.now() + BLOCK_TIME_MS;
+      setLoginAttempts(MAX_ATTEMPTS, blockedUntil);
+      startCountdown();
+      errs.pass.textContent = `🚫 Demasiados intentos fallidos. Has sido bloqueado por ${Math.floor(BLOCK_TIME_MS/60000)} minutos.`;
+    } else {
+      setLoginAttempts(newAttempts, null);
+      const restantes = MAX_ATTEMPTS - newAttempts;
+      errs.pass.textContent = `❌ Credenciales incorrectas. Intentos restantes: ${restantes}`;
+    }
     errs.pass.style.display='block';
     fields.pass.classList.add('invalid');
-  } else if(error.code==='auth/invalid-credential'){
-    errs.email.textContent='❌ Correo inválido, revisa tus datos';
-    errs.email.style.display='block';
-    fields.email.classList.add('invalid');
-  } else {
-    errs.email.textContent='❌ '+error.message;
-    errs.email.style.display='block';
-    fields.email.classList.add('invalid');
   }
-}
-  },500);
 });
 
-// LOGIN GOOGLE
-const googleBtn = document.getElementById('googleLogin');
-googleBtn.addEventListener('click', async()=>{
+// === LOGIN GOOGLE ===
+googleBtn.addEventListener('click', async ()=>{
   showSpinner();
   const provider = new GoogleAuthProvider();
-
   try{
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
-
-    const userRef = doc(db,"users",user.uid);
-    const userSnap = await getDoc(userRef);
-
+    const userRef = doc(db, "users", user.uid);
+    let userSnap = await getDoc(userRef);
     if(!userSnap.exists()){
-      // Crear usuario automáticamente en Firestore
-      await setDoc(userRef,{
-        "Nombres": user.displayName || "",
-        "Correo Electronico": user.email || ""
+      await setDoc(userRef, { 
+        "Nombres": user.displayName || "", 
+        "Correo Electronico": user.email || "", 
+        "rol":"usuario" 
       });
+      userSnap = await getDoc(userRef);
     }
-
-    hideSpinner();
-    showSuccess();
-    setTimeout(()=>{ hideSuccess(); window.location.href='index.html'; },2000);
-
-  }catch(error){
-    hideSpinner();
-    errs.email.textContent="❌ Error al iniciar con Google: "+error.message;
-    errs.email.style.display='block';
+    setLoginAttempts(0, null);
+    countdownEl.textContent = "";
+    const rol = ((userSnap.data().rol || "")).trim().toLowerCase();
+    hideSpinner(); showMessage(successMessage);
+    setTimeout(()=>{
+      hideMessage(successMessage);
+      if(rol==="admin") window.location.href="../html/admin_orders.html";
+      else window.location.href="index.html";
+    },1500);
+  } catch(error){
+    hideSpinner(); console.log("Error login Google:", error);
   }
 });
-  </script>
+
+// === RECUPERAR CONTRASEÑA (SIN REDIRECCIÓN) ===
+forgotPass.addEventListener('click', async ()=>{
+  const email = fields.email.value.trim();
+  if(!email){
+    errs.email.textContent = '❌ Ingresa tu correo para recuperar la contraseña';
+    errs.email.style.display='block';
+    fields.email.classList.add('invalid');
+    return;
+  }
+
+  try{
+    const usersSnapshot = await getDocs(collection(db, "users"));
+    let found = false;
+    usersSnapshot.forEach(u=>{
+      if(u.data()["Correo Electronico"] === email) found = true;
+    });
+
+    if(!found){
+      errs.email.textContent = '❌ Este correo no está registrado';
+      errs.email.style.display = 'block';
+      fields.email.classList.add('invalid');
+      return;
+    }
+
+    showSpinner();
+    await sendPasswordResetEmail(auth, email);
+    hideSpinner();
+
+    showMessage(resetMessage);
+    setTimeout(()=>{ hideMessage(resetMessage); }, 3000);
+
+    // 🚨 Antes redirigía a reset_password.html
+    // window.location.href = "reset_password.html";
+
+  } catch(err){
+    hideSpinner();
+    errs.email.textContent = '❌ No se pudo enviar el correo, verifica el email';
+    errs.email.style.display='block';
+    fields.email.classList.add('invalid');
+  }
+});
+
+// === BLOQUEAR CTRL+Z / CTRL+Y ===
+document.querySelectorAll('input, textarea').forEach(el=>{
+  el.addEventListener('keydown', function(e){
+    const isUndo = (e.ctrlKey||e.metaKey) && e.key.toLowerCase() === 'z';
+    const isRedoWin = (e.ctrlKey && e.key.toLowerCase() === 'y');
+    const isRedoMac = (e.metaKey && e.shiftKey && e.key.toLowerCase() === 'z');
+    if(isUndo || isRedoWin || isRedoMac) e.preventDefault();
+  });
+});
+
+</script>
+
+<script>
+$(document).ready(function(){
+  $('.juanma').textillate({
+    loop: true,            // Se repite infinitamente
+    minDisplayTime: 1000,  // Tiempo que cada animación se mantiene
+    initialDelay: 500,     // Retraso antes de iniciar
+    in: {
+      effect: 'pulse',      // Animación de entrada
+      delayScale: 1.5,      // Retardo entre letras
+      delay: 50,            // Tiempo entre letras
+      sync: false,          // Letras animadas una a una
+      shuffle: false
+    },
+    out: {
+      effect: 'pulse',
+      delayScale: 1.5,
+      delay: 50,
+      sync: false,
+      shuffle: false
+    }
+  });
+});
+</script>
+
 </body>
 </html>

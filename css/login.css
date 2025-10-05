@@ -22,6 +22,7 @@ body {
   position: relative;
 }
 
+
 /* Nubes animadas */
 body::before {
   content: "";
@@ -82,59 +83,137 @@ body::after {
   padding: 2rem;
   text-align: center;
   z-index: 10;
+  animation: fadeInUp 0.6s ease;
 }
 
+/* FOOTER */ 
+
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+
 /* Logo */
+/* === Logo contenedor === */
 .logo-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 15px;
 }
+.logo-wrapper {
+  width: 180px;   /* controla el tamaño total */
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-
+/* --- Logo general --- */
 .logo {
-  width: 220px;       /* más ancho */
-  height: 180px;      /* un poco menos de alto para abrirlo */
-  object-fit: cover;  /* mantiene proporción recortando lo que sobra */
-  border-radius: 50%; 
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  margin-bottom: 10px;
-  transition: transform 0.3s ease;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%; /* círculo perfecto */
+  border: 4px solid #28a745; /* borde verde */
+  background-color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* sombra suave */
+  object-fit: cover;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .logo:hover {
   transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3);
+}
+
+/* --- Logo especial para Register (igual ovalado) --- */
+.logo-register {
+  width: 140px;
+  height: 100px;
+  border-radius: 50% / 40%; /* forma ovalada */
+  border: 4px solid #28a745;
+  box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+  transition: all 0.3s ease;
+  margin: 0 auto 20px;
+}
+
+.logo-register:hover {
+  box-shadow: 0 6px 18px rgba(40, 167, 69, 0.6);
+  transform: scale(1.05);
+}
+
+
+/* --- Logo en Register (mismo estilo que Login) --- */
+/* --- Logo especial para Register --- */
+.logo-register {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid #28a745; /* borde verde permanente */
+  box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3); /* sombra verde suave */
+  transition: all 0.3s ease;
+  margin: 0 auto 20px;
+}
+
+/* Hover */
+.logo-register:hover {
+  box-shadow: 0 6px 18px rgba(40, 167, 69, 0.6); /* sombra verde más fuerte */
+  transform: scale(1.05); /* agranda un poquito */
 }
 
 /* ANCHO PARA EL LOGO */
 
-.logo-wrapper {
-  width: 260px;    /* más ancho */
-  height: 180px;   /* un poquito más alto para que no quede tan achatado */
-  overflow: hidden;
-  border-radius: 50%;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  margin-bottom: 10px;
-}
 
-.logo-wrapper .logo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
+/* === Texto debajo del logo === */
+/* === Texto debajo del logo === */
 .logo-container h1 {
   font-family: "Montserrat", sans-serif;
   font-weight: 800;
   font-size: 1.5rem;
-  margin: 0;
+  margin-top: 15px;
+  color: #333;
 }
 
+/* Estilo para la palabra JUANMA */
 .logo-container h1 span {
-  color: var(--verde);
+  color: #28a745;
+  display: inline-block;
+  animation: proPulse 1.3s infinite ease-in-out; /* más rápido */
+  transform-origin: center;
 }
+
+/* Keyframes: pulso más profesional */
+@keyframes proPulse {
+  0%, 100% {
+    text-shadow: 0 0 3px rgba(76, 175, 80, 0.15);
+    transform: scale(1);
+  }
+  25% {
+    text-shadow: 0 0 8px rgba(76, 175, 80, 0.25);
+    transform: scale(1.02);
+  }
+  50% {
+    text-shadow: 0 0 12px rgba(76, 175, 80, 0.35);
+    transform: scale(1.04);
+  }
+  75% {
+    text-shadow: 0 0 8px rgba(76, 175, 80, 0.25);
+    transform: scale(1.02);
+  }
+}
+
+/* Hover: brillo y pequeño zoom */
+.logo-container h1 span:hover {
+  text-shadow: 0 0 15px rgba(76,175,80,0.6);
+  transform: scale(1.08);
+  transition: all 0.3s ease;
+}
+
+
+
 
 h2 {
   margin: 20px 0 15px;
@@ -260,6 +339,12 @@ button[type="submit"]:hover {
   text-decoration: underline;
   transform: translateY(-2px);
 }
+/* ENLACE PARA ELINK ¿Olvidaste tu contraseña?*/
+#forgot-pass-link {
+  display: inline-block; /* permite margen */
+  margin-top: 12px;      /* separa del botón de Google */
+}
+
 
 /* Mensajes de error */
 .error-msg {
@@ -308,3 +393,101 @@ input.invalid {
   opacity: 1;
   visibility: visible;
 }
+
+/* NOTIFICACION EN PAMTALLA */
+  #reset-success-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #4caf50;
+    color: white;
+    padding: 20px 30px;
+    font-size: 1.2rem;
+    font-weight: 500;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    opacity: 0;
+    visibility: hidden;
+    z-index: 10000;
+    transition: opacity 0.3s ease;
+  }
+
+  #reset-success-message.show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+/* === Mensaje flotante general (bloqueo, error, info) === */
+.alerta-login {
+  position: fixed;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #f44336; /* rojo por defecto */
+  color: #fff;
+  padding: 14px 26px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  z-index: 9999;
+}
+.alerta-login.show {
+  opacity: 1;
+  visibility: visible;
+}
+.alerta-login.exito { background: #4CAF50; }  /* verde */
+.alerta-login.info { background: #2196F3; }   /* azul */
+.alerta-login.bloqueo { background: #f44336; }/* rojo */
+
+/* Spinner overlay igual que en Login/Register */
+#spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+}
+
+#spinner-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid var(--verde);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#spinner-message {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--gris-oscuro);
+}
+
+  
+
