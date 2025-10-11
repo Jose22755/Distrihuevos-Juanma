@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Actualizar Perfil - Distrihuevos JUANMA</title>
+  <!-- Usamos los estilos del login -->
+  <link rel="stylesheet" href="../css/login.css">
+  <style>
+    /* ========================= */
+    /* TOAST PROFESIONAL */
+    /* ========================= */
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(50px);
+      background-color: #4CAF50;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      font-size: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+      z-index: 10000;
+    }
+
+    #toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* SPINNER EN OVERLAY */
+    #spinner-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease;
+    }
+
+    #spinner-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .spinner {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #4CAF50;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #spinner-message {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">   
+      <!-- Logo y título -->
+      <div class="logo-container">
+        <div class="logo-wrapper">
+          <img src="../html/images/LogoDistrihuevosJUANMA_FINAL.png" alt="Logo" class="logo-register">
+        </div>
+        <h1>Distrihuevos <span>JUANMA</span></h1>
+      </div>
+
+      <a href="index.html" class="back-link-card">← Volver</a>
+      
+      <h2>Actualizar Perfil</h2>
+
+      <form id="registerForm" novalidate>
+        <label>Nombres
+            <input type="text" id="registerName" required>
+            <div id="err-name" class="error-msg"></div>
+        </label>
+
+        <label>Apellidos
+            <input type="text" id="registerLastName" required>
+            <div id="err-lastname" class="error-msg"></div>
+        </label>
+
+        <label>Dirección
+            <input type="text" id="registerAddress" required>
+            <div id="err-address" class="error-msg"></div>
+        </label>
+
+        <label>Teléfono
+            <input type="tel" id="registerPhone" required>
+            <div id="err-phone" class="error-msg"></div>
+        </label>
+
+        <!-- Correo (deshabilitado) -->
+        <label>Correo Electrónico
+        <input type="email" id="registerEmail" disabled>
+        </label>
+
+        <!-- Contraseña (deshabilitada) -->
+        <label>Contraseña
+        <input type="password" id="registerPassword" disabled>
+        </label>
+        <button type="submit">Actualizar Perfil</button>
+
+        <div style="margin-top: 15px; text-align: center;">
+            <a href="index.html" class="link">Volver a la página de inicio</a>
+        </div>
+      </form>
+
+      <!-- TOAST -->
+      <div id="register-success-message">✅ Perfil actualizado correctamente</div>
+
+      <!-- Spinner overlay -->
+      <div id="spinner-overlay">
+        <div class="spinner"></div>
+        <div id="spinner-message">Procesando...</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>© 2025 Distrihuevos JUANMA</footer>
+<script type="module">
+import { auth, db } from "../js/firebase-config.js";
+import { updateDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+// Formulario y elementos
+const form = document.getElementById("registerForm");
+const spinner = document.getElementById('spinner-overlay');
+const successMessage = document.getElementById('register-success-message');
+
+// Campos editables
+const fields = {
+  name: document.getElementById('registerName'),
+  lastname: document.getElementById('registerLastName'),
+  address: document.getElementById('registerAddress'),
+  phone: document.getElementById('registerPhone')
+};
+
+// Campos no editables
+const emailField = document.getElementById('registerEmail');
+const passField = document.getElementById('registerPassword');
+
+// Errores
+const errs = {
+  name: document.getElementById('err-name'),
+  lastname: document.getElementById('err-lastname'),
+  address: document.getElementById('err-address'),
+  phone: document.getElementById('err-phone')
+};
+
+// Spinner y mensaje
+const showSpinner = () => spinner.classList.add('show');
+const hideSpinner = () => spinner.classList.remove('show');
+const showSuccessMessage = () => successMessage.classList.add('show');
+const hideSuccessMessage = () => successMessage.classList.remove('show');
+
+// Validación campos editables
+function validateField(key){
+  const el = fields[key];
+  const val = el.value.trim();
+  let valid = true;
+  let msg = "";
+
+  if(!val) { valid=false; msg="Este campo es obligatorio"; }
+  else {
+    if(key==="phone"){
+      if(!/^[0-9]+$/.test(val)) valid=false, msg="Solo números";
+      else if(val.length !== 10) valid=false, msg="Debe tener 10 dígitos";
+    }
+    if(key==="name" || key==="lastname"){
+      if(!/^[a-zA-ZÀ-ÿ\s]+$/.test(val)) valid=false, msg="Solo se permiten letras";
+    }
+  }
+
+  if(!valid){
+    errs[key].textContent = msg;
+    errs[key].style.display="block";
+    el.classList.add("invalid");
+  } else {
+    errs[key].style.display="none";
+    el.classList.remove("invalid");
+  }
+  return valid;
+}
+
+// Validación en tiempo real
+Object.keys(fields).forEach(k=>{
+  fields[k].addEventListener("input", ()=> validateField(k));
+  fields[k].addEventListener("blur", ()=> validateField(k));
+});
+
+// Cargar datos del usuario
+auth.onAuthStateChanged(async(user)=>{
+  if(user){
+    const userDoc = await getDoc(doc(db,'users',user.uid));
+    if(userDoc.exists()){
+      const data = userDoc.data();
+      fields.name.value = data.Nombres || '';
+      fields.lastname.value = data.Apellidos || '';
+      fields.address.value = data.Direccion || '';
+      fields.phone.value = data.Telefono || '';
+      emailField.value = data["Correo Electronico"] || '';
+      passField.value = "********";
+      emailField.disabled = true;
+      passField.disabled = true;
+    }
+  }
+});
+
+// Actualizar perfil
+form.addEventListener("submit", async(ev)=>{
+  ev.preventDefault();
+
+  // Validar todos los campos editables
+  let allValid = true;
+  Object.keys(fields).forEach(k=>{
+    if(!validateField(k)) allValid=false;
+  });
+  if(!allValid) return;
+
+  showSpinner();
+  const user = auth.currentUser;
+  if(!user){ hideSpinner(); return; }
+
+  try{
+    await updateDoc(doc(db,'users',user.uid),{
+      Nombres: fields.name.value.trim(),
+      Apellidos: fields.lastname.value.trim(),
+      Direccion: fields.address.value.trim(),
+      Telefono: fields.phone.value.trim()
+    });
+
+    // Mantener spinner visible 2 segundos antes de mostrar mensaje
+    setTimeout(()=>{
+      hideSpinner();
+      showSuccessMessage();
+      setTimeout(()=> hideSuccessMessage(), 2000);
+    }, 2000); // <-- aquí defines el tiempo de carga
+
+  }catch(err){
+    hideSpinner();
+    console.error(err);
+    alert("❌ Error al actualizar perfil");
+  }
+});
+</script>
+</body>
+</html>

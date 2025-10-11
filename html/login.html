@@ -119,14 +119,15 @@
 <body>
   <div class="login-container">
     <div class="login-card">
+
+
+      <!--Logo-->
       <div class="logo-container">
-        <div class="logo-wrapper">
-          <img src="../html/images/LogoDistrihuevosJUANMA_FINAL.png" alt="Logo" class="logo">
-        </div>
+        <img src="../html/images/LogoDistrihuevosJUANMA_FINAL.png" alt="Logo" class="logo-register">
         <h1>Distrihuevos <span>JUANMA</span></h1>
       </div>
 
-      <h2>Iniciar Sesión</h2>
+      <h2 class="form-title">Iniciar Sesión</h2>
 
       <form id="loginForm" novalidate>
         <label>Correo electrónico
@@ -442,15 +443,7 @@ forgotPass.addEventListener('click', async ()=>{
   }
 });
 
-// === BLOQUEAR CTRL+Z / CTRL+Y ===
-document.querySelectorAll('input, textarea').forEach(el=>{
-  el.addEventListener('keydown', function(e){
-    const isUndo = (e.ctrlKey||e.metaKey) && e.key.toLowerCase() === 'z';
-    const isRedoWin = (e.ctrlKey && e.key.toLowerCase() === 'y');
-    const isRedoMac = (e.metaKey && e.shiftKey && e.key.toLowerCase() === 'z');
-    if(isUndo || isRedoWin || isRedoMac) e.preventDefault();
-  });
-});
+
 
 </script>
 

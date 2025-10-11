@@ -1,12 +1,21 @@
 :root {
-  --amarillo: #FFD54F;
-  --verde: #4CAF50;
+  /* alias idénticos a los del hero, para que quede exactamente igual */
+  --amarillo-huevo: #FFD54F;   /* igual que el hero */
+  --verde-campo: #4CAF50;      /* igual que el hero */
+
+  /* mantengo las variables antiguas por compatibilidad */
+  --amarillo: var(--amarillo-huevo);
+  --verde: var(--verde-campo);
+
   --gris-oscuro: #333333;
   --gris-claro: #F5F5F5;
   --radius: 12px;
   --shadow: 0 6px 18px rgba(0,0,0,0.1);
 }
 
+/* ===================== */
+/* 🌿 BODY PRINCIPAL     */
+/* ===================== */
 body {
   font-family: "Roboto", sans-serif;
   color: var(--gris-oscuro);
@@ -17,11 +26,11 @@ body {
   margin: 0;
   overflow-x: hidden;
 
-  /* Fondo: cielo degradado */
-  background: linear-gradient(to bottom, #87CEEB 0%, #a0d8ff 60%, #FFF8E1 100%);
+  /* **AQUÍ** está el mismo fondo que usa el hero */
+  background: linear-gradient(135deg, var(--verde-campo), var(--amarillo-huevo));
+  background-attachment: fixed;
   position: relative;
 }
-
 
 /* Nubes animadas */
 body::before {
@@ -59,6 +68,32 @@ body::after {
 @keyframes moveGrass {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
+}
+
+/* Asegurarnos que la card sea relativo */
+.login-card,
+.register-card,
+.update-card {
+  position: relative; /* necesario para posicionar el link dentro */
+}
+
+/* Link Volver dentro de la card */
+/* Link Volver dentro de la card, estilo enlace simple */
+.back-link-card {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  color: #333; /* negro */
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+  z-index: 10;
+}
+
+.back-link-card:hover {
+  color: var(--verde); /* mismo verde de tu diseño */
+  text-decoration: underline;
 }
 
 /* Tarjeta centrada */
@@ -221,6 +256,13 @@ h2 {
   font-weight: 700;
 }
 
+.info-msg {
+  font-size: 0.9rem;
+  color: #555;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
 /* Labels alineados a la izquierda */
 form label {
   display: flex;
@@ -277,26 +319,41 @@ input:focus {
 }
 
 /* Botones */
+/* Botones amarillos principales */
 button[type="submit"] {
   width: 100%;
-  height: 45px;
-  background: var(--amarillo);
+  height: 50px;
+  background: linear-gradient(135deg, #FFD54F, #FFC107); /* degradado más llamativo */
   color: var(--gris-oscuro);
   border: none;
   border-radius: var(--radius);
   font-weight: 700;
   font-family: "Montserrat", sans-serif;
-  cursor: pointer;
   font-size: 1rem;
-  transition: background 0.3s ease;
-  margin-top: 10px;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+/* Hover más potente */
 button[type="submit"]:hover {
-  background: #ffca28;
+  background: linear-gradient(135deg, #FFC107, #FFB300); /* ligero cambio de gradiente */
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+}
+
+/* Presionar botón */
+button[type="submit"]:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Texto más visible y brillante */
+button[type="submit"] span {
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 /* Botón Google */
@@ -351,7 +408,7 @@ button[type="submit"]:hover {
   color: #d32f2f;
   font-size: 0.9rem;
   margin-top: 6px;
-  display: none;
+  /* display: none; */  /* quitar esto */
 }
 
 input.invalid {
@@ -394,7 +451,7 @@ input.invalid {
   visibility: visible;
 }
 
-/* NOTIFICACION EN PAMTALLA */
+/* NOTIFICACION EN PANTALLA */
   #reset-success-message {
     position: fixed;
     top: 50%;
@@ -489,5 +546,32 @@ input.invalid {
   color: var(--gris-oscuro);
 }
 
-  
+.form-group {
+  text-align: left;
+  margin-bottom: 24px; /* más espacio entre campos */
+}
+ /* ESTILO LINK DE RECUPERAR CONTRASEÑA */
 
+ .back-link {
+  display: block;
+  margin-top: 20px; /* aumenta el espacio sobre el enlace */
+  color: var(--verde);
+  font-weight: 500;
+  text-decoration: none;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+}
+
+.back-link:hover {
+  color: #2e7d32;
+  text-decoration: underline;
+}
+
+
+
+
+
+
+
+  

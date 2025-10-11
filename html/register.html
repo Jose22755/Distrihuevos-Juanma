@@ -96,6 +96,9 @@
         <img src="../html/images/LogoRegistroDistrihuevosJUANMA.png" alt="Logo" class="logo-register">
         <h1>Distrihuevos <span>JUANMA</span></h1>
       </div>
+
+      <a href="login.html" class="back-link-card">← Volver</a>
+
       <h2>Crear Cuenta</h2>
 
       <form id="registerForm" novalidate>
@@ -326,23 +329,8 @@ form.addEventListener("submit", async(ev)=>{
   }, 500); // delay para spinner
 });
 
-// Bloquear deshacer/rehacer en inputs y textareas
-document.querySelectorAll('input, textarea').forEach(el => {
-  el.addEventListener('keydown', function(e) {
-    const isUndo = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z';
-    const isRedoWin = (e.ctrlKey && e.key.toLowerCase() === 'y');
-    const isRedoMac = (e.metaKey && e.shiftKey && e.key.toLowerCase() === 'z');
 
-    if (isUndo || isRedoWin || isRedoMac) {
-      e.preventDefault();
-      // Mensaje opcional
-      console.log('Deshacer/Rehacer deshabilitado en este campo');
-      // alert("❌ Deshacer/Rehacer está deshabilitado en este formulario"); // opcional
-    }
-  });
-});
 </script>
-
 </body>
 </html>
  
