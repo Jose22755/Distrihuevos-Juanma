@@ -644,6 +644,237 @@ body {
   color: #333;
 }
 
+/* ============================= */
+/* 🛒 PANEL LATERAL DEL CARRITO  */
+/* ============================= */
+.cart-panel {
+  position: fixed;
+  top: 0;
+  right: -400px; /* empieza oculto */
+  width: 380px;
+  height: 100vh;
+  background: #fff;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.2);
+  z-index: 9998;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.4s ease;
+  border-radius: 8px 0 0 8px;
+}
+
+.cart-panel.open {
+  right: 0;
+}
+
+/* Fondo oscuro cuando se abre */
+.cart-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  z-index: 9997;
+}
+
+.cart-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Encabezado del carrito */
+.cart-header {
+  display: flex;
+  align-items: center;       /* Centra verticalmente */
+  justify-content: center;   /* Centra horizontalmente */
+  position: relative;        /* Para que el botón de cerrar quede en su lugar */
+  padding: 1rem;
+  background-color: #4CAF50; /* Verde */
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.cart-header h2 {
+  font-size: 1.3rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Botón de cerrar */
+.cart-header .close-cart {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%); /* Centrado vertical */
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.3s ease; /* Animación suave */
+}
+
+/* Hover de la X: rotar sin perder el centrado */
+.cart-header .close-cart:hover {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+
+/* Lista de productos */
+.cart-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.cart-item img {
+  width: 65px;
+  height: 65px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.cart-item-info {
+  flex: 1;
+}
+
+.cart-item-info h4 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.cart-item-info p {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 3px 0;
+}
+
+.cart-item button.remove {
+  background: none;
+  border: none;
+  color: #e53935;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: color 0.2s;
+}
+
+.cart-item button.remove:hover {
+  color: #b71c1c;
+}
+
+/* Pie del carrito */
+.cart-footer {
+  border-top: 1px solid #eee;
+  padding: 15px 20px;
+  background: #fafafa;
+}
+
+.cart-footer p {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+}
+
+/* 🛒 Botón "Ver carrito completo" */
+.go-to-cart {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(90deg, var(--verde-campo), #66BB6A) !important; /* usa el verde del héroe */
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.4); /* sombra suave */
+}
+
+.go-to-cart:hover {
+  background: linear-gradient(90deg, #43A047, #2E7D32); /* 🌿 más oscuro al pasar */
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(46, 125, 50, 0.5);
+}
+
+/* Mensaje carrito vacío */
+.empty-cart {
+  text-align: center;
+  color: #777;
+  margin-top: 40px;
+  font-size: 1.1rem;
+}
+
+/* 🧩 Ajuste móvil */
+@media (max-width: 480px) {
+  .cart-panel {
+    width: 100%;
+    right: -100%;
+  }
+}
+
+
+/* BOTONES VACIAR Y FINALIZAR COMPRA */
+
+.cart-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid #ddd;
+  margin-top: 12px;
+  gap: 10px;
+}
+
+.btn-clear,
+.btn-checkout {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* 🟡 Vaciar carrito: amarillo tipo el de la imagen */
+.btn-clear {
+  background: linear-gradient(90deg, #FFD54F, #FFEE58);
+  color: #000;
+}
+
+.btn-clear:hover {
+  transform: scale(1.05);
+  background: linear-gradient(90deg, #FFEE58, #FFF176);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* 🔴 Finalizar compra: rojo potente */
+.btn-checkout {
+  background: linear-gradient(90deg, #E53935, #EF5350);
+  color: #fff;
+}
+
+.btn-checkout:hover {
+  transform: scale(1.05);
+  background: linear-gradient(90deg, #F44336, #E57373);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+
 
 
 /* ===================== */

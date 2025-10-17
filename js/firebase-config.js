@@ -20,3 +20,4 @@ const app = initializeApp(firebaseConfig);
 // Exportar auth y db para usarlos en login/register
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
