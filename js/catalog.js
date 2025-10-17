@@ -458,15 +458,14 @@ function renderCartPanel() {
   const subtotalEl = document.getElementById("cart-subtotal");
   const totalEl = document.getElementById("cart-total");
 
-  if (!cartItemsContainer) return; // Seguridad
+  if (!cartItemsContainer) return;
 
   if (carrito.length === 0) {
     cartItemsContainer.innerHTML = `<p class="empty-cart">Tu carrito está vacío 🛍️</p>`;
-    if(subtotalEl) subtotalEl.textContent = "$0";
-    if(totalEl) totalEl.textContent = "$0";
+    if (subtotalEl) subtotalEl.textContent = "$0";
+    if (totalEl) totalEl.textContent = "$0";
     return;
   }
-
 
   let html = "";
   let subtotal = 0;
@@ -479,11 +478,15 @@ function renderCartPanel() {
       <div class="cart-item">
         <img src="${item.imagen || 'https://cdn.pixabay.com/photo/2017/03/19/03/18/eggs-2151533_1280.jpg'}" 
              alt="${item.nombre}" class="cart-item-img">
+
         <div class="cart-item-info">
           <h4>${item.nombre}</h4>
           <p>$${item.precio.toLocaleString()}</p>
+
           <div class="cart-item-actions">
-            <span>Cant: ${item.cantidad}</span>
+            <button class="qty-btn minus" data-index="${index}">−</button>
+            <span class="cart-qty">${item.cantidad}</span>
+            <button class="qty-btn plus" data-index="${index}">+</button>
             <button class="remove-item" data-index="${index}">🗑️</button>
           </div>
         </div>
@@ -491,56 +494,61 @@ function renderCartPanel() {
     `;
   });
 
-
   cartItemsContainer.innerHTML = html;
 
+  // 🔹 Actualizar subtotal y total
+  if (subtotalEl) subtotalEl.textContent = `$${subtotal.toLocaleString()}`;
+  if (totalEl) totalEl.textContent = `$${subtotal.toLocaleString()}`;
 
-    // Actualizar subtotal y total
-  if(subtotalEl) subtotalEl.textContent = `$${subtotal.toLocaleString()}`;
-  if(totalEl) totalEl.textContent = `$${subtotal.toLocaleString()}`;
-
-  // 🔹 Permitir eliminar productos directamente desde el panel
+  // =========================
+  // 🎯 BOTONES FUNCIONALES
+  // =========================
+  const plusBtns = cartItemsContainer.querySelectorAll(".qty-btn.plus");
+  const minusBtns = cartItemsContainer.querySelectorAll(".qty-btn.minus");
   const removeBtns = cartItemsContainer.querySelectorAll(".remove-item");
+
+  // ➕ SUMAR
+  plusBtns.forEach((btn) => {
+    btn.onclick = async (e) => {
+      const index = parseInt(e.target.dataset.index);
+      carrito[index].cantidad += 1;
+      localStorage.setItem("carrito", JSON.stringify(carrito));
+      renderCartPanel();
+      actualizarCarrito();
+      await guardarCarritoEnFirestore();
+    };
+  });
+
+  // ➖ RESTAR
+  minusBtns.forEach((btn) => {
+    btn.onclick = async (e) => {
+      const index = parseInt(e.target.dataset.index);
+      if (carrito[index].cantidad > 1) {
+        carrito[index].cantidad -= 1;
+      } else {
+        carrito.splice(index, 1); // si llega a 0, se elimina
+      }
+      localStorage.setItem("carrito", JSON.stringify(carrito));
+      renderCartPanel();
+      actualizarCarrito();
+      await guardarCarritoEnFirestore();
+    };
+  });
+
+  // 🗑️ ELIMINAR
   removeBtns.forEach((btn) => {
-    btn.addEventListener("click", async (e) => {
-      const index = e.target.dataset.index;
-      carrito.splice(index, 1);               // ⚡ Usa la variable global
-      await guardarCarritoEnFirestore();      // ⚡ Actualiza Firestore
-      renderCartPanel();                       // ⚡ Vuelve a renderizar
-      updateCartCount();                     // ⚡ Actualiza badges
-    });
+    btn.onclick = async (e) => {
+      const index = parseInt(e.target.dataset.index);
+      carrito.splice(index, 1);
+      localStorage.setItem("carrito", JSON.stringify(carrito));
+      renderCartPanel();
+      actualizarCarrito();
+      await guardarCarritoEnFirestore();
+    };
   });
 }
 
-// 🔹 Controles de cantidad (+ y -)
-const plusBtns = cartItemsContainer.querySelectorAll(".qty-btn.plus");
-const minusBtns = cartItemsContainer.querySelectorAll(".qty-btn.minus");
-
-plusBtns.forEach((btn) => {
-  btn.addEventListener("click", async (e) => {
-    const index = e.target.dataset.index;
-    carrito[index].cantidad += 1;
-    await guardarCarritoEnFirestore();
-    renderCartPanel();
-    updateCartCount();
-  });
-});
-
-minusBtns.forEach((btn) => {
-  btn.addEventListener("click", async (e) => {
-    const index = e.target.dataset.index;
-    if (carrito[index].cantidad > 1) {
-      carrito[index].cantidad -= 1;
-      await guardarCarritoEnFirestore();
-      renderCartPanel();
-      updateCartCount();
-    }
-  });
-});
-
-
-// 🔹 Renderizar los productos cuando se abre el panel
+// 🔹 Renderiza cuando se abre el panel
 floatingCartBtn?.addEventListener("click", () => {
   renderCartPanel();
-
 });
