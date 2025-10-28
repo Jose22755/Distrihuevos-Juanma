@@ -52,10 +52,11 @@
 
     <!-- 🛒 Y 🔴 DERECHA -->
     <div class="header-right">
-      <a href="#" class="cart-btn">
-        <i class="bi bi-cart-fill"></i>
-        <span class="cart-count">0</span> <!-- 🟥 Bolita roja -->
-      </a>
+        <a href="cart.html" class="cart-btn">
+          <i class="bi bi-cart-fill"></i>
+          <span class="cart-text">Mi Carrito</span>
+          <span class="cart-count">0</span> <!-- 🟥 Bolita roja -->
+        </a>
       <div class="user-greeting">👋 Hola, <span id="userName">Usuario</span></div>
       <button class="logout-btn" id="logoutBtn">Cerrar sesión</button>
     </div>
@@ -123,10 +124,10 @@
 </section>
 
 <!-- 🛒 BOTÓN FLOTANTE DEL CARRITO -->
-<a href="#" id="floating-cart" class="floating-cart">
-  <i class="bi bi-cart-fill" style="font-size: 24px;"></i>
-  <span id="cart-count">0</span>
-</a>
+  <a href="#" id="floating-cart" class="floating-cart">
+    <i class="bi bi-cart-fill" style="font-size: 24px;"></i>
+    <span id="cart-count">0</span>
+  </a>
 
 <!-- 🛒 PANEL LATERAL DEL CARRITO -->
 <div id="cart-panel" class="cart-panel">
@@ -221,6 +222,5 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 </script>
-
 </body>
 </html>
