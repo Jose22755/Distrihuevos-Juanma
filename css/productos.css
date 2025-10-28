@@ -174,6 +174,7 @@ body.productos-page {
   gap: 1.5rem;
 }
 
+/* 🛒 BOTÓN DEL CARRITO */
 .cart-btn {
   background: var(--amarillo-huevo);
   color: #000;
@@ -181,13 +182,16 @@ body.productos-page {
   padding: 0.55rem 1.9rem;
   border-radius: 30px;
   cursor: pointer;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px; /* espacio entre ícono y texto */
   transition: all 0.3s ease;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   position: relative;
+  text-decoration: none;
+  font-weight: 600;
 }
 
 .cart-btn:hover {
@@ -196,6 +200,7 @@ body.productos-page {
   transform: scale(1.08);
 }
 
+/* 🔴 Bolita roja */
 .cart-count {
   position: absolute;
   top: -5px;
@@ -212,42 +217,50 @@ body.productos-page {
   justify-content: center;
 }
 
-.ver-pedidos {
-  display: inline-flex;
-  align-items: center;
-  background: linear-gradient(135deg, #FFD54F, #FFB300);
-  padding: 0.6rem 1.2rem;
-  border-radius: 25px;
-  font-weight: 700;
-  color: #fff;
+/* Texto “Mi Carrito” */
+.cart-text {
   font-size: 1rem;
+  font-weight: 600;
+}
+
+/* 📦 Botón “Mis pedidos” (mejorado sin chispazo) */
+.ver-pedidos {
+  background: #2e7d32;
+  color: #fff;
+  padding: 0.55rem 1.7rem;
+  border-radius: 30px;
+  font-weight: 600;
   text-decoration: none;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border: 2px solid #2e7d32;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .ver-pedidos:hover {
-  background: linear-gradient(135deg, #FFB300, #FF8F00);
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  background: #388e3c; /* verde un poco más claro */
+  color: #fff; /* se mantiene blanco */
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(56, 142, 60, 0.4);
 }
 
+
+/* 🚪 Botón de salida */
 .logout-btn {
-  background-color: #e53935;
+  background: #e53935;
   color: #fff;
   border: none;
-  padding: 0.6rem 1.1rem;
-  border-radius: 10px;
+  padding: 0.55rem 1.5rem;
+  border-radius: 30px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  transition: all 0.3s ease;
 }
 
 .logout-btn:hover {
-  background-color: #c62828;
+  background: #c62828;
   transform: scale(1.05);
 }
 
@@ -540,6 +553,21 @@ body.productos-page {
   vertical-align: middle;
 }
 
+/* 🛒 Botón deshabilitado (sin productos) */
+.btn-add[disabled] {
+  background: linear-gradient(90deg, #bdbdbd, #9e9e9e) !important; /* gris intenso */
+  color: #ffffff !important;
+  cursor: not-allowed;
+  opacity: 0.9;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 🔹 Para dar un efecto de relieve */
+.btn-add[disabled]:hover {
+  transform: none;
+  background: linear-gradient(90deg, #cfcfcf, #a8a8a8) !important;
+}
+
 
 /* ===================== */
 /* CONTADOR + / - AMARILLO */
@@ -724,10 +752,40 @@ body.productos-page {
   margin: 0;
 }
 
+
+/* PRECIO */
+
 .cart-item-info p {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ff9800;
+  margin: 4px 0;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, color 0.3s ease;
+}
+
+.cart-item-info p:hover {
+  transform: scale(1.05);
+  color: #f57c00;
+}
+
+.cart-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cantidad-label {
+  font-weight: 600;
+  color: #444;
   font-size: 0.9rem;
-  color: #555;
-  margin: 3px 0;
+}
+
+.precio-label {
+  font-weight: 600;
+  margin-right: 4px;
+  color: #333;
 }
 
 .cart-item button.remove {
@@ -742,6 +800,8 @@ body.productos-page {
 .cart-item button.remove:hover {
   color: #b71c1c;
 }
+
+
 
 /* Pie del carrito */
 .cart-footer {
@@ -759,26 +819,32 @@ body.productos-page {
 
 /* 🗑️ Íconos de eliminar producto del carrito */
 .remove-item {
-  background-color: #e53935; /* rojo intenso */
-  color: white; /* icono en blanco */
-  width: 28px;
-  height: 28px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%; /* redondo */
-  font-size: 1rem;
-  cursor: pointer;
   display: flex;
-  transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+  align-items: center;
+  gap: 4px;
+  background: none;
   border: none;
+  color: #e53935;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
 }
 
-/* Hover más suave y visualmente agradable */
 .remove-item:hover {
-  background-color: #ff4444;
-  transform: scale(1.2); /* solo un pequeño zoom */
-  box-shadow: 0 0 6px rgba(255, 68, 68, 0.6); /* brillo suave */
+  color: #ff1744;
+  transform: scale(1.05);
 }
+
+.remove-item span {
+  font-size: 1.00rem;
+  font-weight: 700;
+  color: #e53935;
+}
+
+.remove-item:hover span {
+  color: #ff1744;
+}
+
 
 
 /* 🔢 Controles de cantidad + Y - en el carrito */
@@ -1167,3 +1233,4 @@ body.productos-page {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
+ 

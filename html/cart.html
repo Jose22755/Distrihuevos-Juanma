@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carrito - Distrihuevos JUANMA</title>
+
+  <!-- 🎨 ESTILOS -->
+  <link rel="stylesheet" href="../css/productos.css" />
+  <link rel="stylesheet" href="../css/cart.css" />
+
+  <!-- 📦 ICONOS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- 🧩 LIBRERÍAS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+  <!-- 🟢 HEADER -->
+  <header class="main-header shadow-sm">
+    <div class="header-container">
+      <div class="header-left">
+        <div class="menu-wrapper" id="menuTrigger" onclick="window.location.href='index.html'">
+          <i class="bi bi-arrow-left-circle"></i>
+          <span class="menu-label">INICIO</span>
+        </div>
+
+        <!-- 🔍 Búsqueda -->
+        <form id="searchForm" class="search-form" onsubmit="return false;">
+          <input type="text" id="busqueda" placeholder="Buscar productos..." />
+          <button type="submit" class="btn-search"><i class="bi bi-search"></i></button>
+        </form>
+      </div>
+
+      <!-- 🥚 Logo -->
+      <div class="logo">
+        <img src="../html/images/LogoDistrihuevosJUANMA_FINAL.png" alt="Logo" class="logo-img">
+        <h1>Distrihuevos <span>JUANMA</span></h1>
+      </div>
+
+      <!-- 🛒 Usuario -->
+      <div class="header-right">
+        <a href="productos.html" class="ver-productos">
+           <i class="bi bi-box-seam me-2"></i>Productos
+        </a>
+        <a href="pedidos.html" class="ver-pedidos">
+          <span>Mis pedidos</span>
+        </a>
+        <button class="logout-btn" id="logoutBtn" onclick="window.location.href='index.html'">
+          Volver <i class="bi bi-box-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 🛒 SECCIÓN PRINCIPAL -->
+  <main class="container my-5">
+
+    <!-- 💚 TÍTULO PRINCIPAL -->
+    <section class="cart-header-section">
+      <div class="carrito-header">
+        <h2 class="carrito-title">
+          <span class="icono-carrito">🛒</span> Tu carrito
+        </h2>
+        <p class="carrito-subtitle">Revisa tus productos antes de confirmar tu pedido.</p>
+      </div>
+
+      <div class="row g-4">
+
+        <!-- 🧺 LISTA DE PRODUCTOS -->
+        <div class="col-lg-8">
+
+          <!-- 🥚 Producto -->
+          <div class="cart-item d-flex align-items-center mb-3 p-4 rounded shadow-custom bg-white">
+            <img src="https://via.placeholder.com/100" alt="Huevos blancos" class="rounded me-3 shadow-sm">
+            <div class="flex-grow-1">
+              <h5 class="mb-2 fw-semibold text-success">Huevos A blancos</h5>
+
+              <p class="precio mb-2">
+                <span class="precio-label">Precio:</span>
+                <span class="precio-valor">$13,000</span>
+              </p>
+              <div class="cantidad-stock d-flex align-items-center mt-2">
+                <small class="stock-label me-2 fw-semibold text-muted">Stock:</small>
+                <div class="cantidad-control">
+                  <button class="btn-minus">−</button>
+                  <span class="cantidad">1</span>
+                  <button class="btn-plus">+</button>
+                </div>
+              </div>
+            </div>
+            <button class="remove-item">
+              <i class="bi bi-trash-fill"></i>
+              <span>Eliminar</span>
+            </button>
+          </div>
+
+          <!-- 🥚 Producto 2 -->
+          <div class="cart-item d-flex align-items-center mb-3 p-4 rounded shadow-custom bg-white">
+            <img src="https://via.placeholder.com/100" alt="Huevos rojos" class="rounded me-3 shadow-sm">
+            <div class="flex-grow-1">
+              <h5 class="mb-2 fw-semibold text-success">Huevos A rojos</h5>
+
+              <p class="precio mb-2">
+                <span class="precio-label text-dark fw-semibold">Precio:</span>
+                <span class="precio-valor text-success fs-5 fw-bold">$11,200</span>
+              </p>
+
+              <div class="cantidad-stock d-flex align-items-center mt-2">
+                <small class="stock-label me-2 fw-semibold text-muted">Stock:</small>
+                <div class="cantidad-control">
+                  <button class="btn-minus">−</button>
+                  <span class="cantidad">1</span>
+                  <button class="btn-plus">+</button>
+                </div>
+              </div>
+            </div>
+            <button class="remove-item">
+              <i class="bi bi-trash-fill"></i>
+              <span>Eliminar</span>
+            </button>
+          </div>
+
+          <!-- 🟢 BOTÓN VER MÁS PRODUCTOS -->
+          <div class="ver-mas-container">
+            <button class="btn-ver-mas" onclick="window.location.href='productos.html'">
+              <i class="bi bi-plus-circle-fill me-2"></i> Ver más productos
+            </button>
+          </div>
+        </div>
+
+        <!-- 💰 RESUMEN DEL PEDIDO -->
+        <div class="col-lg-4">
+          <div class="summary-card p-4 bg-white rounded shadow-custom">
+            <h5 class="fw-bold mb-3 text-success">Resumen del pedido</h5>
+
+            <div class="d-flex justify-content-between mb-2">
+              <span>Subtotal</span>
+              <strong>$24,200</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Impuesto (19%)</span>
+              <strong>$4,598</strong>
+            </div>
+            <div class="d-flex justify-content-between border-top pt-2 mb-4">
+              <span>Total</span>
+              <strong class="text-success fs-5">$28,798</strong>
+            </div>
+
+            <!-- 💳 MÉTODOS DE PAGO -->
+            <h6 class="fw-semibold mb-3 text-dark">Método de pago</h6>
+            <div class="metodos-pago">
+              <!-- 💜 Nequi -->
+              <label class="metodo-card">
+                <input type="radio" name="pago" value="nequi" checked>
+                <img src="../html/images/NEQUI_LOGO.png" alt="Nequi">
+                <span>Nequi</span>
+              </label>
+
+              <!-- 💛 Bancolombia -->
+              <label class="metodo-card">
+                <input type="radio" name="pago" value="bancolombia">
+                <img src="../html/images/LOGO_BANCOLOMBIA.jpeg" alt="Bancolombia">
+                <span>Bancolombia</span>
+              </label>
+
+              <!-- 💵 Efectivo -->
+              <label class="metodo-card">
+                <input type="radio" name="pago" value="efectivo">
+                <img src="../html/images/LOGO_EFECTIVO.png" alt="Efectivo">
+                <span>Efectivo</span>
+              </label>
+            </div>
+
+            <!-- 🧾 BOTONES DE ACCIÓN -->
+            <div class="acciones-carrito mt-4">
+              <!-- ✅ Finalizar compra -->
+              <button class="btn btn-success w-100 fw-semibold shadow-sm go-to-cart">
+                <i class="bi bi-bag-check-fill me-2"></i> Finalizar compra
+              </button>
+
+              <!-- 🗑️ Vaciar carrito -->
+              <button class="btn-vaciar mt-3">
+                <i class="bi bi-trash3-fill me-2"></i> Vaciar carrito
+              </button>
+
+              <!-- 🛒 Seguir comprando -->
+              <button class="btn-seguir mt-3">
+                <i class="bi bi-arrow-left-circle-fill me-2"></i> Seguir comprando
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <!-- 🟡 FOOTER -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-info">
+        <p><span>Distrihuevos JUANMA</span></p>
+        <p>Huevos frescos del campo a tu mesa 🍳</p>
+        <p>Tel: 321 654 9870</p>
+        <p><strong>Dirección:</strong> Calle 12 #34-56, Barrio Campo Verde</p>
+      </div>
+
+      <div class="footer-links">
+        <a href="index.html">Inicio</a>
+        <a href="productos.html">Productos</a>
+        <a href="pedidos.html">Pedidos</a>
+        <a href="perfil.html">Perfil</a>
+      </div>
+
+      <div class="footer-icons">
+        <h4 class="contact-title">Contáctanos</h4>
+        <div class="icon-container">
+          <a href="https://www.facebook.com" target="_blank">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" class="footer-icon">
+          </a>
+          <a href="https://www.instagram.com" target="_blank">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733558.png" alt="Instagram" class="footer-icon">
+          </a>
+          <a href="https://wa.me/573216549870" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" class="footer-icon">
+          </a>
+          <a href="mailto:contacto@distrihuevosjuanma.com">
+            <img src="https://cdn-icons-png.flaticon.com/512/5968/5968534.png" alt="Correo" class="footer-icon">
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 📜 SCRIPT -->
+  <script src="../js/cart.js"></script>
+</body>
+</html>
