@@ -179,6 +179,7 @@ body {
   color: var(--naranja-tierra);
 }
 
+
 /* ===================== */
 /* 🥚 LOGO CENTRADO */
 /* ===================== */
@@ -493,7 +494,6 @@ body {
   }
 }
 
-
 /* ===================== */
 /* 🌞 HERO SECTION       */
 /* ===================== */
@@ -517,7 +517,6 @@ body {
   margin-bottom: 2rem;
 }
 
-
 .btn-hero {
   display: inline-block;
   background-color: var(--amarillo-huevo);
@@ -536,8 +535,6 @@ body {
   transform: scale(1.05);
   box-shadow: 0 6px 15px rgba(255, 213, 79, 0.7);
 }
-
-
 
 /* ===================== */
 /* 🥚 CATÁLOGO           */
@@ -565,9 +562,18 @@ body {
 .productos {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: center !important  ;
   gap: 2rem;
 }
+
+
+/* Cada card dentro del slide */
+.swiper-slide {
+  width: 340px; /* coincide con .card */
+  display: flex;
+  justify-content: center; /* centra la card dentro del slide */
+}
+
 
 .card {
   background-color: var(--blanco);
@@ -602,7 +608,6 @@ body {
   padding: 0 1rem;
   margin-bottom: 1rem;
 }
-
 
 /* ===================== */
 /* 🏷️ ETIQUETA DE STOCK */

@@ -13,6 +13,27 @@
 }
 
 
+/* 🧹 Quitar fondo blanco o borde que Ustra/Bootstrap le mete al botón */
+.btn-search {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 !important;
+}
+
+/* 🧡 Mantener la animación y color personalizado */
+.btn-search i {
+  color: var(--verde-campo);
+  transition: transform 0.2s ease, color 0.3s ease;
+}
+
+.btn-search:hover i {
+  color: var(--naranja-tierra);
+  transform: scale(1.2);
+}
+
+
 /* 🟡 Botón “Productos” */
 .ver-productos {
   background: var(--amarillo-huevo);
@@ -100,7 +121,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 1px;
   margin: 10px 0;
 }
 
@@ -146,17 +167,23 @@
   font-size: 1rem;
 }
 
-.remove-item {
-  background: none;
-  border: none;
-  color: #e53935;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.3s ease;
+/* 🗑️ BOTÓN ELIMINAR */
+.remove-item,
+.remove-item:focus,
+.remove-item:active {
+  background: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: #e53935 !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: transform 0.3s ease !important;
 }
 
 .remove-item:hover {
-  transform: scale(1.1);
+  transform: scale(1.1) !important;
+  color: #ff4d4d !important; /* 🔥 Rojo más brillante */
 }
 
 /* 💰 RESUMEN DEL PEDIDO */
@@ -186,7 +213,7 @@
 .precio-valor {
   font-size: 1.1rem;
   font-weight: 800;
-  color: #FF6F00; /* 🟠 tono naranja vibrante */
+  color: #FF6F00 !important; /* 🟠 tono naranja vibrante */
   margin-bottom: 1rem;
   text-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
   letter-spacing: 0.5px;
@@ -374,16 +401,20 @@
 
 
 /* 🟢 Botón "Ver más productos" */
-.ver-mas-container {
+/* 🔰 Contenedor centrado del botón "Ver productos" */
+.text-center.mt-5 {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   margin-top: 25px;
 }
 
-.btn-ver-mas {
+/* 🟢 Botón "Ver productos" con el mismo diseño que el anterior */
+.text-center.mt-5 .btn.btn-outline-success {
   background: linear-gradient(90deg, #43A047, #2E7D32);
-  color: #fff;
-  border: none;
+  color: #fff !important;
+  border: none !important;
   border-radius: 8px;
   font-weight: 600;
   font-size: 1rem;
@@ -396,7 +427,8 @@
   gap: 8px;
 }
 
-.btn-ver-mas:hover {
+/* ✨ Efecto hover elegante */
+.text-center.mt-5 .btn.btn-outline-success:hover {
   background: linear-gradient(90deg, #388E3C, #1B5E20);
   transform: scale(1.05);
   box-shadow: 0 6px 12px rgba(27, 94, 32, 0.5);

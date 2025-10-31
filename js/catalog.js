@@ -282,9 +282,11 @@ function escucharCambiosProductos() {
   const productosRef = collection(db, "products");
   onSnapshot(productosRef, (snapshot) => {
     let necesitaReRender = false;
+
     snapshot.docChanges().forEach((change) => {
       const p = change.doc.data();
       p.id = change.doc.id;
+
       if (change.type === "modified") {
         const index = productosArray.findIndex((prod) => prod.id === p.id);
         if (index !== -1) {
@@ -293,15 +295,22 @@ function escucharCambiosProductos() {
           actualizarStockCard(p.id);
         }
       } else if (change.type === "added") {
-        productosArray.push(p);
-        stockCache[p.id] = p.Stock ?? 0;
-        necesitaReRender = true;
+        // Evitamos duplicados: solo agregamos si no existe ya en productosArray
+        if (!productosArray.some((prod) => prod.id === p.id)) {
+          productosArray.push(p);
+          stockCache[p.id] = p.Stock ?? 0;
+          necesitaReRender = true;
+        } else {
+          // si ya existe actualizamos cache/valor por si cambió stock
+          stockCache[p.id] = p.Stock ?? stockCache[p.id] ?? 0;
+        }
       } else if (change.type === "removed") {
         productosArray = productosArray.filter((prod) => prod.id !== p.id);
         delete stockCache[p.id];
         necesitaReRender = true;
       }
     });
+
     if (necesitaReRender) renderProductos(productosArray);
   });
 }
@@ -378,82 +387,97 @@ function renderCartPanel() {
   if (totalEl) totalEl.textContent = `$${subtotal.toLocaleString()}`;
 
   // Handlers: añadimos onclick (sobrescribe previos) para evitar duplicados
-  container.querySelectorAll(".qty-btn.plus").forEach((btn) => {
-    btn.onclick = async (e) => {
-      const idx = parseInt(e.currentTarget.dataset.index, 10);
+  container.querySelectorAll(".qty-btn.plus").forEach(btn => {
+    btn.onclick = () => {
+      const idx = parseInt(btn.dataset.index, 10);
       const item = carrito[idx];
       if (!item) return;
-      const productoRef = doc(db, "products", item.id);
-      const productoSnap = await getDoc(productoRef);
-      if (!productoSnap.exists()) return;
 
-      let stockActual = stockCache[item.id] ?? (productoSnap.data().Stock ?? 0);
-      if (stockActual <= 0) { showGreenToast("Sin stock disponible ❌"); return; }
-
-      carrito[idx].cantidad += 1;
-      stockActual = Math.max(stockActual - 1, 0);
-      try {
-        await Promise.all([updateDoc(productoRef, { Stock: stockActual }), guardarCarritoEnFirestore()]);
-        stockCache[item.id] = stockActual;
-        actualizarStockCard(item.id);
-        updateCartCount();
-        // actualizar sólo la cantidad en panel
-        const qtySpan = container.querySelectorAll(".cart-qty")[idx];
-        if (qtySpan) qtySpan.textContent = carrito[idx].cantidad;
-      } catch (err) {
-        console.error("Error actualizando cantidad +:", err);
-        carrito[idx].cantidad -= 1; // revertir local
+      if ((stockCache[item.id] ?? 0) <= 0) {
+        showRedToast("Sin stock disponible ❌");
+        return;
       }
+
+      item.cantidad += 1;
+      stockCache[item.id] -= 1;
+
+      // ✅ actualizar solo UI sin volver a renderizar todo
+      const qtySpan = container.querySelectorAll(".cart-qty")[idx];
+      if (qtySpan) qtySpan.textContent = item.cantidad;
+      actualizarStockCard(item.id);
+      updateCartCount();
+
+      (async () => {
+        try {
+          const productoRef = doc(db, "products", item.id);
+          await updateDoc(productoRef, { Stock: stockCache[item.id] });
+          await guardarCarritoEnFirestore();
+        } catch (err) { console.error(err); }
+      })();
     };
+
   });
 
-  container.querySelectorAll(".qty-btn.minus").forEach((btn) => {
-    btn.onclick = async (e) => {
-      const idx = parseInt(e.currentTarget.dataset.index, 10);
+   container.querySelectorAll(".qty-btn.minus").forEach(btn => {
+    btn.onclick = () => {
+      const idx = parseInt(btn.dataset.index, 10);
       const item = carrito[idx];
       if (!item) return;
-      const productoRef = doc(db, "products", item.id);
-      const productoSnap = await getDoc(productoRef);
-      if (!productoSnap.exists()) return;
 
-      let stockActual = (productoSnap.data().Stock ?? 0) + 1;
-      if (carrito[idx].cantidad > 1) carrito[idx].cantidad -= 1;
-      else carrito.splice(idx, 1);
+      item.cantidad -= 1;
+      stockCache[item.id] += 1;
 
-      try {
-        await Promise.all([updateDoc(productoRef, { Stock: stockActual }), guardarCarritoEnFirestore()]);
-        stockCache[item.id] = stockActual;
-        actualizarStockCard(item.id);
-        updateCartCount();
-        renderCartPanel(); // re-render porque índices cambiaron
-      } catch (err) {
-        console.error("Error actualizando cantidad -:", err);
-      }
+      if (item.cantidad <= 0) carrito.splice(idx, 1);
+
+      renderCartPanel();
+      actualizarStockCard(item.id);
+      updateCartCount();
+
+      (async () => {
+        try {
+          const productoRef = doc(db, "products", item.id);
+          await updateDoc(productoRef, { Stock: stockCache[item.id] });
+          await guardarCarritoEnFirestore();
+        } catch (err) { console.error(err); }
+      })();
     };
   });
+    container.querySelectorAll(".remove-item").forEach(btn => {
+  btn.onclick = async () => {
+    const idx = parseInt(btn.dataset.index, 10);
+    const item = carrito[idx];
+    if (!item) return;
 
-  container.querySelectorAll(".remove-item").forEach((btn) => {
-    btn.onclick = async (e) => {
-      const idx = parseInt(e.currentTarget.dataset.index, 10);
-      const item = carrito[idx];
-      if (!item) return;
+    try {
       const productoRef = doc(db, "products", item.id);
-      const productoSnap = await getDoc(productoRef);
-      if (!productoSnap.exists()) return;
+      const snap = await getDoc(productoRef);
+      const stockActual = (snap.exists() ? snap.data().Stock ?? 0 : 0) + item.cantidad;
 
-      const stockActual = (productoSnap.data().Stock ?? 0) + item.cantidad;
+      // actualizar Firestore
+      await updateDoc(productoRef, { Stock: stockActual });
+
+      // actualizar cache y array local
+      stockCache[item.id] = stockActual;
+      const prodIdx = productosArray.findIndex(p => p.id === item.id);
+      if (prodIdx !== -1) productosArray[prodIdx].Stock = stockActual;
+
+      // eliminar del carrito
       carrito.splice(idx, 1);
-      try {
-        await Promise.all([updateDoc(productoRef, { Stock: stockActual }), guardarCarritoEnFirestore()]);
-        stockCache[item.id] = stockActual;
-        actualizarStockCard(item.id);
-        updateCartCount();
-        renderCartPanel();
-      } catch (err) {
-        console.error("Error al eliminar item:", err);
-      }
-    };
-  });
+      localStorage.setItem("carrito", JSON.stringify(carrito));
+      await guardarCarritoEnFirestore();
+
+      // actualizar UI
+      renderCartPanel();
+      actualizarStockCard(item.id);
+      updateCartCount();
+
+      showGreenToast(`"${item.nombre}" eliminado del carrito ❌`);
+    } catch (err) {
+      console.error("❌ Error al eliminar producto:", err);
+      showRedToast("Error al eliminar producto");
+    }
+  };
+});
 }
 
 /* ==========================
@@ -470,47 +494,43 @@ async function handleClearCart() {
       return;
     }
 
-    // usar copia para evitar que el for se corrompa si mutamos carrito en medio
-    const copia = carrito.slice();
+    const copia = carrito.slice(); // copia para no mutar mientras iteramos
 
     for (const item of copia) {
       const productoRef = doc(db, "products", item.id);
       const snap = await getDoc(productoRef);
-      let stockActual;
-      if (snap.exists()) {
-        stockActual = (snap.data().Stock ?? 0) + item.cantidad;
-      } else {
-        stockActual = (stockCache[item.id] ?? 0) + item.cantidad;
-      }
+      let stockActual = (snap.exists() ? snap.data().Stock ?? 0 : 0) + item.cantidad;
+
+      // actualizar Firestore primero
       await updateDoc(productoRef, { Stock: stockActual });
+
+      // actualizar cache y array local
       stockCache[item.id] = stockActual;
       const idx = productosArray.findIndex(p => p.id === item.id);
       if (idx !== -1) productosArray[idx].Stock = stockActual;
-      // actualizar visualmente la card si existe
+
+      // actualizar visualmente la card
       actualizarStockCard(item.id);
     }
 
-    // limpiar carrito local y en firestore
+    // limpiar carrito local y Firestore
     carrito = [];
     localStorage.removeItem("carrito");
     await guardarCarritoEnFirestore();
 
-    // actualizar UI
+    // actualizar UI del panel
     renderCartPanel();
-    actualizarCarrito();
-
-    // forzar recarga visual de productos (opcional)
-    await cargarProductos();
+    updateCartCount();
 
     showGreenToast("Carrito vaciado y stock actualizado 🗑️✅");
   } catch (err) {
     console.error("❌ Error al vaciar carrito:", err);
     showRedToast("Error al vaciar el carrito");
   } finally {
-    // liberamos bloqueo con pequeño delay
     setTimeout(() => { isClearingCart = false; }, 300);
   }
 }
+
 
 /* ==========================
    🔹 ACTUALIZAR STOCK EN CARDS
@@ -590,7 +610,7 @@ function renderProductos(productos) {
   productos.forEach((p) => {
     // calculo stock inicial considerando carrito
     const enCarrito = carrito.find(i => i.id === p.id);
-    let stockActual = Math.max(0, (stockCache[p.id] ?? (p.Stock ?? 0)) - (enCarrito?.cantidad ?? 0));
+    let stockActual = Math.max(0, stockCache[p.id] ?? (p.Stock ?? 0));
     const tieneStock = stockActual > 0;
     const stockTexto = tieneStock ? `Stock: ${stockActual}` : "Agotado";
     const stockColor = tieneStock ? "linear-gradient(90deg,#4CAF50,#81C784)" : "linear-gradient(90deg,#e53935,#ef5350)";
@@ -616,7 +636,7 @@ function renderProductos(productos) {
           <button class="btn-add" style="background:${btnColor};" ${btnDisabled}>
             <i class="bi bi-cart-plus"></i> ${tieneStock ? "Agregar" : "Sin productos"}
           </button>
-          <a class="btn-detalle" href="product_detail.html?id=${p.id}">Ver más detalles</a>
+          <a class="btn-detalle" href="productos.html?id=${p.id}">Ver más productos</a>
         </div>
       </div>
     `;
@@ -634,67 +654,86 @@ function renderProductos(productos) {
     // usar onclick (sobrescribe previos) para evitar duplicaciones
     addBtn.onclick = async () => {
       if (stockActual <= 0) return;
-      const existente = carrito.find(i => i.id === p.id);
-      if (existente) existente.cantidad = Math.min(existente.cantidad + cantidad, (p.Stock ?? 0));
-      else carrito.push({ id: p.id, nombre: p.Nombre, precio: p.Precio, imagen: p.imagen, cantidad });
 
+      // buscar si ya está en el carrito
+      const existente = carrito.find(i => i.id === p.id);
+      if (existente) {
+        // sumamos cantidad, pero sin exceder el stock real
+        const maxAgregable = stockCache[p.id];
+        const suma = Math.min(cantidad, maxAgregable);
+        existente.cantidad += suma;
+        stockCache[p.id] -= suma;
+      } else {
+        const nuevaCantidad = Math.min(cantidad, stockCache[p.id]);
+        carrito.push({
+          id: p.id,
+          nombre: p.Nombre,
+          precio: p.Precio,
+          imagen: p.imagen,
+          cantidad: nuevaCantidad
+        });
+        stockCache[p.id] -= nuevaCantidad;
+      }
+
+      // actualizar UI inmediata
       updateCartCount();
+      actualizarStockCard(p.id);
+
       showGreenToast(`"${p.Nombre}" agregado al carrito ✅`);
       await guardarCarritoEnFirestore();
 
-      // actualizar cache y UI local para mejor UX; onSnapshot hará authoritative sync después
-      stockActual = Math.max(stockActual - cantidad, 0);
-      stockCache[p.id] = stockActual;
-      p.Stock = stockActual;
-
-      const stockSpan = card.querySelector(".stock");
-      if (stockActual <= 0) {
-        addBtn.disabled = true;
-        addBtn.innerHTML = `<i class="bi bi-x-circle"></i> Agotado`;
-        stockSpan.textContent = "Sin stock";
-        stockSpan.style.background = "linear-gradient(90deg,#e53935,#ef5350)";
-      } else {
-        stockSpan.textContent = `Stock: ${stockActual}`;
-      }
-
-      // actualizar firestore en background (no interrumpimos UX)
+      // actualizar stock en Firestore en background
       (async () => {
         try {
           const productoRef = doc(db, "products", p.id);
-          await updateDoc(productoRef, { Stock: stockActual });
+          await updateDoc(productoRef, { Stock: stockCache[p.id] });
         } catch (err) {
           console.error("Error actualizando stock en Firestore:", err);
         }
       })();
 
-      // si panel abierto, re-render
+      // si panel abierto, re-render solo del panel
       if (document.querySelector(".cart-panel.open")) renderCartPanel();
-      // reset cantidad
+
+      // reset cantidad en card
       cantidad = 1;
       cantidadEl.textContent = "1";
     };
   });
 
-  // Swiper management: si existe, actualiza; si no, crea
-  if (!window.swiperProductos) {
-    try {
-      window.swiperProductos = new Swiper(".productosSwiper", {
-        loop: productos.length > 1,
-        grabCursor: true,
-        slidesPerView: 3,
-        spaceBetween: 30,
-        centeredSlides: productos.length === 1,
-        autoplay: { delay: 3000, disableOnInteraction: false },
-        speed: 800,
-        pagination: { el: ".swiper-pagination", clickable: true, dynamicBullets: true },
-        breakpoints: { 1024: { slidesPerView: 3 }, 768: { slidesPerView: 2 }, 480: { slidesPerView: 1, centeredSlides: true } },
-      });
-    } catch (err) {
-      console.warn("Swiper init error (no crítico):", err);
-    }
-  } else {
-    try { window.swiperProductos.update(); } catch (e) { try { window.swiperProductos.destroy(true, true); } catch (e2) {} window.swiperProductos = null; }
+// Swiper management: destruimos instancia previa para evitar duplicados internos
+try {
+  if (window.swiperProductos) {
+    // destruye por completo la instancia anterior y limpia slides
+    window.swiperProductos.destroy(true, true);
+    window.swiperProductos = null;
   }
+} catch (err) {
+  console.warn("Warning al destruir swiper previo:", err);
+  window.swiperProductos = null;
+}
+
+// Ahora inicializamos Swiper de nuevo con las slides actuales en DOM
+try {
+window.swiperProductos = new Swiper(".productosSwiper", {
+  loop: productos.length > 1,
+  grabCursor: true,
+  slidesPerView: 'auto',        // auto ajusta según el ancho del slide
+  spaceBetween: 30,
+  centeredSlides: true,          // ✅ centra los slides en el carrusel
+  autoplay: { delay: 3000, disableOnInteraction: false },
+  speed: 800,
+  pagination: { el: ".swiper-pagination", clickable: true, dynamicBullets: true },
+  breakpoints: {
+    1024: { slidesPerView: 3 },
+    768: { slidesPerView: 2 },
+    480: { slidesPerView: 1, centeredSlides: true },
+  },
+});
+} catch (err) {
+  console.warn("Swiper init error (no crítico):", err);
+  window.swiperProductos = null;
+} 
 }
 
 /* ==========================

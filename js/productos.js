@@ -197,7 +197,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <i class="bi bi-cart-plus"></i> ${btnTexto}
               </button>
             </div>
-            <a class="btn-detalle" href="product_detail.html?id=${p.id}">Ver más detalles</a>
+            <a class="btn-detalle" href="product_detail.htm+?id=${p.id}">Ver más detalles</a>
           </div>
         `;
 

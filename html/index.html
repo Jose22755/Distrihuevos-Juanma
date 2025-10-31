@@ -23,7 +23,6 @@
 <!-- ===== HEADER ===== -->
 <header class="main-header">
   <div class="header-container">
-
     <!-- 🟡 IZQUIERDA: Menú + Barra de búsqueda -->
     <div class="header-left">
       <div class="menu-wrapper" id="menuTrigger">
@@ -54,13 +53,11 @@
     <div class="header-right">
         <a href="cart.html" class="cart-btn">
           <i class="bi bi-cart-fill"></i>
-          <span class="cart-text">Mi Carrito</span>
           <span class="cart-count">0</span> <!-- 🟥 Bolita roja -->
         </a>
       <div class="user-greeting">👋 Hola, <span id="userName">Usuario</span></div>
       <button class="logout-btn" id="logoutBtn">Cerrar sesión</button>
     </div>
-
   </div>
 </header>
 
@@ -150,7 +147,9 @@
   <!-- ✅ Acciones dentro del panel -->
   <div class="cart-actions">
     <button id="clear-cart" class="btn-clear">🗑️ Vaciar carrito</button>
-    <button id="checkout" class="btn-checkout">💳 Finalizar compra</button>
+    <button id="checkout" class="btn-checkout" onclick="window.location.href='cart.html'">
+      💳 Finalizar compra
+    </button>
   </div>
 </div>
 
@@ -194,28 +193,14 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const overlay = document.getElementById("menuOverlay");
   const perfilToggle = document.getElementById("perfilToggle");
   const submenuPerfil = document.getElementById("submenuPerfil");
 
-  function toggleMenu() {
-    hamburger.classList.toggle("active");
-    sideMenu.classList.toggle("open");
-    overlay.classList.toggle("show");
-  }
-
-  if (overlay) {
-    overlay.addEventListener("click", () => {
-      hamburger.classList.remove("active");
-      sideMenu.classList.remove("open");
-      overlay.classList.remove("show");
-    });
-  }
-
-  if (perfilToggle) {
+  if (perfilToggle && submenuPerfil) {
     perfilToggle.addEventListener("click", (e) => {
-      e.preventDefault();
-      submenuPerfil.classList.toggle("open");
+      e.preventDefault(); // evita recargar
+      submenuPerfil.classList.toggle("show"); // ✅ cambiamos "open" por "show"
+
       const arrow = perfilToggle.querySelector(".bi-chevron-down");
       if (arrow) arrow.classList.toggle("rotate");
     });
