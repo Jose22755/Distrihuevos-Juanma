@@ -154,7 +154,7 @@ function hideSpinner() { if (spinner) spinner.style.display = "none"; }
    🔹 INICIALIZACIÓN (DOMContentLoaded)
    ========================== */
 document.addEventListener("DOMContentLoaded", async () => {
-  // escucha autenticación -> carga carrito si hay usuario
+  // 🧩 Escucha autenticación -> carga carrito si hay usuario
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       usuarioUID = user.uid;
@@ -168,43 +168,113 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // carga inicial de productos
+  // 🥚 Carga inicial de productos
   await cargarProductos();
 
-  // iniciar listener de cambios en coleccion products
+  // 🔄 Escuchar cambios en colección "products"
   escucharCambiosProductos();
 
-  // UI events
+  // ⚙️ Eventos de UI
   floatingCartBtn?.addEventListener("click", openCartPanel);
   closeCartBtn?.addEventListener("click", closeCartPanel);
   cartOverlay?.addEventListener("click", closeCartPanel);
   goToCartBtn?.addEventListener("click", () => (window.location.href = "cart.html"));
 
-  // búsqueda
-  if (searchInput) {
-    searchInput.addEventListener("input", () => {
-      const valor = normalizarTexto(searchInput.value);
-      const palabrasBusqueda = valor === "" ? [] : valor.split(/\s+/);
-      const filtrados = productosArray.filter((p) => {
-        const nombre = normalizarTexto(p.Nombre || "");
-        const palabrasNombre = nombre.split(/\s+/);
-        return palabrasBusqueda.every((palabra) => palabrasNombre.includes(palabra));
-      });
-      filtrados.length === 0 ? mostrarProductoNoDisponible() : renderProductos(filtrados);
-    });
-  }
+  /* ==========================
+     🔍 BÚSQUEDA DE PRODUCTOS (compatible con tu <form>)
+     ========================== */
+  const searchForm = document.getElementById("searchForm");
+  const searchBtn = document.querySelector(".btn-search");
+  const searchInputEl = document.getElementById("searchInput");
+  const contenedor = document.getElementById("productos-container"); // ✅ tu contenedor real
 
-  // Vaciar carrito: fijar listener robusto (si existe botón)
-  if (clearCartBtnGlobal) {
-    clearCartBtnGlobal.onclick = handleClearCart; // setea onclick (sobrescribe duplicados)
+  if (searchForm && searchInputEl) {
+    // 🔸 Previene recarga y ejecuta búsqueda al enviar el form
+    searchForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      await ejecutarBusqueda(searchInputEl.value);
+      setTimeout(() => animarResultados(), 150);
+    });
+
+    // 🔸 Búsqueda automática mientras el usuario escribe
+    searchInputEl.addEventListener("input", async () => {
+      await ejecutarBusqueda(searchInputEl.value);
+      setTimeout(() => animarResultados(), 150);
+    });
+
+    // 🔸 Búsqueda manual con Enter
+    searchInputEl.addEventListener("keydown", async (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        await ejecutarBusqueda(searchInputEl.value);
+        setTimeout(() => animarResultados(), 150);
+      }
+    });
+
+    // 🔸 Clic en la lupa hace lo mismo que el Enter
+    if (searchBtn) {
+      searchBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        await ejecutarBusqueda(searchInputEl.value);
+        setTimeout(() => animarResultados(), 150);
+      });
+    }
   }
 });
+
+/* ==========================
+   🔹 FUNCIÓN AUXILIAR DE BÚSQUEDA
+   ========================== */
+async function ejecutarBusqueda(valorBusqueda) {
+  const valor = normalizarTexto(valorBusqueda);
+  const palabrasBusqueda = valor === "" ? [] : valor.split(/\s+/);
+
+  // ✅ Si el campo está vacío → mostrar todos los productos
+  if (palabrasBusqueda.length === 0) {
+    renderProductos(productosArray);
+    return;
+  }
+
+  // 🔍 Mantiene tu lógica exacta de coincidencia por palabra
+  const filtrados = productosArray.filter((p) => {
+    const nombre = normalizarTexto(p.Nombre || "");
+    const palabrasNombre = nombre.split(/\s+/);
+    return palabrasBusqueda.every((palabra) => palabrasNombre.includes(palabra));
+  });
+
+  // ✅ Mostrar mensaje o resultados
+  if (filtrados.length === 0) {
+    mostrarProductoNoDisponible();
+  } else {
+    renderProductos(filtrados);
+  }
+}
+
+/* ==========================
+   ✨ ANIMACIÓN DE CONFIRMACIÓN DE BÚSQUEDA
+   ========================== */
+function animarResultados() {
+  const cards = Array.from(document.querySelectorAll("#productos-container .card"))
+    .filter(c => c.offsetParent !== null);
+
+  if (cards.length === 0) return;
+
+  // Añade una animación sutil de aparición
+  cards.forEach(card => {
+    card.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+    card.style.opacity = "0.5";
+    card.style.transform = "scale(0.97)";
+    setTimeout(() => {
+      card.style.opacity = "1";
+      card.style.transform = "scale(1)";
+    }, 50);
+  });
+}
 
 /* ==========================
    🔹 CARGAR PRODUCTOS desde Firestore
    ========================== */
 export async function cargarProductos() {
-  // función exportada por si quieres llamarla desde fuera
   if (!contenedor) return;
   showSpinner();
   try {
@@ -229,12 +299,24 @@ export async function cargarProductos() {
    🔹 NORMALIZACIÓN / UI HELPERS
    ========================== */
 function normalizarTexto(texto) {
-  return (texto || "").toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  return (texto || "").toString().toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
 }
+
+/* ==========================
+   ⚠️ MENSAJE DE PRODUCTO NO DISPONIBLE
+   ========================== */
 function mostrarProductoNoDisponible() {
   if (!contenedor) return;
-  contenedor.innerHTML = `<div style="text-align:center;padding:40px;font-weight:600;color:#444">⚠️ Producto no disponible</div>`;
+  contenedor.innerHTML = `
+    <div class="no-products">
+      ⚠️ <span>Producto no disponible</span>
+    </div>
+  `;
 }
+
 
 /* ==========================
    🔹 CARRITO FIRESTORE
@@ -734,7 +816,42 @@ window.swiperProductos = new Swiper(".productosSwiper", {
   console.warn("Swiper init error (no crítico):", err);
   window.swiperProductos = null;
 } 
+
+// --- SWIPER MANAGEMENT ROBUSTO ---
+function reiniciarSwiper() {
+  try {
+    // 🔹 Si ya hay una instancia previa, destruirla correctamente
+    if (window.swiperProductos) {
+      window.swiperProductos.destroy(true, true);
+      window.swiperProductos = null;
+    }
+  } catch (err) {
+    console.warn("Error al destruir Swiper previo:", err);
+  }
+
+  // 🔹 Crear una nueva instancia SOLO si hay productos
+  const slides = document.querySelectorAll("#productos-container .swiper-slide");
+  if (slides.length > 0) {
+    window.swiperProductos = new Swiper(".productosSwiper", {
+      slidesPerView: 1,
+      spaceBetween: 20,
+      grabCursor: true,
+      loop: false,
+      breakpoints: {
+        576: { slidesPerView: 2 },
+        768: { slidesPerView: 3 },
+        1200: { slidesPerView: 4 }
+      },
+      pagination: {
+        el: ".swiper-pagination",
+        clickable: true,
+      },
+    });
+  }
 }
+
+}
+
 
 /* ==========================
    🔹 TOASTS (GREEN / RED)

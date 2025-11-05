@@ -40,7 +40,6 @@ body::before {
   height: 200px;
   top: 50px;
   left: -50%;
-  background: url('https://i.imgur.com/6y0Uptn.png') repeat-x;
   background-size: contain;
   animation: moveClouds 60s linear infinite;
   z-index: 0;
@@ -59,7 +58,6 @@ body::after {
   left: 0;
   width: 200%;
   height: 150px;
-  background: url('https://i.imgur.com/Grn6jti.png') repeat-x;
   background-size: contain;
   animation: moveGrass 20s linear infinite;
   z-index: 0;

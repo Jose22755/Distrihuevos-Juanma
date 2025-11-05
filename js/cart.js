@@ -5,6 +5,16 @@ import {
   deleteDoc,
   onSnapshot,
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  query,
+  orderBy,
+  limit,
+  addDoc,
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import { paymentService } from "../js/paymentService.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
 // 🧺 Variables globales
@@ -103,7 +113,7 @@ function renderCarritoCompleto() {
   if (carritoFiltrado.length === 0 && carrito.length === 0) {
     cartContainer.innerHTML = `
       <div class="text-center mt-5">
-        <h5 class="text-muted">Tu carrito está vacío 🥚</h5>
+        <h5 class="text-muted">!Tu carrito está vacío!</h5>
         <button class="btn btn-outline-success mt-3" onclick="window.location.href='productos.html'">
           <i class="bi bi-plus-circle" style="font-size: 1.2rem; vertical-align: middle;"></i>
           <span class="ms-1">Ver más productos</span>
@@ -225,24 +235,144 @@ function actualizarTotales() {
   if (totalEl) totalEl.textContent = `$${total.toLocaleString()}`;
 }
 
-// ✅ Finalizar compra
+// ✅ Finalizar compra con spinner + toast
+// ✅ Finalizar compra con spinner + toast (versión con pedidos consecutivos)
 if (btnFinalizar) {
   btnFinalizar.addEventListener("click", async () => {
-    if (carrito.length === 0) return alert("Tu carrito está vacío 🥚");
+    if (carrito.length === 0) {
+      alert("Tu carrito está vacío 🥚");
+      return;
+    }
 
-    const refPedido = doc(db, "pedidos", `${usuarioActual}_${Date.now()}`);
-    await setDoc(refPedido, {
-      items: carrito,
-      total: carrito.reduce((acc, i) => acc + i.precio * i.cantidad, 0),
-      fecha: new Date().toISOString(),
-      estado: "pendiente",
-    });
+    const spinner = document.getElementById("spinnerCarga");
+    const toast = document.getElementById("toastExito");
 
-    await deleteDoc(doc(db, "carritos", usuarioActual));
-    alert("✅ ¡Pedido confirmado con éxito!");
-    window.location.href = "pedidos.html";
+    try {
+      spinner.style.display = "flex";
+
+      // 🔢 Buscar el último pedido
+      const pedidosRef = collection(db, "pedidos");
+      const q = query(pedidosRef, orderBy("pedidoNumero", "desc"), limit(1));
+      const snapshot = await getDocs(q);
+
+      let nuevoNumero = 1;
+      if (!snapshot.empty) {
+        const ultimo = snapshot.docs[0].data();
+        nuevoNumero = (ultimo.pedidoNumero || 0) + 1;
+      }
+
+      const codigoPedido = `PED-${nuevoNumero}`;
+
+      // 💾 Crear pedido con ID = códigoPedido
+      await setDoc(doc(db, "pedidos", codigoPedido), {
+        pedidoNumero: nuevoNumero,
+        codigoPedido,
+        usuario: usuarioActual,
+        items: carrito,
+        total: carrito.reduce((acc, i) => acc + i.precio * i.cantidad, 0),
+        fecha: new Date().toISOString(),
+        metodoPago: "pendiente",
+        referenciaPago: "N/A",
+        estado: "pendiente",
+      });
+
+      // 🧹 Borrar el carrito del usuario
+      await deleteDoc(doc(db, "carritos", usuarioActual));
+
+      spinner.style.display = "none";
+
+      // ✅ Mostrar mensaje de éxito
+      toast.innerHTML = `
+        <div class="toast-body">
+          <h4>✅ Pedido realizado con éxito</h4>
+          <p>Tu número de pedido es <strong>${codigoPedido}</strong>.</p>
+          <p>Gracias por tu compra 🥚</p>
+        </div>
+      `;
+      toast.style.display = "flex";
+      setTimeout(() => toast.classList.add("show"), 50);
+
+      setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => {
+          toast.style.display = "none";
+          window.location.href = "pedidos.html";
+        }, 400);
+      }, 3000);
+
+    } catch (error) {
+      spinner.style.display = "none";
+      console.error("❌ Error al procesar el pedido:", error);
+      alert("Ocurrió un error al procesar el pedido. Intenta de nuevo.");
+    }
   });
 }
+
+// 🔎 Buscador en tiempo real
+if (inputBusqueda) {
+  inputBusqueda.addEventListener("input", (e) => {
+    const valor = e.target.value.toLowerCase().trim();
+
+    if (valor === "") {
+      carritoFiltrado = [...carrito];
+    } else {
+      carritoFiltrado = carrito.filter((item) =>
+        item.nombre.toLowerCase().includes(valor)
+      );
+    }
+
+    renderCarritoCompleto();
+  });
+}
+
+// 🧾 Lógica de pago (actualizada para radios)
+const infoPago = document.getElementById("infoPago");
+const campoReferencia = document.getElementById("campoReferencia");
+const numeroReferencia = document.getElementById("numeroReferencia");
+const btnConfirmarPago = document.getElementById("btnConfirmarPago");
+const btnCerrarModal = document.getElementById("btnCerrarModal");
+const radiosPago = document.querySelectorAll('input[name="pago"]');
+
+// 🔄 Textos dinámicos según el método seleccionado
+const textosPago = {
+  nequi: `
+    <p>📱 Transfiere el valor total a:</p>
+    <p><strong>Nequi 300 123 4567</strong></p>
+    <p class="text-muted">Después ingresa el número de comprobante.</p>
+  `,
+  bancolombia: `
+    <p>🏦 Transfiere el valor total a:</p>
+    <p><strong>Bancolombia cuenta 123-456789-01</strong></p>
+    <p class="text-muted">Después ingresa el número de referencia del pago.</p>
+  `,
+  efectivo: `
+    <p>💵 Pagará en efectivo al momento de la entrega.</p>
+  `,
+};
+
+// Mostrar por defecto la info de Nequi
+if (infoPago) {
+  infoPago.innerHTML = textosPago.nequi;
+  infoPago.style.display = "block";
+  campoReferencia.style.display = "block";
+}
+
+// Escuchar cambios en los radios
+radiosPago.forEach((radio) => {
+  radio.addEventListener("change", () => {
+    const metodo = radio.value;
+    infoPago.innerHTML = textosPago[metodo];
+    infoPago.style.display = "block";
+
+    if (metodo === "efectivo") {
+      campoReferencia.style.display = "none";
+      numeroReferencia.value = "";
+    } else {
+      campoReferencia.style.display = "block";
+    }
+  });
+});
+
 
 // 🔎 Buscador en tiempo real
 if (inputBusqueda) {

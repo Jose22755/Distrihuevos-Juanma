@@ -17,51 +17,182 @@
   <!-- ===== Fuente y estilos ===== -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/main.css">
+
+  <style>
+
+/* ===== PANEL DE CHECKOUT ESTILIZADO ===== */
+#checkoutContainer {
+  display: none;
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.checkout-panel {
+  width: 400px;
+  max-height: 85%;
+  background: #fff;
+  border-radius: 25px;
+  box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  position: relative;
+  transform: scale(0.7);
+  transition: transform 0.35s cubic-bezier(.68,-0.55,.27,1.55);
+}
+
+#checkoutContainer.show {
+  display: flex;
+  opacity: 1;
+}
+#checkoutContainer.show .checkout-panel {
+  transform: scale(1);
+}
+
+.checkout-header {
+  display: flex;
+  flex-direction: column; /* ponemos el texto en vertical */
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 20px;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+}
+
+/* Línea 1: "Resumen de tu" */
+.checkout-title-line1 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #333; /* negro */
+}
+
+/* Línea 2: "Compra" */
+.checkout-title-line2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #333; /* negro */
+}
+
+
+.checkout-header .checkout-subtitle {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #4caf50; /* verde de tu marca */
+}
+
+/* Botón de cerrar */
+#closeCheckout {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  cursor: pointer;
+  color: #555;
+  transition: all 0.3s ease;
+}
+
+#closeCheckout:hover {
+  color: #ff5722; /* naranja más intenso */
+  transform: rotate(90deg);
+}
+
+.checkout-items {
+  margin: 15px 0;
+  flex: 1;
+}
+.checkout-items div {
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 1rem;
+  display: flex;
+  justify-content: space-between;
+  color: #333;
+}
+
+.checkout-footer {
+  display: flex;
+  flex-direction: column; /* total arriba, botón abajo */
+  align-items: center;
+  gap: 15px; /* espacio entre total y botón */
+  margin-top: 20px;
+}
+.checkout-total {
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: #000; /* negro para la palabra "Total:" */
+  text-align: center;
+}
+
+#checkoutTotal {
+  color: #ff9800; /* naranja para monto completo, incluido $ */
+}
+
+.checkout-button-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+#confirmPurchase {
+  padding: 12px 25px;
+  background: linear-gradient(135deg, #4caf50, #ffeb3b); /* verde -> amarillo */
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+#confirmPurchase:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+}
+</style>
 </head>
 <body>
 
 <!-- ===== HEADER ===== -->
 <header class="main-header">
   <div class="header-container">
-    <!-- 🟡 IZQUIERDA: Menú + Barra de búsqueda -->
     <div class="header-left">
       <div class="menu-wrapper" id="menuTrigger">
-        <div class="hamburger">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
+        <div class="hamburger"><span></span><span></span><span></span></div>
         <span class="menu-label">MENÚ</span>
       </div>
-
-      <!-- 🔍 Barra de búsqueda -->
       <form id="searchForm" class="search-form">
         <input type="text" id="searchInput" placeholder="Buscar productos..." />
-        <button type="submit" class="btn-search">
-          <i class="bi bi-search"></i>
-        </button>
+        <button type="submit" class="btn-search"><i class="bi bi-search"></i></button>
       </form>
     </div>
 
-    <!-- ⚪ CENTRO: Logo -->
     <div class="logo">
       <img src="../html/images/LogoDistrihuevosJUANMA_FINAL.png" alt="Logo" class="logo-img">
       <h1>Distrihuevos <span>JUANMA</span></h1>
     </div>
 
-    <!-- 🛒 Y 🔴 DERECHA -->
     <div class="header-right">
-        <a href="cart.html" class="cart-btn">
-          <i class="bi bi-cart-fill"></i>
-          <span class="cart-count">0</span> <!-- 🟥 Bolita roja -->
-        </a>
+      <a href="cart.html" class="cart-btn">
+        <i class="bi bi-cart-fill"></i>
+        <span class="cart-count">0</span>
+      </a>
       <div class="user-greeting">👋 Hola, <span id="userName">Usuario</span></div>
       <button class="logout-btn" id="logoutBtn">Cerrar sesión</button>
     </div>
   </div>
 </header>
 
-<!-- ===== 📋 MENÚ LATERAL ===== -->
+<!-- ===== MENÚ LATERAL ===== -->
 <nav class="side-menu" id="sideMenu">
   <div class="menu-header">OPCIONES</div>
   <ul>
@@ -69,10 +200,7 @@
     <li><a href="productos.html"><i class="bi bi-box-seam"></i>Productos</a></li>
     <li><a href="cart.html"><i class="bi bi-cart"></i>Carrito</a></li>
     <li class="has-submenu">
-      <a href="#" id="perfilToggle">
-        <i class="bi bi-person-circle"></i> Perfil
-        <i class="bi bi-chevron-down arrow"></i>
-      </a>
+      <a href="#" id="perfilToggle"><i class="bi bi-person-circle"></i> Perfil <i class="bi bi-chevron-down arrow"></i></a>
       <ul class="submenu" id="submenuPerfil">
         <li><a href="update_profile.html"><i class="bi bi-pencil"></i> Actualizar perfil</a></li>
         <li><a href="reset_password.html"><i class="bi bi-lock"></i> Cambiar contraseña</a></li>
@@ -80,11 +208,9 @@
     </li>
   </ul>
 </nav>
-
-<!-- FONDO OSCURO DEL MENÚ -->
 <div class="menu-overlay" id="menuOverlay"></div>
 
-<!-- ===== SPINNER DE CARGA ===== -->
+<!-- SPINNER DE CARGA -->
 <div id="logout-spinner" class="spinner-overlay">
   <div class="spinner"></div>
   <p>Cerrando sesión...</p>
@@ -95,11 +221,9 @@
   <div class="hero-content">
     <h1 class="fw-bold">Frescura, calidad y confianza en cada huevo 🥚</h1>
     <p>Somos tu mejor opción para pedidos de huevos al por mayor y al detal.</p>
-
     <div class="hero-horarios mt-3">
       <p><strong>Horarios de atención:</strong> Lunes a Viernes: 6:00 AM - 6:00 PM | Sábado: 7:00 AM - 2:00 PM</p>
     </div>
-
     <a href="productos.html" class="btn btn-hero mt-3">Hacer pedido</a>
   </div>
 </section>
@@ -107,12 +231,8 @@
 <!-- ===== CATÁLOGO ===== -->
 <section class="catalogo py-5" id="productos">
   <h2 class="productos-titulo mb-4 text-center">Nuestros Productos</h2>
-  
   <div class="container position-relative" id="productos-container-wrapper">
-    <div id="productos-spinner" class="spinner-overlay">
-      <div class="spinner"></div>
-    </div>
-
+    <div id="productos-spinner" class="spinner-overlay"><div class="spinner"></div></div>
     <div class="swiper productosSwiper pb-5">
       <div class="swiper-wrapper" id="productos-container"></div>
       <div class="swiper-pagination mt-4"></div>
@@ -121,10 +241,10 @@
 </section>
 
 <!-- 🛒 BOTÓN FLOTANTE DEL CARRITO -->
-  <a href="#" id="floating-cart" class="floating-cart">
-    <i class="bi bi-cart-fill" style="font-size: 24px;"></i>
-    <span id="cart-count">0</span>
-  </a>
+<a href="#" id="floating-cart" class="floating-cart">
+  <i class="bi bi-cart-fill" style="font-size: 24px;"></i>
+  <span id="cart-count">0</span>
+</a>
 
 <!-- 🛒 PANEL LATERAL DEL CARRITO -->
 <div id="cart-panel" class="cart-panel">
@@ -132,31 +252,55 @@
     <h2>Tu carrito</h2>
     <button id="close-cart" class="close-cart">&times;</button>
   </div>
-
   <div id="cart-items" class="cart-items">
     <p class="empty-cart">Tu carrito está vacío 🛍️</p>
   </div>
-
   <div class="cart-footer">
     <p>Subtotal: <span id="cart-subtotal">$0</span></p>
     <p>Total: <span id="cart-total">$0</span></p>
-    
-    <button id="go-to-cart" class="go-to-cart">Ver carrito completo</button>
   </div>
-
-  <!-- ✅ Acciones dentro del panel -->
   <div class="cart-actions">
     <button id="clear-cart" class="btn-clear">🗑️ Vaciar carrito</button>
-    <button id="checkout" class="btn-checkout" onclick="window.location.href='cart.html'">
-      💳 Finalizar compra
-    </button>
+    <button id="checkout" class="btn-checkout">💳 Finalizar compra</button>
+  </div>
+</div>
+<div class="cart-overlay" id="cart-overlay"></div>
+
+<!-- ===== PANEL DE CHECKOUT INTEGRADO ===== -->
+<div id="checkoutContainer">
+  <div class="checkout-panel">
+    
+    <!-- Header centrado en dos líneas -->
+    <div class="checkout-header">
+      <span class="checkout-title-line1">Resumen de tu</span>
+      <span class="checkout-title-line2">compra</span>
+      <span id="closeCheckout">&times;</span>
+    </div>
+
+    
+    <!-- Items del carrito -->
+    <div id="checkoutItems" class="checkout-items">
+      <!-- Los productos se inyectan dinámicamente desde JS -->
+    </div>
+    
+    <!-- Footer con total y botón -->
+    <div class="checkout-footer">
+
+      <!-- Total -->
+      <div class="checkout-total">
+        Total: <span id="checkoutTotal"></span>
+      </div>
+      <!-- Botón centrado -->
+      <div class="checkout-button-wrapper">
+        <button id="confirmPurchase">Finalizar Compra</button>
+      </div>
+    </div>
+
+
   </div>
 </div>
 
 
-
-
-<div class="cart-overlay" id="cart-overlay"></div>
 <!-- ===== FOOTER ===== -->
 <footer class="footer">
   <div class="footer-container">
@@ -166,14 +310,12 @@
       <p>Tel: 321 654 9870</p>
       <p class="direccion"><strong>Dirección:</strong> Calle 12 #34-56, Barrio Campo Verde</p>
     </div>
-
     <div class="footer-links">
       <a href="index.html">Inicio</a>
       <a href="productos.html">Productos</a>
       <a href="pedidos.html">Pedidos</a>
       <a href="perfil.html">Perfil</a>
     </div>
-
     <div class="footer-icons">
       <h4 class="contact-title">Contáctanos</h4>
       <div class="icon-container">
@@ -193,19 +335,20 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  // Toggle perfil submenu
   const perfilToggle = document.getElementById("perfilToggle");
   const submenuPerfil = document.getElementById("submenuPerfil");
-
   if (perfilToggle && submenuPerfil) {
     perfilToggle.addEventListener("click", (e) => {
-      e.preventDefault(); // evita recargar
-      submenuPerfil.classList.toggle("show"); // ✅ cambiamos "open" por "show"
-
+      e.preventDefault();
+      submenuPerfil.classList.toggle("show");
       const arrow = perfilToggle.querySelector(".bi-chevron-down");
       if (arrow) arrow.classList.toggle("rotate");
     });
   }
 });
 </script>
+
+<script type="module" src="../js/checkout.js"></script>
 </body>
 </html>

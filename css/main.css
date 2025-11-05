@@ -13,6 +13,18 @@
   --sombra: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* ===================== */ 
+/* EFECTO PARA BUSQUEDA
+/*     CON ENTER         */
+/* ===================== */
+/* ✨ Efecto visual al presionar Enter en la búsqueda */
+.highlight-card {
+  transform: scale(1.03);
+  box-shadow: 0 0 20px rgba(255, 200, 0, 0.6);
+  transition: all 0.3s ease;
+}
+
+
 /* ===================== */
 /* 🔤 BASE GLOBAL */
 /* ===================== */
@@ -177,6 +189,34 @@ body {
 .btn-search:hover {
   transform: scale(1.2);
   color: var(--naranja-tierra);
+}
+
+
+/* ⚠️ Mensaje de "Producto no disponible" */
+.no-products {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px; /* puedes ajustar el alto */
+  width: 100%;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #444;
+  text-align: center;
+  gap: 10px;
+  animation: fadeIn 0.4s ease;
+}
+
+/* 💫 Animación de aparición */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 
@@ -559,6 +599,8 @@ body {
   font-size: 1.8rem;
 }
 
+
+
 .productos {
   display: flex;
   flex-wrap: wrap;
@@ -809,7 +851,6 @@ body {
   font-size: 1rem;
   margin: 0;
 }
-
 
 /* PRECIO */
 .cart-item-info p {

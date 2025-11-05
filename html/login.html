@@ -196,7 +196,7 @@ const form = document.getElementById("loginForm");
 const spinner = document.getElementById('spinner-overlay');
 const successMessage = document.getElementById('login-success-message');
 const googleBtn = document.getElementById('googleLogin');
-const forgotPass = document.getElementById('forgotPassword');
+const forgotPass = document.getElementById('forgot-pass-link');
 const resetMessage = document.getElementById('reset-success-message');
 
 // Crear contador dinámico si no existe
@@ -285,6 +285,7 @@ function isBlocked() {
   }
   return true;
 }
+
 function getRemainingTime() {
   const { blockedUntil } = getLoginAttempts();
   if (!blockedUntil) return 0;
@@ -370,34 +371,48 @@ form.addEventListener('submit', async (e)=>{
   }
 });
 
-// === LOGIN GOOGLE ===
-googleBtn.addEventListener('click', async ()=>{
+
+// === LOGIN GOOGLE (versión estable para Live Server) ===
+googleBtn.addEventListener("click", async () => {
   showSpinner();
   const provider = new GoogleAuthProvider();
-  try{
+
+  try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
+
+    // 🔥 Verificamos Firestore
     const userRef = doc(db, "users", user.uid);
-    let userSnap = await getDoc(userRef);
-    if(!userSnap.exists()){
-      await setDoc(userRef, { 
-        "Nombres": user.displayName || "", 
-        "Correo Electronico": user.email || "", 
-        "rol":"usuario" 
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      // Si el usuario no existe, lo creamos
+      await setDoc(userRef, {
+        "Nombres": user.displayName || "",
+        "Correo Electronico": user.email || "",
+        "rol": "usuario"
       });
-      userSnap = await getDoc(userRef);
     }
-    setLoginAttempts(0, null);
-    countdownEl.textContent = "";
-    const rol = ((userSnap.data().rol || "")).trim().toLowerCase();
-    hideSpinner(); showMessage(successMessage);
-    setTimeout(()=>{
+
+    // Volvemos a leer para obtener su rol
+    const data = (await getDoc(userRef)).data();
+    const rol = (data.rol || "").trim().toLowerCase();
+
+    hideSpinner();
+    showMessage(successMessage);
+    setTimeout(() => {
       hideMessage(successMessage);
-      if(rol==="admin") window.location.href="../html/admin_orders.html";
-      else window.location.href="index.html";
-    },1500);
-  } catch(error){
-    hideSpinner(); console.log("Error login Google:", error);
+      if (rol === "admin") {
+        window.location.href = "../html/admin_orders.html";
+      } else {
+        window.location.href = "index.html";
+      }
+    }, 1500);
+
+  } catch (error) {
+    hideSpinner();
+    console.error("❌ Error en login con Google:", error);
+    alert("Error al iniciar sesión con Google. Revisa la consola.");
   }
 });
 

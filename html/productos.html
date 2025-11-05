@@ -104,6 +104,40 @@
     <div id="productos-container" class="productos"></div>
   </section>
 
+    <!-- ===== PANEL DE CHECKOUT INTEGRADO ===== -->
+  <div id="checkoutContainer">
+    <div class="checkout-panel">
+      
+      <!-- Header centrado en dos líneas -->
+      <div class="checkout-header">
+        <span class="checkout-title-line1">Resumen de tu</span>
+        <span class="checkout-title-line2">compra</span>
+        <span id="closeCheckout">&times;</span>
+      </div>
+
+      
+      <!-- Items del carrito -->
+      <div id="checkoutItems" class="checkout-items">
+        <!-- Los productos se inyectan dinámicamente desde JS -->
+      </div>
+      
+      <!-- Footer con total y botón -->
+      <div class="checkout-footer">
+
+        <!-- Total -->
+        <div class="checkout-total">
+          Total: <span id="checkoutTotal"></span>
+        </div>
+        <!-- Botón centrado -->
+        <div class="checkout-button-wrapper">
+          <button id="confirmPurchase">Finalizar Compra</button>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+
   <!-- 🟡 FOOTER -->
   <footer class="footer">
     <div class="footer-container">

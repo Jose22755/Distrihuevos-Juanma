@@ -398,6 +398,74 @@
   }
 }
 
+/* Spinner pequeño dentro de la card */
+#spinnerCarga {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  text-align: center;
+}
+
+#spinnerCarga .spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #4caf50;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#spinnerCarga p {
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Toast de éxito */
+.toast-exito {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  background-color: #4caf50;
+  color: white;
+  padding: 18px 35px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  z-index: 9999;
+  opacity: 0;
+  max-width: 400px!important; /* 🔹 Evita que se expanda tanto */
+  width: 90%!important;       /* 🔹 Se adapta en pantallas pequeñas */
+  transition: all 0.4s ease;
+}
+
+.toast-exito.show {
+  display: block;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+
+/* Efecto sutil de aparición */
+@keyframes fadeInToast {
+  from { opacity: 0; transform: translate(-50%, -60%) scale(0.95); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
 
 
 /* 🟢 Botón "Ver más productos" */
@@ -433,7 +501,6 @@
   transform: scale(1.05);
   box-shadow: 0 6px 12px rgba(27, 94, 32, 0.5);
 }
-
 
 /*=============================================*/
 /* ESTILOS DE ENTRADA PARA LOS BOTONES Y CARDS */
