@@ -1,0 +1,129 @@
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Fondo difuminado */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1;
+}
+
+/* Panel flotante */
+.panel-pedido {
+  position: relative;
+  z-index: 2;
+  width: 380px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: aparecer 0.3s ease-out;
+}
+
+@keyframes aparecer {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Encabezado */
+.panel-header {
+  background: #ffcc00;
+  color: #333;
+  padding: 1rem;
+  text-align: center;
+  font-weight: bold;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* Cuerpo */
+.panel-body {
+  padding: 1rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.lista-productos {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 0.8rem;
+  background: #fafafa;
+}
+
+.producto-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.producto-item:last-child {
+  border-bottom: none;
+}
+
+.panel-total {
+  text-align: right;
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  color: #28a745;
+  font-weight: bold;
+}
+
+/* Pie del panel */
+.panel-footer {
+  border-top: 1px solid #eee;
+  padding: 1rem;
+  text-align: center;
+  background: #f9f9f9;
+}
+
+.btn-confirmar,
+.btn-volver {
+  display: inline-block;
+  margin: 0.4rem;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.btn-confirmar {
+  background: #28a745;
+  color: #fff;
+}
+
+.btn-confirmar:hover {
+  background: #218838;
+}
+
+.btn-volver {
+  background: #6c757d;
+  color: #fff;
+}
+
+.btn-volver:hover {
+  background: #5a6268;
+}
+
+/* Scroll personalizado */
+.panel-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.panel-body::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}

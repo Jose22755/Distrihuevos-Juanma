@@ -1,0 +1,575 @@
+:root {
+  /* alias idénticos a los del hero, para que quede exactamente igual */
+  --amarillo-huevo: #FFD54F;   /* igual que el hero */
+  --verde-campo: #4CAF50;      /* igual que el hero */
+
+  /* mantengo las variables antiguas por compatibilidad */
+  --amarillo: var(--amarillo-huevo);
+  --verde: var(--verde-campo);
+
+  --gris-oscuro: #333333;
+  --gris-claro: #F5F5F5;
+  --radius: 12px;
+  --shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+
+/* ===================== */
+/* 🌿 BODY PRINCIPAL     */
+/* ===================== */
+body {
+  font-family: "Roboto", sans-serif;
+  color: var(--gris-oscuro);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+
+  /* **AQUÍ** está el mismo fondo que usa el hero */
+  background: linear-gradient(135deg, var(--verde-campo), var(--amarillo-huevo));
+  background-attachment: fixed;
+  position: relative;
+}
+
+/* Nubes animadas */
+body::before {
+  content: "";
+  position: absolute;
+  width: 200%;
+  height: 200px;
+  top: 50px;
+  left: -50%;
+  background-size: contain;
+  animation: moveClouds 60s linear infinite;
+  z-index: 0;
+}
+
+@keyframes moveClouds {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(50%); }
+}
+
+/* Pasto animado */
+body::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 150px;
+  background-size: contain;
+  animation: moveGrass 20s linear infinite;
+  z-index: 0;
+}
+
+@keyframes moveGrass {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Asegurarnos que la card sea relativo */
+.login-card,
+.register-card,
+.update-card {
+  position: relative; /* necesario para posicionar el link dentro */
+}
+
+/* Link Volver dentro de la card */
+/* Link Volver dentro de la card, estilo enlace simple */
+.back-link-card {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  color: #333; /* negro */
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+  z-index: 10;
+}
+
+.back-link-card:hover {
+  color: var(--verde); /* mismo verde de tu diseño */
+  text-decoration: underline;
+}
+
+/* Tarjeta centrada */
+.login-container {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+  padding: 20px;
+}
+
+/* Tarjeta */
+.login-card {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+  text-align: center;
+  z-index: 10;
+  animation: fadeInUp 0.6s ease;
+}
+
+/* FOOTER */ 
+
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+
+/* Logo */
+/* === Logo contenedor === */
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.logo-wrapper {
+  width: 180px;   /* controla el tamaño total */
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* --- Logo general --- */
+.logo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%; /* círculo perfecto */
+  border: 4px solid #28a745; /* borde verde */
+  background-color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* sombra suave */
+  object-fit: cover;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3);
+}
+
+/* --- Logo especial para Register (igual ovalado) --- */
+.logo-register {
+  width: 140px;
+  height: 100px;
+  border-radius: 50% / 40%; /* forma ovalada */
+  border: 4px solid #28a745;
+  box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+  transition: all 0.3s ease;
+  margin: 0 auto 20px;
+}
+
+.logo-register:hover {
+  box-shadow: 0 6px 18px rgba(40, 167, 69, 0.6);
+  transform: scale(1.05);
+}
+
+
+/* --- Logo en Register (mismo estilo que Login) --- */
+/* --- Logo especial para Register --- */
+.logo-register {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid #28a745; /* borde verde permanente */
+  box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3); /* sombra verde suave */
+  transition: all 0.3s ease;
+  margin: 0 auto 20px;
+}
+
+/* Hover */
+.logo-register:hover {
+  box-shadow: 0 6px 18px rgba(40, 167, 69, 0.6); /* sombra verde más fuerte */
+  transform: scale(1.05); /* agranda un poquito */
+}
+
+/* ANCHO PARA EL LOGO */
+
+
+/* === Texto debajo del logo === */
+/* === Texto debajo del logo === */
+.logo-container h1 {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  margin-top: 15px;
+  color: #333;
+}
+
+/* Estilo para la palabra JUANMA */
+.logo-container h1 span {
+  color: #28a745;
+  display: inline-block;
+  animation: proPulse 1.3s infinite ease-in-out; /* más rápido */
+  transform-origin: center;
+}
+
+/* Keyframes: pulso más profesional */
+@keyframes proPulse {
+  0%, 100% {
+    text-shadow: 0 0 3px rgba(76, 175, 80, 0.15);
+    transform: scale(1);
+  }
+  25% {
+    text-shadow: 0 0 8px rgba(76, 175, 80, 0.25);
+    transform: scale(1.02);
+  }
+  50% {
+    text-shadow: 0 0 12px rgba(76, 175, 80, 0.35);
+    transform: scale(1.04);
+  }
+  75% {
+    text-shadow: 0 0 8px rgba(76, 175, 80, 0.25);
+    transform: scale(1.02);
+  }
+}
+
+/* Hover: brillo y pequeño zoom */
+.logo-container h1 span:hover {
+  text-shadow: 0 0 15px rgba(76,175,80,0.6);
+  transform: scale(1.08);
+  transition: all 0.3s ease;
+}
+
+
+
+
+h2 {
+  margin: 20px 0 15px;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+}
+
+.info-msg {
+  font-size: 0.9rem;
+  color: #555;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Labels alineados a la izquierda */
+form label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  font-weight: 500;
+  color: #333;
+}
+
+/* Inputs */
+input[type="email"],
+input[type="password"],
+input[type="text"],
+input[type="tel"] {
+  width: 100%;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus {
+  border-color: var(--verde);
+  box-shadow: 0 0 0 4px rgba(76,175,80,0.1);
+}
+
+/* Contenedor y ojo de contraseña */
+.password-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.password-container input {
+  flex: 1;
+  padding: 10px 40px 10px 12px;
+}
+
+.toggle-pass {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s;
+}
+
+.toggle-pass:hover svg {
+  opacity: 0.7;
+}
+
+/* Botones */
+/* Botones amarillos principales */
+button[type="submit"] {
+  width: 100%;
+  height: 50px;
+  background: linear-gradient(135deg, #FFD54F, #FFC107); /* degradado más llamativo */
+  color: var(--gris-oscuro);
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 700;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hover más potente */
+button[type="submit"]:hover {
+  background: linear-gradient(135deg, #FFC107, #FFB300); /* ligero cambio de gradiente */
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+}
+
+/* Presionar botón */
+button[type="submit"]:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Texto más visible y brillante */
+button[type="submit"] span {
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* Botón Google */
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #DB4437;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  height: 45px;
+  margin-top: 10px;
+}
+
+.google-btn img {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.google-btn:hover {
+  background-color: #c33c2f;
+}
+
+/* Enlaces */
+.link {
+  color: var(--verde);
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.link:hover {
+  text-decoration: underline;
+  transform: translateY(-2px);
+}
+/* ENLACE PARA ELINK ¿Olvidaste tu contraseña?*/
+#forgot-pass-link {
+  display: inline-block; /* permite margen */
+  margin-top: 12px;      /* separa del botón de Google */
+}
+
+
+/* Mensajes de error */
+.error-msg {
+  color: #d32f2f;
+  font-size: 0.9rem;
+  margin-top: 6px;
+  /* display: none; */  /* quitar esto */
+}
+
+input.invalid {
+  border-color: #d32f2f !important;
+  box-shadow: 0 0 0 4px rgba(211,47,47,0.06);
+  animation: shake 0.3s;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+/* Mensajes de éxito */
+#login-success-message,
+#register-success-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--verde);
+  color: white;
+  padding: 20px 30px;
+  font-size: 1.2rem;
+  font-weight: 500;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  opacity: 0;
+  visibility: hidden;
+  z-index: 10000;
+  transition: opacity 0.3s ease;
+}
+
+#login-success-message.show,
+#register-success-message.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* NOTIFICACION EN PANTALLA */
+  #reset-success-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #4caf50;
+    color: white;
+    padding: 20px 30px;
+    font-size: 1.2rem;
+    font-weight: 500;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    opacity: 0;
+    visibility: hidden;
+    z-index: 10000;
+    transition: opacity 0.3s ease;
+  }
+
+  #reset-success-message.show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+/* === Mensaje flotante general (bloqueo, error, info) === */
+.alerta-login {
+  position: fixed;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #f44336; /* rojo por defecto */
+  color: #fff;
+  padding: 14px 26px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  z-index: 9999;
+}
+.alerta-login.show {
+  opacity: 1;
+  visibility: visible;
+}
+.alerta-login.exito { background: #4CAF50; }  /* verde */
+.alerta-login.info { background: #2196F3; }   /* azul */
+.alerta-login.bloqueo { background: #f44336; }/* rojo */
+
+/* Spinner overlay igual que en Login/Register */
+#spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+}
+
+#spinner-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid var(--verde);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#spinner-message {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--gris-oscuro);
+}
+
+.form-group {
+  text-align: left;
+  margin-bottom: 24px; /* más espacio entre campos */
+}
+ /* ESTILO LINK DE RECUPERAR CONTRASEÑA */
+
+ .back-link {
+  display: block;
+  margin-top: 20px; /* aumenta el espacio sobre el enlace */
+  color: var(--verde);
+  font-weight: 500;
+  text-decoration: none;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+}
+
+.back-link:hover {
+  color: #2e7d32;
+  text-decoration: underline;
+}
+
+
+
+
+
+
+
+  

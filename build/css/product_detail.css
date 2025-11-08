@@ -1,0 +1,93 @@
+:root {
+  --amarillo: #FFD54F;
+  --verde: #4CAF50;
+  --naranja: #FF9800;
+  --gris-oscuro: #333333;
+  --gris-claro: #F5F5F5;
+  --bg: #ffffff;
+  --radius: 12px;
+  --shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  background: var(--bg);
+  color: var(--gris-oscuro);
+}
+
+header {
+  background: var(--verde);
+  padding: 1rem 2rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin: 20px auto;
+  max-width: 1200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+header h1 {
+  font-family: "Montserrat";
+  font-weight: 800;
+  margin: 0;
+}
+
+.egg {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffeb99, #f6c84a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 12px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.btn-primary-custom {
+  background: var(--amarillo);
+  border: none;
+  font-weight: 700;
+  color: var(--gris-oscuro);
+  font-family: "Montserrat";
+}
+.btn-success-custom {
+  background: var(--verde);
+  border: none;
+  font-weight: 700;
+  font-family: "Montserrat";
+  color: white;
+}
+
+.product-card {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  background: var(--bg);
+}
+.product-card img {
+  width: 100%;
+  border-bottom: 1px solid #eee;
+  object-fit: cover;
+}
+
+.price {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--gris-oscuro);
+}
+
+footer {
+  margin-top: 40px;
+  padding: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  background: var(--gris-claro);
+  border-radius: var(--radius);
+}

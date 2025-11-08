@@ -1,0 +1,578 @@
+/* 💚 SECCIÓN PRINCIPAL DEL CARRITO */
+.cart-header-section {
+  background: linear-gradient(90deg, #4CAF50, #CDDC39);
+  padding: 40px 30px 70px 30px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  margin-bottom: 0;
+}
+
+.cart-header {
+  backdrop-filter: blur(8px);
+  background: rgba(255,255,255,0.15);
+}
+
+
+/* 🧹 Quitar fondo blanco o borde que Ustra/Bootstrap le mete al botón */
+.btn-search {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 !important;
+}
+
+/* 🧡 Mantener la animación y color personalizado */
+.btn-search i {
+  color: var(--verde-campo);
+  transition: transform 0.2s ease, color 0.3s ease;
+}
+
+.btn-search:hover i {
+  color: var(--naranja-tierra);
+  transform: scale(1.2);
+}
+
+
+/* 🟡 Botón “Productos” */
+.ver-productos {
+  background: var(--amarillo-huevo);
+  color: #000;
+  padding: 0.55rem 1.7rem;
+  border-radius: 30px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 2px solid var(--amarillo-huevo);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.ver-productos:hover {
+  background: #ffca28; /* tono más brillante del amarillo huevo */
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(255, 202, 40, 0.4);
+}
+
+
+/* 💚 TÍTULO */
+.carrito-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  animation: fadeInDown 1s ease;
+  
+}
+
+.carrito-title {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 15px;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  padding: 20px 50px;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.15);
+}
+
+.carrito-title .icono-carrito {
+  font-size: 2.2rem;
+  animation: bounce 2s infinite;
+}
+
+.carrito-subtitle {
+  color: #000000;
+  font-size: 1.3rem;
+  margin-top: 10px;
+  opacity: 0.9;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 🥚 TARJETAS DE PRODUCTO */
+.cart-item {
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cart-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.cart-item img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+}
+
+/* ===================== */
+/* CONTADOR + / - AMARILLO */
+.cantidad-control {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1px;
+  margin: 10px 0;
+}
+
+.cantidad-control button {
+  width: 35px !important;
+  height: 35px !important;
+  border: none !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #FFD54F, #FFC107) !important; /* 🟡 amarillo huevo */
+  color: #333 !important;
+  font-weight: 700 !important;
+  font-size: 1.1rem !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+  transition: all 0.3s ease !important;
+}
+
+.cantidad-control button:hover:not(:disabled) {
+  transform: scale(1.15) !important;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.3) !important;
+  background: linear-gradient(135deg, #FFEE58, #FFD600) !important; /* 🌟 tono más brillante en hover */
+}
+
+.cantidad-control button:disabled {
+  background: #ccc !important;
+  cursor: not-allowed !important;
+  color: #888 !important;
+}
+
+.cantidad-control span.cantidad {
+  min-width: 30px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+/* 🏷️ Para la palabra “Stock” */
+.stock-label {
+  color: #000000 !important; /* igual al .precio-label */
+  font-weight: 700;
+  margin-right: 0.3rem;
+  font-size: 1rem;
+}
+
+/* 🗑️ BOTÓN ELIMINAR */
+.remove-item,
+.remove-item:focus,
+.remove-item:active {
+  background: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: #e53935 !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: transform 0.3s ease !important;
+}
+
+.remove-item:hover {
+  transform: scale(1.1) !important;
+  color: #ff4d4d !important; /* 🔥 Rojo más brillante */
+}
+
+/* 💰 RESUMEN DEL PEDIDO */
+.summary-card {
+  border-radius: 15px;
+  transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(76, 175, 80, 0.15);
+}
+
+.summary-card h5 {
+  color: #2e7d32;
+}
+
+
+/* 🏷️ Para la palabra “Precio:” */
+.precio-label {
+  color: #000000; /* un poco más claro que el valor */
+  font-weight: 700;
+  margin-right: 0.3rem;
+}
+
+/* 💰 Para el valor */
+.precio-valor {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #FF6F00 !important; /* 🟠 tono naranja vibrante */
+  margin-bottom: 1rem;
+  text-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.precio-valor::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  transform: skewX(-25deg);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% {
+    left: -75%;
+  }
+  100% {
+    left: 125%;
+  }
+}
+
+/* 🟢 BOTÓN "Continuar compra" CON ESTILO DE go-to-cart */
+.btn.btn-success {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(90deg, var(--verde-campo), #66BB6A); /* usa el verde del héroe */
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.05rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.4); /* sombra suave */
+  letter-spacing: 0.3px;
+}
+
+.btn.btn-success:hover {
+  background: linear-gradient(90deg, #43A047, #2E7D32); /* 🌿 más oscuro al pasar */
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(46, 125, 50, 0.5);
+}
+
+.btn.btn-success:active {
+  transform: scale(1);
+  box-shadow: 0 3px 6px rgba(46, 125, 50, 0.4);
+}
+/* 🟠 BOTÓN SEGUIR COMPRANDO */
+.btn-seguir {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #fbc02d, #fdd835);
+  color: #333;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(251, 192, 45, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-seguir:hover {
+  background: linear-gradient(90deg, #f9a825, #fbc02d);
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(249, 168, 37, 0.5);
+}
+
+/* 🔴 BOTÓN VACIAR CARRITO */
+.btn-vaciar {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #e53935, #f44336);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(229, 57, 53, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-vaciar:hover {
+  background: linear-gradient(90deg, #c62828, #d32f2f);
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(198, 40, 40, 0.5);
+}
+
+
+/* 💳 MÉTODOS DE PAGO TARJETAS */
+.metodos-pago {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 🔹 Tarjeta de método */
+.metodo-card {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  width: 100%;
+  height: 68px;
+  padding: 10px 16px;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* 🖱️ Hover */
+.metodo-card:hover {
+  border-color: #4CAF50;
+  background-color: #f4fbf4;
+}
+
+/* ✅ Seleccionado */
+.metodo-card:has(input:checked) {
+  border-color: #4CAF50;
+  background: #e8f5e9;
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.25);
+  transform: scale(1.02);
+}
+
+/* Oculta input original */
+.metodo-card input {
+  display: none;
+}
+
+/* 🖼️ Logo */
+.metodo-card img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+/* 🔤 Texto */
+.metodo-card span {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+
+/* 📱 Responsivo */
+@media (max-width: 500px) {
+  .metodo-card {
+    height: 60px;
+    padding: 8px 12px;
+  }
+
+  .metodo-card img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .metodo-card span {
+    font-size: 15px;
+  }
+}
+
+/* Spinner pequeño dentro de la card */
+#spinnerCarga {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  text-align: center;
+}
+
+#spinnerCarga .spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #4caf50;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#spinnerCarga p {
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Toast de éxito */
+.toast-exito {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  background-color: #4caf50;
+  color: white;
+  padding: 18px 35px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  z-index: 9999;
+  opacity: 0;
+  max-width: 400px!important; /* 🔹 Evita que se expanda tanto */
+  width: 90%!important;       /* 🔹 Se adapta en pantallas pequeñas */
+  transition: all 0.4s ease;
+}
+
+.toast-exito.show {
+  display: block;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+
+/* Efecto sutil de aparición */
+@keyframes fadeInToast {
+  from { opacity: 0; transform: translate(-50%, -60%) scale(0.95); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+
+
+/* 🟢 Botón "Ver más productos" */
+/* 🔰 Contenedor centrado del botón "Ver productos" */
+.text-center.mt-5 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+/* 🟢 Botón "Ver productos" con el mismo diseño que el anterior */
+.text-center.mt-5 .btn.btn-outline-success {
+  background: linear-gradient(90deg, #43A047, #2E7D32);
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 10px 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(46, 125, 50, 0.4);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ✨ Efecto hover elegante */
+.text-center.mt-5 .btn.btn-outline-success:hover {
+  background: linear-gradient(90deg, #388E3C, #1B5E20);
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(27, 94, 32, 0.5);
+}
+
+/*=============================================*/
+/* ESTILOS DE ENTRADA PARA LOS BOTONES Y CARDS */
+/*=============================================*/
+
+.cart-item {
+  animation: fadeInUp 0.6s ease forwards;
+  opacity: 0;
+}
+
+/* 🔽 Efecto de entrada suave desde abajo */
+@keyframes fadeInUp {
+  0% {
+    transform: translateY(25px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 🌟 Transición base para todos los botones */
+button,
+a.btn,
+.cart-btn,
+.ver-pedidos,
+.logout-btn {
+  transition: all 0.3s ease, transform 0.2s ease;
+}
+
+/* 💫 Al pasar el mouse: pequeño rebote elegante */
+button:hover,
+a.btn:hover,
+.cart-btn:hover,
+.ver-pedidos:hover,
+.logout-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
+
+/* 🩵 Al hacer clic: efecto de “presionado” */
+button:active,
+a.btn:active,
+.cart-btn:active,
+.ver-pedidos:active,
+.logout-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ✨ Animación de aparición elegante para la card del resumen */
+@keyframes slideUpFade {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 💳 Card del resumen del pedido con entrada animada */
+.summary-card {
+  animation: slideUpFade 0.9s ease forwards;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* 🌟 Efecto al pasar el mouse */
+.summary-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+}
+
