@@ -189,12 +189,6 @@ import { doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.co
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
 
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    window.location.href = "index.html";
-  }
-});
-
 
 // === CONFIGURACIÓN DE BLOQUEO ===
 const MAX_ATTEMPTS = 5;
@@ -351,7 +345,7 @@ form.addEventListener('submit', async (e)=>{
       showMessage(successMessage);
       setTimeout(()=>{
         hideMessage(successMessage);
-        if(rol==="admin") window.location.href="../html/admin_orders.html";
+        if(rol==="admin") window.location.href="admin_login.html";
         else window.location.href="index.html";
       },1500);
     } else {
@@ -412,7 +406,7 @@ googleBtn.addEventListener("click", async () => {
     setTimeout(() => {
       hideMessage(successMessage);
       if (rol === "admin") {
-        window.location.href = "../html/admin_orders.html";
+        window.location.href = "admin_login.html";
       } else {
         window.location.href = "index.html";
       }

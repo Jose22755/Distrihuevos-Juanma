@@ -3,166 +3,208 @@ import { auth, db } from "../js/firebase-config.js";
 import {
   collection,
   addDoc,
-  getDocs,
   query,
   where,
   updateDoc,
   doc,
   serverTimestamp,
   onSnapshot,
+  orderBy,
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
-
-
 // ------------------------------------------------------------
-// CONFIGURACIÓN Y VARIABLES
+// VARIABLES Y CONFIGURACIÓN
 // ------------------------------------------------------------
-const pedidosContainer = document.getElementById("tabla-pedidos");
+const pedidosContainer = document.getElementById("bodyPedidos");
 const formPedido = document.getElementById("form-pedido");
+const mensajeVacio = document.getElementById("mensajeVacio");
+const filtroSelect = document.getElementById("filtro");
 
-const ADMIN_EMAILS = ["admin@gmail.com"]; // 👈 Cambia esto a tus correos de admin
+const ADMIN_EMAILS = ["admin@gmail.com"];
 let usuarioActual = null;
 
 // ------------------------------------------------------------
-// AUTENTICACIÓN DE USUARIO
+// VERIFICAR AUTENTICACIÓN
 // ------------------------------------------------------------
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     usuarioActual = user;
-    console.log("Usuario autenticado:", user.email);
+    console.log("✅ Usuario autenticado:", user.email);
     cargarPedidos();
   } else {
-    window.location.href = "login.html"; // Redirige si no hay sesión
+    window.location.href = "login.html";
   }
 });
 
 // ------------------------------------------------------------
-// CARGAR PEDIDOS EN TIEMPO REAL
+// CARGAR PEDIDOS Y APLICAR FILTRO
 // ------------------------------------------------------------
 function cargarPedidos() {
   let pedidosQuery;
+
+  // 🟡 El filtro viene directamente del select del HTML
+  const filtroEstado = filtroSelect?.value || "todos";
+
   if (ADMIN_EMAILS.includes(usuarioActual.email)) {
-    pedidosQuery = query(collection(db, "orders")); // Todos los pedidos
+    pedidosQuery = query(collection(db, "pedidos"), orderBy("fecha", "desc"));
   } else {
     pedidosQuery = query(
-      collection(db, "orders"),
-      where("clienteEmail", "==", usuarioActual.email)
+      collection(db, "pedidos"),
+      where("usuario", "==", usuarioActual.uid),
+      orderBy("fecha", "desc")
     );
   }
 
   onSnapshot(pedidosQuery, (snapshot) => {
     pedidosContainer.innerHTML = "";
+
     if (snapshot.empty) {
-      pedidosContainer.innerHTML =
-        `<tr><td colspan="4" class="vacio">No hay pedidos registrados</td></tr>`;
+      mensajeVacio.style.display = "block";
+      return;
+    } else {
+      mensajeVacio.style.display = "none";
+    }
+
+    // 🔹 Convertimos y filtramos
+    const pedidos = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const pedidosFiltrados =
+      filtroEstado === "todos"
+        ? pedidos
+        : pedidos.filter(
+            (p) => p.estado?.toLowerCase() === filtroEstado.toLowerCase()
+          );
+
+    // 🔹 Si no hay resultados con el filtro
+    if (pedidosFiltrados.length === 0) {
+      mensajeVacio.style.display = "block";
       return;
     }
 
-    snapshot.forEach((docu) => {
-      const pedido = docu.data();
+    // 🔹 Mostrar los pedidos
+    pedidosFiltrados.forEach((pedido) => {
+      const fechaLegible = pedido.fecha
+        ? new Date(pedido.fecha).toLocaleString("es-CO", {
+            dateStyle: "short",
+            timeStyle: "short",
+          })
+        : "Sin fecha";
+
       const fila = document.createElement("tr");
-
       fila.innerHTML = `
-        <td>${pedido.trackingId}</td>
-        <td>${pedido.fecha}</td>
-        <td>${pedido.cantidadProductos}</td>
+        <td>${pedido.codigoPedido || "N/A"}</td>
+        <td>${fechaLegible}</td>
+        <td>${pedido.total?.toLocaleString("es-CO", {
+          style: "currency",
+          currency: "COP",
+        })}</td>
         <td>
-          <span class="estado ${pedido.estado.toLowerCase()}">${pedido.estado}</span>
+          <span class="estado ${pedido.estado?.toLowerCase() || "pendiente"}">
+            ${pedido.estado
+              ? pedido.estado.charAt(0).toUpperCase() + pedido.estado.slice(1)
+              : "Pendiente"}
+          </span>
         </td>
-        ${ADMIN_EMAILS.includes(usuarioActual.email)
-          ? `<td>
-              <button class="btn-estado" data-id="${docu.id}" data-estado="En camino">🚚 En camino</button>
-              <button class="btn-estado" data-id="${docu.id}" data-estado="Entregado">✅ Entregado</button>
-            </td>`
-          : pedido.estado === "Pendiente"
-            ? `<td><button class="btn-cancelar" data-id="${docu.id}">Cancelar</button></td>`
-            : `<td>-</td>`}
+        ${
+          ADMIN_EMAILS.includes(usuarioActual.email)
+            ? `
+              <td>
+                <button class="btn-estado" data-id="${pedido.id}" data-estado="en camino">🚚 En camino</button>
+                <button class="btn-estado" data-id="${pedido.id}" data-estado="entregado">✅ Entregado</button>
+              </td>`
+            : pedido.estado?.toLowerCase() === "pendiente"
+            ? `<td><button class="btn-cancelar" data-id="${pedido.id}">Cancelar</button></td>`
+            : `<td>-</td>`
+        }
       `;
-
       pedidosContainer.appendChild(fila);
     });
 
+    // 🔹 Reasignar eventos
     asignarEventos();
   });
 }
 
+// 🟢 Detectar cambios en el filtro
+filtroSelect?.addEventListener("change", () => {
+  cargarPedidos();
+});
+
 // ------------------------------------------------------------
-// ASIGNAR EVENTOS A LOS BOTONES
+// FUNCIONES DE EVENTOS
 // ------------------------------------------------------------
 function asignarEventos() {
-  // Cancelar pedido
+  // 🔸 Cancelar pedido
   document.querySelectorAll(".btn-cancelar").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const id = btn.dataset.id;
-      if (confirm("¿Seguro que deseas cancelar este pedido?")) {
-        await updateDoc(doc(db, "orders", id), {
-          estado: "Cancelado",
-        });
-        mostrarToast("Pedido cancelado correctamente", "warning");
-      }
+
+      mostrarConfirmacion("¿Deseas cancelar este pedido?", async () => {
+        try {
+          await updateDoc(doc(db, "pedidos", id), { estado: "cancelado" });
+          mostrarToast("Pedido cancelado correctamente 🧺", "warning");
+        } catch (err) {
+          console.error("❌ Error al cancelar pedido:", err);
+          mostrarToast("Error al cancelar pedido", "error");
+        }
+      });
     });
   });
 
-  // Cambiar estado (solo admins)
+  // 🔸 Cambiar estado (solo admins)
   document.querySelectorAll(".btn-estado").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const id = btn.dataset.id;
       const nuevoEstado = btn.dataset.estado;
-      await updateDoc(doc(db, "orders", id), {
-        estado: nuevoEstado,
-      });
-      mostrarToast(`Pedido actualizado a ${nuevoEstado}`, "success");
+
+      try {
+        await updateDoc(doc(db, "pedidos", id), {
+          estado: nuevoEstado.toLowerCase(),
+        });
+        mostrarToast(`Pedido actualizado a "${nuevoEstado}" ✅`, "success");
+      } catch (err) {
+        console.error("❌ Error al actualizar estado:", err);
+        mostrarToast("Error al actualizar pedido", "error");
+      }
     });
   });
 }
 
 // ------------------------------------------------------------
-// FORMULARIO DE CONFIRMACIÓN DE PEDIDO
+// FORMULARIO DE NUEVO PEDIDO
 // ------------------------------------------------------------
 formPedido?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
   if (carrito.length === 0) {
-    mostrarToast("El carrito está vacío, no puedes finalizar la compra", "error");
+    mostrarToast("El carrito está vacío 🛒", "error");
     return;
   }
 
-  const direccion = document.getElementById("direccion").value.trim();
   const metodoPago = document.getElementById("metodoPago").value;
-  const observaciones = document.getElementById("observaciones").value.trim();
-
-  const cantidadTotal = carrito.reduce((acc, item) => acc + item.cantidad, 0);
+  const total = carrito.reduce((acc, item) => acc + item.subtotal, 0);
 
   const nuevoPedido = {
-    clienteEmail: usuarioActual.email,
-    fecha: new Date().toLocaleDateString(),
-    cantidadProductos: cantidadTotal,
-    estado: "Pendiente",
-    direccion,
+    codigoPedido: generarCodigoPedido(),
+    estado: "pendiente",
+    fecha: new Date().toISOString(),
+    items: carrito,
     metodoPago,
-    observaciones,
-    trackingId: generarTrackingID(),
+    pedidoNumero: Math.floor(Math.random() * 1000) + 1,
+    referenciaPago: "N/A",
+    total,
+    usuario: usuarioActual.uid,
     createdAt: serverTimestamp(),
   };
 
   try {
-    await addDoc(collection(db, "orders"), nuevoPedido);
+    await addDoc(collection(db, "pedidos"), nuevoPedido);
     localStorage.removeItem("carrito");
     mostrarToast("Pedido confirmado exitosamente 🎉", "success");
-
-    // Crea notificación para enviar correo o WhatsApp
-    await addDoc(collection(db, "notifications"), {
-      tipo: "nuevoPedido",
-      destinatario: usuarioActual.email,
-      mensaje: `Tu pedido ${nuevoPedido.trackingId} fue confirmado con éxito.`,
-      createdAt: serverTimestamp(),
-    });
-
     formPedido.reset();
   } catch (err) {
-    console.error("Error al guardar pedido:", err);
+    console.error("❌ Error al guardar pedido:", err);
     mostrarToast("Error al confirmar el pedido", "error");
   }
 });
@@ -170,8 +212,8 @@ formPedido?.addEventListener("submit", async (e) => {
 // ------------------------------------------------------------
 // FUNCIONES AUXILIARES
 // ------------------------------------------------------------
-function generarTrackingID() {
-  const num = Math.floor(Math.random() * 90000) + 10000;
+function generarCodigoPedido() {
+  const num = Math.floor(Math.random() * 900) + 100;
   return `PED-${num}`;
 }
 
@@ -180,12 +222,31 @@ function mostrarToast(mensaje, tipo = "info") {
   toast.className = `toast ${tipo}`;
   toast.textContent = mensaje;
   document.body.appendChild(toast);
-  setTimeout(() => {
-    toast.classList.add("visible");
-  }, 10);
-
+  setTimeout(() => toast.classList.add("visible"), 10);
   setTimeout(() => {
     toast.classList.remove("visible");
     setTimeout(() => toast.remove(), 300);
   }, 3000);
+}
+
+// ------------------------------------------------------------
+// CONFIRMACIÓN PERSONALIZADA
+// ------------------------------------------------------------
+function mostrarConfirmacion(mensaje, callbackConfirmar) {
+  const overlay = document.getElementById("confirmacionEliminar");
+  const texto = document.getElementById("confirmText");
+  const btnConfirmar = document.getElementById("btnConfirmar");
+  const btnCancelar = document.getElementById("btnCancelar");
+
+  texto.textContent = mensaje;
+  overlay.style.display = "flex";
+
+  const cerrar = () => (overlay.style.display = "none");
+
+  btnConfirmar.onclick = async () => {
+    cerrar();
+    await callbackConfirmar();
+  };
+
+  btnCancelar.onclick = cerrar;
 }

@@ -3,26 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pedidos - Distribuevos JUANMA</title>
+  <title>Pedidos - Distrihuevos JUANMA</title>
+
+  <!-- ESTILOS -->
   <link rel="stylesheet" href="../css/pedidos.css" />
   <link rel="stylesheet" href="../css/main.css" />
   <link rel="stylesheet" href="../css/productos.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-
-  <!-- 📦 ICONOS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-  <!-- 🧩 LIBRERÍAS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-
 </head>
 
 <body>
   <!-- ===== HEADER ===== -->
-<header class="main-header">
+  <header class="main-header">
     <div class="header-container">
       <div class="header-left">
         <div class="menu-wrapper" id="menuTrigger" onclick="window.location.href='index.html'">
@@ -34,17 +30,19 @@
           <button type="submit" class="btn-search"><i class="bi bi-search"></i></button>
         </form>
       </div>
+
       <div class="logo">
         <img src="../html/images/LogoDistrihuevosJUANMA_FINAL.png" alt="Logo" class="logo-img">
         <h1>Distrihuevos <span>JUANMA</span></h1>
       </div>
+
       <div class="header-right">
         <a href="cart.html" class="cart-btn">
           <i class="bi bi-cart-fill"></i>
           <span class="cart-text">Mi Carrito</span>
           <span class="cart-count">0</span>
         </a>
-        <a href="pedidos.html" class="ver-pedidos">
+        <a href="pedidos.html" class="ver-pedidos active">
           <span>Mis pedidos</span>
         </a>
         <button class="logout-btn" id="logoutBtn" onclick="window.location.href='index.html'">
@@ -53,58 +51,94 @@
       </div>
     </div>
   </header>
-  <!-- CONTENEDOR PRINCIPAL -->
-  <main class="contenedor-pedidos">
-    <table id="tablaPedidos">
-      <thead>
-        <tr>
-          <th>N° Pedido</th>
-          <th>Fecha</th>
-          <th>Cantidad de productos</th>
-          <th>Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody id="bodyPedidos">
-        <!-- Aquí se cargarán los pedidos dinámicamente -->
-      </tbody>
-    </table>
 
-    <!-- Mensaje cuando no hay pedidos -->
-    <div id="mensajeVacio" class="vacio" style="display:none;">
-      No tienes pedidos registrados 🥚
+  <!-- ===== CONTENEDOR PRINCIPAL ===== -->
+  <main class="contenedor-pedidos">
+    <h2 class="titulo-pedidos">
+      <i class="fas fa-shopping-basket"></i> Mis Pedidos
+    </h2>
+    <p class="subtitulo-pedidos">
+      Aquí puedes ver el estado de tus compras recientes 🧺
+    </p>
+
+    <div class="filtro-estados">
+      <label for="filtro">Filtrar por estado:</label>
+      <select id="filtro">
+        <option value="todos">Todos</option>
+        <option value="pendiente">Pendientes</option>
+        <option value="en camino">En camino</option>
+        <option value="entregado">Entregados</option>
+        <option value="cancelado">Cancelados</option>
+      </select>
+    </div>
+
+    <div class="tabla-wrapper">
+      <table class="tabla-pedidos">
+        <thead>
+          <tr>
+            <th>Tracking ID</th>
+            <th>Fecha</th>
+            <th>Cantidad</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <!-- Aquí se insertan los pedidos desde pedidos.js -->
+        <tbody id="bodyPedidos"></tbody>
+      </table>
+
+      <!-- Mensaje cuando no hay pedidos -->
+      <div id="mensajeVacio" class="vacio" style="display:none;">
+        No tienes pedidos registrados 🥚
+      </div>
     </div>
   </main>
 
   <!-- TOASTS -->
   <div id="toast" class="toast"></div>
 
-  <!-- ===== FOOTER ===== -->
-<footer class="footer">
-  <div class="footer-container">
-    <div class="footer-info">
-      <p><span>Distrihuevos JUANMA</span></p>
-      <p>Huevos frescos del campo a tu mesa 🍳</p>
-      <p>Tel: 321 654 9870</p>
-      <p class="direccion"><strong>Dirección:</strong> Calle 12 #34-56, Barrio Campo Verde</p>
-    </div>
-    <div class="footer-links">
-      <a href="index.html">Inicio</a>
-      <a href="productos.html">Productos</a>
-      <a href="pedidos.html">Pedidos</a>
-      <a href="perfil.html">Perfil</a>
-    </div>
-    <div class="footer-icons">
-      <h4 class="contact-title">Contáctanos</h4>
-      <div class="icon-container">
-        <a href="https://www.facebook.com" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" class="footer-icon"></a>
-        <a href="https://www.instagram.com" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733558.png" alt="Instagram" class="footer-icon"></a>
-        <a href="https://wa.me/573216549870" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" class="footer-icon"></a>
-        <a href="mailto:contacto@distrihuevosjuanma.com"><img src="https://cdn-icons-png.flaticon.com/512/5968/5968534.png" alt="Correo" class="footer-icon"></a>
-      </div>
+<!-- 🔔 Confirmación personalizada -->
+<div id="confirmacionEliminar" class="confirm-overlay">
+  <div class="confirm-box">
+    <p id="confirmText">¿Deseas cancelar este pedido?</p>
+    <div class="confirm-buttons">
+      <button id="btnConfirmar" class="btn-confirmar">Sí, cancelar</button>
+      <button id="btnCancelar" class="btn-cancelar-modal">No</button>
     </div>
   </div>
-</footer>
+</div>
+
+
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-info">
+        <p><span>Distrihuevos JUANMA</span></p>
+        <p>Huevos frescos del campo a tu mesa 🍳</p>
+        <p>Tel: 321 654 9870</p>
+        <p class="direccion"><strong>Dirección:</strong> Calle 12 #34-56, Barrio Campo Verde</p>
+      </div>
+
+      <div class="footer-links">
+        <a href="index.html">Inicio</a>
+        <a href="productos.html">Productos</a>
+        <a href="pedidos.html" class="active">Pedidos</a>
+        <a href="perfil.html">Perfil</a>
+      </div>
+
+      <div class="footer-icons">
+        <h4 class="contact-title">Contáctanos</h4>
+        <div class="icon-container">
+          <a href="https://www.facebook.com" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" class="footer-icon"></a>
+          <a href="https://www.instagram.com" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733558.png" alt="Instagram" class="footer-icon"></a>
+          <a href="https://wa.me/573216549870" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" class="footer-icon"></a>
+          <a href="mailto:contacto@distrihuevosjuanma.com"><img src="https://cdn-icons-png.flaticon.com/512/5968/5968534.png" alt="Correo" class="footer-icon"></a>
+        </div>
+      </div>
+    </div>
+  </footer>
 
   <!-- JS DE FIREBASE Y PEDIDOS -->
   <script type="module" src="../js/firebase-config.js"></script>
