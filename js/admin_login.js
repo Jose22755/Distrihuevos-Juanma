@@ -7,7 +7,8 @@ import {
   updateDoc,
   deleteDoc,
   doc,
-  onSnapshot
+  onSnapshot,
+  setDoc
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
 import {
@@ -140,35 +141,77 @@ logoutBtn.addEventListener("click", async () => {
 const formProducto = document.getElementById("formProducto");
 const listaProductos = document.getElementById("listaProductos");
 
-// === AGREGAR PRODUCTO ===
+// === AGREGAR PRODUCTO (CON VALIDACIONES) ===
 formProducto?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const nombre = document.getElementById("nombreProducto").value.trim();
-  const precio = parseFloat(document.getElementById("precioProducto").value);
-  const stock = parseInt(document.getElementById("stockProducto").value);
-  const descripcion = document.getElementById("descripcionProducto").value.trim();
-  const imagenURL = document.getElementById("imagenProducto").value.trim() || "images/no-image.png";
+  let valido = true;
 
-  if (!nombre || isNaN(precio) || isNaN(stock)) {
-    Swal.fire("Campos incompletos", "Por favor llena todos los campos requeridos.", "warning");
-    return;
+  const Nombre = document.getElementById("nombreProducto").value.trim();
+  const Precio = document.getElementById("precioProducto").value.trim();
+  const Stock = document.getElementById("stockProducto").value.trim();
+  const Categoria = document.getElementById("categoriaProducto").value.trim();
+  const imagen = document.getElementById("imagenProducto").value.trim();
+  const Descripción = document.getElementById("descripcionProducto").value.trim();
+
+  // Limpiar mensajes previos
+  document.querySelectorAll(".error-msg").forEach(el => el.textContent = "");
+  document.querySelectorAll(".form-control").forEach(el => el.classList.remove("is-invalid"));
+
+  // Validaciones
+  if (Nombre === "") {
+    mostrarError("nombre", "El nombre del producto es obligatorio");
+    valido = false;
+  }
+  if (Precio === "" || parseFloat(Precio) <= 0) {
+    mostrarError("precio", "Ingresa un precio válido");
+    valido = false;
+  }
+  if (Stock === "" || parseInt(Stock) < 0) {
+    mostrarError("stock", "El stock no puede estar vacío ni negativo");
+    valido = false;
+  }
+  if (Categoria === "") {
+    mostrarError("categoria", "Debes ingresar una categoría");
+    valido = false;
+  }
+  if (imagen === "" || !imagen.startsWith("http")) {
+    mostrarError("imagen", "Ingresa una URL válida para la imagen");
+    valido = false;
+  }
+  if (Descripción === "") {
+    mostrarError("descripcion", "La descripción no puede estar vacía");
+    valido = false;
   }
 
+  if (!valido) return;
+
   try {
-    await addDoc(collection(db, "products"), {
-      nombre,
-      precio,
-      stock,
-      descripcion,
-      imagenURL,
-      fechaRegistro: new Date(),
+  // Referencia al documento con el nombre del producto como ID
+    const productoRef = doc(db, "products", Nombre);
+
+    // Verificar si ya existe un documento con ese nombre
+    const productoSnap = await getDoc(productoRef);
+    if (productoSnap.exists()) {
+      Swal.fire("Duplicado", "Ya existe un producto con ese nombre.", "warning");
+      return;
+    }
+
+    // Crear el documento usando el nombre como ID
+    await setDoc(productoRef, {
+      Categoria,
+      Descripción,
+      Nombre,
+      Precio: parseFloat(Precio),
+      Stock: parseInt(Stock),
+      imagen,
+      fecha_registro: new Date()
     });
 
     Swal.fire({
       icon: "success",
       title: "Producto agregado",
-      text: `${nombre} fue registrado exitosamente.`,
+      text: `${Nombre} fue registrado exitosamente.`,
       timer: 1500,
       showConfirmButton: false
     });
@@ -233,10 +276,110 @@ onSnapshot(collection(db, "products"), (snapshot) => {
     listaProductos.appendChild(fila);
   });
 
-  // === ELIMINAR PRODUCTO ===
-  document.querySelectorAll(".eliminar").forEach(btn => {
+  // === EVENTOS DE EDITAR ===
+// Listener robusto por delegación: captura clicks en los botones de editar dentro de la tabla
+const productosListContainer = document.getElementById("listaProductos");
+
+productosListContainer.addEventListener("click", async (event) => {
+  const btn = event.target.closest(".btn-editar, .editar");
+  if (!btn) return; // si no es un botón editar, salir
+
+  const id = btn.dataset.id;
+  if (!id) {
+    console.error("Botón editar sin data-id");
+    return;
+  }
+
+  try {
+    const ref = doc(db, "products", id);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      Swal.fire("Error", "Producto no encontrado.", "error");
+      return;
+    }
+
+    const data = snap.data();
+
+    // Rellenar formulario (usa tus ids de inputs)
+    document.getElementById("nombreProducto").value = data.Nombre || "";
+    document.getElementById("precioProducto").value = data.Precio ?? "";
+    document.getElementById("stockProducto").value = data.Stock ?? "";
+    document.getElementById("categoriaProducto").value = data.Categoria || "";
+    document.getElementById("imagenProducto").value = data.imagen || "";
+    document.getElementById("descripcionProducto").value = data.Descripción || "";
+
+    // Marcar que estamos editando este producto
+    window.productoEditando = id;
+
+    // Cambiar el botón a modo edición
+    const btnAgregar = document.getElementById("btnAgregarProducto");
+    if (btnAgregar) {
+      btnAgregar.innerHTML = `<i class="bi bi-pencil-square me-2"></i> Actualizar Producto`;
+      btnAgregar.classList.add("modo-edicion");
+      btnCancelar.style.display = "inline-block"; // mostrar botón de cancelar
+    }
+
+    // Asegurar que la sección del formulario esté activa (tu sección tiene id="productos")
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    const seccionProductos = document.getElementById("productos");
+    if (seccionProductos) seccionProductos.classList.add("active");
+
+    // Actualizar menú lateral (si lo usas)
+    document.querySelectorAll('.menu li').forEach(li => li.classList.remove('active'));
+    const menuItem = document.querySelector('[data-section="productos"]');
+    if (menuItem) menuItem.classList.add('active');
+
+    // Scroll suave al formulario y enfoque en el primer campo
+    const form = document.getElementById("formProducto");
+    if (form) {
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+      // pequeños delay para que el scroll termine antes de focus (opcional)
+      setTimeout(() => {
+        const firstInput = document.getElementById("nombreProducto");
+        if (firstInput) firstInput.focus();
+      }, 450);
+    }
+  } catch (err) {
+    console.error("Error al cargar producto para editar:", err);
+    Swal.fire("Error", "No se pudo cargar el producto para editar.", "error");
+  }
+});
+
+
+// Botón cancelar edición
+const btnAgregar = document.getElementById("btnAgregarProducto");
+const btnCancelar = document.getElementById("btnCancelarEdicion");
+
+if (btnCancelar) {
+  btnCancelar.addEventListener("click", () => {
+    // Limpiar el formulario
+    formProducto.reset();
+    window.productoEditando = null;
+
+    // Volver el botón principal al modo "Agregar"
+    btnAgregar.innerHTML = `<i class="bi bi-plus-circle me-2"></i> Agregar Producto`;
+    btnAgregar.classList.remove("modo-edicion");
+
+    // Ocultar el botón de cancelar
+    btnCancelar.style.display = "none";
+
+    // Mensaje opcional
+    Swal.fire({
+      icon: "info",
+      title: "Edición cancelada",
+      text: "Puedes agregar un nuevo producto ahora.",
+      timer: 1500,
+      showConfirmButton: false
+    });
+  });
+}
+
+
+  // === EVENTOS DE ELIMINAR ===
+  document.querySelectorAll(".btn-eliminar").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const id = btn.dataset.id;
+
       const confirm = await Swal.fire({
         title: "¿Eliminar producto?",
         text: "Esta acción no se puede deshacer.",
@@ -254,62 +397,46 @@ onSnapshot(collection(db, "products"), (snapshot) => {
       }
     });
   });
+
 });
 
-/* VALIDACIONES PARA CADA CAMPO */
-formProducto.addEventListener("submit", (e) => {
-  e.preventDefault();
-  
-  let valido = true;
 
-  // Obtener los valores
-  const nombre = document.getElementById("nombreProducto").value.trim();
-  const precio = document.getElementById("precioProducto").value.trim();
-  const stock = document.getElementById("stockProducto").value.trim();
-  const categoria = document.getElementById("categoriaProducto").value.trim();
-  const imagen = document.getElementById("imagenProducto").value.trim();
-  const descripcion = document.getElementById("descripcionProducto").value.trim();
+// ------------------------------------------------------------
+// 🔍 BUSCADOR DE PRODUCTOS EN TIEMPO REAL
+// ------------------------------------------------------------
 
-  // Limpiar mensajes previos
-  document.querySelectorAll(".error-msg").forEach(el => el.textContent = "");
-  document.querySelectorAll(".form-control").forEach(el => el.classList.remove("is-invalid"));
+// Esperar que el DOM esté listo
+document.addEventListener("DOMContentLoaded", () => {
+  const buscador = document.getElementById("buscadorProductos");
+  const tabla = document.getElementById("tablaProductos");
+  const filas = tabla?.getElementsByTagName("tr");
 
-  // Validaciones
-  if (nombre === "") {
-    mostrarError("nombre", "El nombre del producto es obligatorio");
-    valido = false;
+  if (buscador && filas) {
+    buscador.addEventListener("input", (e) => {
+      const texto = e.target.value.toLowerCase().trim();
+
+      // Recorremos todas las filas de la tabla (excepto el encabezado)
+      for (let i = 1; i < filas.length; i++) {
+        const fila = filas[i];
+        const columnas = fila.getElementsByTagName("td");
+        let coincide = false;
+
+        // Revisamos si alguna celda contiene el texto del buscador
+        for (let j = 0; j < columnas.length; j++) {
+          const celdaTexto = columnas[j].innerText.toLowerCase();
+          if (celdaTexto.includes(texto)) {
+            coincide = true;
+            break;
+          }
+        }
+
+        // Mostrar u ocultar la fila según coincidencia
+        fila.style.display = coincide ? "" : "none";
+      }
+    });
   }
-
-  if (precio === "" || parseFloat(precio) <= 0) {
-    mostrarError("precio", "Ingresa un precio válido");
-    valido = false;
-  }
-
-  if (stock === "" || parseInt(stock) < 0) {
-    mostrarError("stock", "El stock no puede estar vacío ni negativo");
-    valido = false;
-  }
-
-  if (categoria === "") {
-    mostrarError("categoria", "Debes ingresar una categoría");
-    valido = false;
-  }
-
-  if (imagen === "" || !imagen.startsWith("http")) {
-    mostrarError("imagen", "Ingresa una URL válida para la imagen");
-    valido = false;
-  }
-
-  if (descripcion === "") {
-    mostrarError("descripcion", "La descripción no puede estar vacía");
-    valido = false;
-  }
-
-  if (!valido) return;
-
-  // Si todo es válido, aquí puedes llamar a tu función para guardar el producto
-  console.log("✅ Producto válido. Listo para guardar en Firestore.");
 });
+
 
 function mostrarError(campo, mensaje) {
   const input = document.getElementById(`${campo}Producto`);

@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login - Distrihuevos JUANMA</title>
+  <link rel="stylesheet" href="../css/login.css">
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <!-- jQuery -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <!-- Lettering.js (necesario para Textillate) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/textillate/0.4.0/assets/jquery.lettering.min.js"></script>
+  <!-- Textillate.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/textillate/0.4.0/jquery.textillate.min.js"></script>
+
+  <style>
+    .error-msg { color: #d32f2f; font-size: 0.9rem; margin-top: 6px; display:none; }
+    input.invalid { border-color: #d32f2f !important; box-shadow: 0 0 0 4px rgba(211,47,47,0.06); animation: shake 0.3s; }
+    .success-msg { color: #1b5e20; font-size: 0.95rem; display:none; margin-top:10px; }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+
+    #spinner-overlay {
+      position: fixed;
+      top:0; left:0; width:100%; height:100%;
+      background: rgba(255,255,255,0.8);
+      display: flex; flex-direction: column; justify-content:center; align-items:center;
+      z-index: 9999; opacity:0; visibility:hidden;
+      transition: opacity 0.3s ease;
+    }
+    #spinner-overlay.show { opacity:1; visibility:visible; }
+    .spinner {
+      border:8px solid #f3f3f3;
+      border-top:8px solid #4caf50;
+      border-radius:50%;
+      width:70px; height:70px;
+      animation: spin 1s linear infinite;
+      margin-bottom:15px;
+    }
+    @keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+    #spinner-message { font-size:1.2rem; font-weight:500; color:#333; }
+
+    input[type="email"], input[type="password"]{
+      width:100%;
+      padding:10px 12px;
+      box-sizing:border-box;
+      border:1px solid #ccc;
+      border-radius:6px;
+      font-size:1rem;
+      outline:none;
+      transition:border-color 0.3s, box-shadow 0.3s;
+    }
+    input:focus{
+      border-color:#4caf50;
+      box-shadow:0 0 0 4px rgba(76,175,80,0.1);
+    }
+
+    .password-container { position: relative; width: 100%; display: flex; align-items:center; }
+    .password-container input { flex:1; padding:10px 40px 10px 12px; }
+    .toggle-pass { position:absolute; right:10px; cursor:pointer; user-select:none; }
+
+    #login-success-message {
+      position: fixed;
+      top:50%; left:50%;
+      transform: translate(-50%, -50%);
+      background:#4caf50;
+      color:white;
+      padding:20px 30px;
+      font-size:1.2rem;
+      font-weight:500;
+      border-radius:10px;
+      box-shadow:0 4px 15px rgba(0,0,0,0.2);
+      opacity:0; visibility:hidden;
+      z-index:10000;
+      transition:opacity 0.3s ease;
+    }
+    #login-success-message.show { opacity:1; visibility:visible; }
+
+    /* BOTON GOOGLE */
+    .google-btn {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      background-color:#DB4437;
+      color:white;
+      border:none;
+      border-radius:6px;
+      font-size:1rem;
+      font-weight:500;
+      cursor:pointer;
+      width:100%;
+      height:45px;
+      line-height:1;
+      margin-top:10px;
+    }
+    .google-btn img { width:20px; height:20px; }
+    .google-btn:hover { background-color:#c33c2f; }
+
+    /* Enlace recuperar contraseña */
+    .forgot-pass {
+      display:block;
+      text-align:center;
+      color:#1565c0;
+      cursor:pointer;
+      margin-top:10px;
+      text-decoration:underline;
+    }
+    .forgot-pass:hover { color:#0d47a1; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+
+
+      <!--Logo-->
+      <div class="logo-container">
+        <img src="../html/images/LogoDistrihuevosJUANMA_FINAL.png" alt="Logo" class="logo-register">
+        <h1>Distrihuevos <span>JUANMA</span></h1>
+      </div>
+
+      <h2 class="form-title">Iniciar Sesión</h2>
+
+      <form id="loginForm" novalidate>
+        <label>Correo electrónico
+          <input type="email" id="loginEmail" required autocomplete="email">
+          <div id="err-email" class="error-msg"></div>
+        </label>
+
+        <label>Contraseña
+          <div class="password-container">
+            <input type="password" id="loginPassword" required minlength="6" autocomplete="current-password">
+            <span class="toggle-pass">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#333" viewBox="0 0 24 24">
+                <path d="M12 5c-7.633 0-11.531 7-11.531 7s3.898 7 11.531 7 11.531-7 11.531-7-3.898-7-11.531-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z"/>
+              </svg>
+            </span>
+          </div>
+          <div id="err-pass" class="error-msg"></div>
+        </label>
+
+        <button type="submit">Ingresar</button>
+      </form>
+
+      <button id="googleLogin" class="google-btn">
+        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
+        Iniciar sesión con Google
+      </button>
+
+      <!-- RECUPERAR CONTRASEÑA -->
+    <a href="forgot_password.html" id="forgot-pass-link" class="link">¿Olvidaste tu contraseña?</a>
+
+
+      <p style="margin-top:12px">¿No tienes cuenta? <a href="register.html" class="link">Regístrate</a></p>
+    </div>
+  </div>
+
+  <!-- Mensaje de éxito central -->
+  <div id="reset-success-message">✅ Se ha enviado un correo para restablecer tu contraseña</div>
+
+  <div class="grass"></div>
+
+  <div id="spinner-overlay">
+    <div class="spinner"></div>
+    <div id="spinner-message">Iniciando sesión...</div>
+  </div>
+
+  <div id="login-success-message">✅ ¡Bienvenido de nuevo!</div>
+  
+  <footer>© 2025 Distrihuevos JUANMA</footer>
+
+<script type="module">
+import { auth, db } from "../js/firebase-config.js";
+import { 
+  signInWithEmailAndPassword, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  sendPasswordResetEmail 
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+import { doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+
+
+// === CONFIGURACIÓN DE BLOQUEO ===
+const MAX_ATTEMPTS = 5;
+const BLOCK_TIME_MS = 5 * 60 * 1000;
+
+// === ELEMENTOS ===
+const form = document.getElementById("loginForm");
+const spinner = document.getElementById('spinner-overlay');
+const successMessage = document.getElementById('login-success-message');
+const googleBtn = document.getElementById('googleLogin');
+const forgotPass = document.getElementById('forgot-pass-link');
+const resetMessage = document.getElementById('reset-success-message');
+
+// Crear contador dinámico si no existe
+let countdownEl = document.getElementById("block-countdown");
+if (!countdownEl) {
+  countdownEl = document.createElement("p");
+  countdownEl.id = "block-countdown";
+  countdownEl.className = "error-message"; // mismo estilo que los errores
+  countdownEl.style.display = "none";
+  const passError = document.getElementById("err-pass");
+  passError.insertAdjacentElement("afterend", countdownEl);
+}
+
+const fields = { 
+  email: document.getElementById("loginEmail"), 
+  pass: document.getElementById("loginPassword") 
+};
+const errs = { 
+  email: document.getElementById("err-email"), 
+  pass: document.getElementById("err-pass") 
+};
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+// === SPINNER Y MENSAJES ===
+function showSpinner(){ spinner.classList.add('show'); }
+function hideSpinner(){ spinner.classList.remove('show'); }
+function showMessage(msgElement){ msgElement.classList.add('show'); }
+function hideMessage(msgElement){ msgElement.classList.remove('show'); }
+
+// === VALIDACIÓN ===
+function validateField(key){
+  const el = fields[key];
+  const val = el.value.trim();
+  let valid = true;
+  let msg = '';
+
+  if(!val){ valid=false; msg='Este campo es obligatorio'; }
+  else{
+    if(key==='email' && !emailRegex.test(val)){ valid=false; msg='Correo inválido. Ej: usuario@dominio.com'; }
+    if(key==='pass' && val.length<6){ valid=false; msg='Mínimo 6 caracteres'; }
+  }
+
+  if(!valid){ 
+    errs[key].textContent = msg; 
+    errs[key].style.display = 'block'; 
+    el.classList.add('invalid'); 
+  } else { 
+    errs[key].style.display = 'none'; 
+    el.classList.remove('invalid'); 
+  }
+
+  return valid;
+}
+
+// Validación en tiempo real
+Object.keys(fields).forEach(k=>{
+  fields[k].addEventListener('input',()=>{ 
+    validateField(k); 
+    hideMessage(successMessage); 
+    hideMessage(resetMessage); 
+  });
+  fields[k].addEventListener('blur',()=>{ validateField(k); });
+});
+
+// === TOGGLE CONTRASEÑA ===
+document.querySelector('.toggle-pass').addEventListener('click', ()=>{ 
+  const input = fields.pass;
+  input.type = input.type==='password' ? 'text' : 'password';
+});
+
+// === BLOQUEO DE INTENTOS ===
+function getLoginAttempts() {
+  return JSON.parse(localStorage.getItem("loginAttempts") || "{}");
+}
+function setLoginAttempts(attempts, blockedUntil = null) {
+  localStorage.setItem("loginAttempts", JSON.stringify({ attempts, blockedUntil }));
+}
+function isBlocked() {
+  const { blockedUntil } = getLoginAttempts();
+  if (!blockedUntil) return false;
+  const now = Date.now();
+  if (now >= blockedUntil) {
+    setLoginAttempts(0, null);
+    countdownEl.textContent = "";
+    return false;
+  }
+  return true;
+}
+
+function getRemainingTime() {
+  const { blockedUntil } = getLoginAttempts();
+  if (!blockedUntil) return 0;
+  return Math.max(0, Math.ceil((blockedUntil - Date.now()) / 1000));
+}
+
+// === MOSTRAR CUENTA REGRESIVA ===
+let countdownTimer = null;
+function startCountdown() {
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(() => {
+    if (!isBlocked()) {
+      countdownEl.textContent = "";
+      clearInterval(countdownTimer);
+      return;
+    }
+    const seconds = getRemainingTime();
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    countdownEl.textContent = `🚫 Cuenta bloqueada. Intenta nuevamente en ${mins}:${secs.toString().padStart(2,'0')} minutos`;
+    countdownEl.style.display = "block";
+  }, 1000);
+}
+
+// === LOGIN EMAIL/PASSWORD ===
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+
+  if (isBlocked()) {
+    startCountdown();
+    errs.pass.textContent = "🚫 Has superado el número de intentos permitidos.";
+    errs.pass.style.display = 'block';
+    fields.pass.classList.add('invalid');
+    return;
+  }
+
+  showSpinner();
+  let allValid = true;
+  Object.keys(fields).forEach(k=>{ if(!validateField(k)) allValid=false; });
+  if(!allValid){ hideSpinner(); return; }
+
+  try{
+    const userCredential = await signInWithEmailAndPassword(auth, fields.email.value.trim(), fields.pass.value.trim());
+    const user = userCredential.user;
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    hideSpinner();
+    setLoginAttempts(0, null);
+    countdownEl.textContent = "";
+
+    if(userSnap.exists()){
+      const rol = ((userSnap.data().rol || "")).trim().toLowerCase();
+      showMessage(successMessage);
+      setTimeout(()=>{
+        hideMessage(successMessage);
+        if(rol==="admin") window.location.href="admin_login.html";
+        else window.location.href="index.html";
+      },1500);
+    } else {
+      errs.pass.textContent = "❌ Correo o contraseña incorrectos";
+      errs.pass.style.display="block";
+      fields.pass.classList.add("invalid");
+    }
+
+  } catch(error){
+    hideSpinner();
+    const { attempts } = getLoginAttempts();
+    const newAttempts = (attempts || 0) + 1;
+
+    if (newAttempts >= MAX_ATTEMPTS) {
+      const blockedUntil = Date.now() + BLOCK_TIME_MS;
+      setLoginAttempts(MAX_ATTEMPTS, blockedUntil);
+      startCountdown();
+      errs.pass.textContent = `🚫 Demasiados intentos fallidos. Has sido bloqueado por ${Math.floor(BLOCK_TIME_MS/60000)} minutos.`;
+    } else {
+      setLoginAttempts(newAttempts, null);
+      const restantes = MAX_ATTEMPTS - newAttempts;
+      errs.pass.textContent = `❌ Credenciales incorrectas. Intentos restantes: ${restantes}`;
+    }
+    errs.pass.style.display='block';
+    fields.pass.classList.add('invalid');
+  }
+});
+
+
+// === LOGIN GOOGLE (versión estable para Live Server) ===
+googleBtn.addEventListener("click", async () => {
+  showSpinner();
+  const provider = new GoogleAuthProvider();
+
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    // 🔥 Verificamos Firestore
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      // Si el usuario no existe, lo creamos
+      await setDoc(userRef, {
+        "Nombres": user.displayName || "",
+        "Correo Electronico": user.email || "",
+        "rol": "usuario"
+      });
+    }
+
+    // Volvemos a leer para obtener su rol
+    const data = (await getDoc(userRef)).data();
+    const rol = (data.rol || "").trim().toLowerCase();
+
+    hideSpinner();
+    showMessage(successMessage);
+    setTimeout(() => {
+      hideMessage(successMessage);
+      if (rol === "admin") {
+        window.location.href = "admin_login.html";
+      } else {
+        window.location.href = "index.html";
+      }
+    }, 1500);
+
+  } catch (error) {
+    hideSpinner();
+    console.error("❌ Error en login con Google:", error);
+    alert("Error al iniciar sesión con Google. Revisa la consola.");
+  }
+});
+
+// === RECUPERAR CONTRASEÑA (SIN REDIRECCIÓN) ===
+forgotPass.addEventListener('click', async ()=>{
+  const email = fields.email.value.trim();
+  if(!email){
+    errs.email.textContent = '❌ Ingresa tu correo para recuperar la contraseña';
+    errs.email.style.display='block';
+    fields.email.classList.add('invalid');
+    return;
+  }
+
+  try{
+    const usersSnapshot = await getDocs(collection(db, "users"));
+    let found = false;
+    usersSnapshot.forEach(u=>{
+      if(u.data()["Correo Electronico"] === email) found = true;
+    });
+
+    if(!found){
+      errs.email.textContent = '❌ Este correo no está registrado';
+      errs.email.style.display = 'block';
+      fields.email.classList.add('invalid');
+      return;
+    }
+
+    showSpinner();
+    await sendPasswordResetEmail(auth, email);
+    hideSpinner();
+
+    showMessage(resetMessage);
+    setTimeout(()=>{ hideMessage(resetMessage); }, 3000);
+
+    // 🚨 Antes redirigía a reset_password.html
+    // window.location.href = "reset_password.html";
+
+  } catch(err){
+    hideSpinner();
+    errs.email.textContent = '❌ No se pudo enviar el correo, verifica el email';
+    errs.email.style.display='block';
+    fields.email.classList.add('invalid');
+  }
+});
+
+
+
+</script>
+
+<script>
+$(document).ready(function(){
+  $('.juanma').textillate({
+    loop: true,            // Se repite infinitamente
+    minDisplayTime: 1000,  // Tiempo que cada animación se mantiene
+    initialDelay: 500,     // Retraso antes de iniciar
+    in: {
+      effect: 'pulse',      // Animación de entrada
+      delayScale: 1.5,      // Retardo entre letras
+      delay: 50,            // Tiempo entre letras
+      sync: false,          // Letras animadas una a una
+      shuffle: false
+    },
+    out: {
+      effect: 'pulse',
+      delayScale: 1.5,
+      delay: 50,
+      sync: false,
+      shuffle: false
+    }
+  });
+});
+</script>
+
+</body>
+</html>

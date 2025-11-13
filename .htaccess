@@ -1,0 +1,64 @@
+# ===============================
+# ===============================
+# 🚀 CONFIGURACIÓN DISTRIHUEVOS JUANMA
+# ===============================
+RewriteEngine On
+
+# --- Forzar HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ===============================
+# 🔰 Página de inicio = login.html
+# ===============================
+RewriteCond %{REQUEST_URI} ^/?$ 
+RewriteRule ^$ login.html [L]
+
+# ===============================
+# 🌐 Rutas amigables (para archivos en /html/)
+# ===============================
+
+# Si piden una página sin extensión y existe dentro de /html/, redirígela correctamente
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/html/$1.html -f
+RewriteRule ^(.+)$ html/$1.html [L]
+
+# Permitir también acceder con .html directamente
+RewriteCond %{DOCUMENT_ROOT}/html/$1 -f
+RewriteRule ^(.+)$ html/$1 [L]
+
+# ===============================
+# 📄 Página por defecto
+# ===============================
+DirectoryIndex login.html
+
+# ===============================
+# ⚙️ Compresión GZIP
+# ===============================
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/plain
+  AddOutputFilterByType DEFLATE text/html
+  AddOutputFilterByType DEFLATE text/xml
+  AddOutputFilterByType DEFLATE text/css
+  AddOutputFilterByType DEFLATE application/xml
+  AddOutputFilterByType DEFLATE application/xhtml+xml
+  AddOutputFilterByType DEFLATE application/rss+xml
+  AddOutputFilterByType DEFLATE application/javascript
+  AddOutputFilterByType DEFLATE application/x-javascript
+</IfModule>
+
+# ===============================
+# 🧠 Cache de archivos estáticos
+# ===============================
+<IfModule mod_expires.c>
+  ExpiresActive on
+  ExpiresByType image/ico "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/gif "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+</IfModule>
+
+

@@ -17,8 +17,6 @@
   <!-- ===== Fuente y estilos generales ===== -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/main.css">
-
-  <!-- ===== Estilos del panel admin ===== -->
   <link rel="stylesheet" href="../css/admin_login.css">
 </head>
 
@@ -28,8 +26,7 @@
     <i class="bi bi-list"></i>
   </div>
 
-  <!-- Menú lateral -->
-    <!-- Menú lateral -->
+  <!-- ===== MENÚ LATERAL ===== -->
   <aside class="sidebar">
     <div class="sidebar-header text-center">
       <img src="images/LogoDistrihuevosJUANMA_FINAL.png" alt="Logo" class="logo-sidebar mb-2">
@@ -52,106 +49,126 @@
     </ul>
   </aside>
 
-  <!-- Contenido principal -->
+  <!-- ===== CONTENIDO PRINCIPAL ===== -->
   <main class="main-content">
+    <!-- ===== HEADER ===== -->
     <header class="header d-flex align-items-center justify-content-between px-4 py-3 shadow-sm bg-white rounded-3 animate-header">
-  <div class="d-flex align-items-center gap-3">
-    <img src="images/LogoDistrihuevosJUANMA_FINAL.png" alt="Logo" class="logo-admin" style="height: 50px;">
-    <h1 id="saludo-admin" class="m-0 fw-semibold">
-      Buenas tardes, <span id="nombre-admin"></span>
-    </h1>
-  </div>
-  <button id="logoutBtn" class="btn btn-danger d-flex align-items-center gap-2">
-    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-  </button>
-</header>
-      <section id="productos" class="section active">
-    <h2><i class="bi bi-box-seam"></i> Gestión de Productos</h2>
-    <p>Administra los productos del catálogo: agrega, edita o elimina fácilmente.</p>
+      <div class="d-flex align-items-center gap-3">
+        <img src="images/LogoDistrihuevosJUANMA_FINAL.png" alt="Logo" class="logo-admin" style="height: 50px;">
+        <h1 id="saludo-admin" class="m-0 fw-semibold">
+          Buenas tardes, <span id="nombre-admin"></span>
+        </h1>
+      </div>
 
-    <!-- FORMULARIO PARA AGREGAR PRODUCTO -->
-   <form id="formProducto" class="mt-4 p-4 bg-white rounded-4 shadow-sm border border-success-subtle">
-  <h4 class="text-center text-success fw-semibold mb-4">
-    <i class="bi bi-bag-plus me-2"></i> Añadir Nuevo Producto
-  </h4>
+      <div class="d-flex align-items-center gap-3">
+        <!-- 🔍 Buscador -->
+        <div class="search-box">
+          <input
+            type="text"
+            id="buscadorProductos"
+            placeholder="Buscar producto..."
+          />
+          <i class="bi bi-search"></i>
+        </div>
 
-  <div class="row g-3">
-    <div class="col-md-4">
-      <label for="nombreProducto" class="form-label fw-semibold">Nombre del producto</label>
-      <input type="text" id="nombreProducto" class="form-control" placeholder="Ej. Huevo AA">
-      <small class="text-danger error-msg" id="error-nombre"></small>
-    </div>
+        <!-- 🔒 Botón de Cerrar Sesión -->
+        <button id="logoutBtn" class="btn-cerrar-sesion d-flex align-items-center gap-2">
+          <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+        </button>
+      </div>
+    </header>
 
-    <div class="col-md-2">
-      <label for="precioProducto" class="form-label fw-semibold">Precio ($)</label>
-      <input type="number" id="precioProducto" class="form-control" placeholder="Ej. 12000" min="0">
-      <small class="text-danger error-msg" id="error-precio"></small>
-    </div>
+    <!-- ===== SECCIÓN PRODUCTOS ===== -->
+    <section id="productos" class="section active">
+      <h2><i class="bi bi-box-seam"></i> Gestión de Productos</h2>
+      <p>Administra los productos del catálogo: agrega, edita o elimina fácilmente.</p>
 
-    <div class="col-md-2">
-      <label for="stockProducto" class="form-label fw-semibold">Stock</label>
-      <input type="number" id="stockProducto" class="form-control" placeholder="Ej. 50" min="0">
-      <small class="text-danger error-msg" id="error-stock"></small>
-    </div>
+      <!-- ===== FORMULARIO DE PRODUCTO ===== -->
+      <form id="formProducto" class="mt-4 p-4 bg-white rounded-4 shadow-sm border border-success-subtle">
+        <h4 class="text-center text-success fw-semibold mb-4">
+          <i class="bi bi-bag-plus me-2"></i> Añadir Nuevo Producto
+        </h4>
 
-    <div class="col-md-4">
-      <label for="categoriaProducto" class="form-label fw-semibold">Categoría</label>
-      <input type="text" id="categoriaProducto" class="form-control" placeholder="Ej. A, AA, B, BB...">
-      <small class="text-danger error-msg" id="error-categoria"></small>
-    </div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label for="nombreProducto" class="form-label fw-semibold">Nombre del producto</label>
+            <input type="text" id="nombreProducto" class="form-control" placeholder="Ej. Huevo AA">
+            <small class="text-danger error-msg" id="error-nombre"></small>
+          </div>
 
-    <div class="col-md-6">
-      <label for="imagenProducto" class="form-label fw-semibold">Imagen (URL)</label>
-      <input type="url" id="imagenProducto" class="form-control" placeholder="https://...">
-      <small class="text-danger error-msg" id="error-imagen"></small>
-    </div>
+          <div class="col-md-2">
+            <label for="precioProducto" class="form-label fw-semibold">Precio ($)</label>
+            <input type="number" id="precioProducto" class="form-control" placeholder="Ej. 12000" min="0">
+            <small class="text-danger error-msg" id="error-precio"></small>
+          </div>
 
-    <div class="col-md-6">
-      <label for="descripcionProducto" class="form-label fw-semibold">Descripción</label>
-      <textarea id="descripcionProducto" class="form-control" rows="2" placeholder="Descripción del producto..."></textarea>
-      <small class="text-danger error-msg" id="error-descripcion"></small>
-    </div>
+          <div class="col-md-2">
+            <label for="stockProducto" class="form-label fw-semibold">Stock</label>
+            <input type="number" id="stockProducto" class="form-control" placeholder="Ej. 50" min="0">
+            <small class="text-danger error-msg" id="error-stock"></small>
+          </div>
 
-    <div class="col-12 text-end mt-3">
-      <button id="btnAgregarProducto" type="submit" class="btn-agregar">
-        <i class="bi bi-plus-circle me-2"></i> Agregar Producto
-      </button>
-    </div>
-  </div>
-</form>
+          <div class="col-md-4">
+            <label for="categoriaProducto" class="form-label fw-semibold">Categoría</label>
+            <input type="text" id="categoriaProducto" class="form-control" placeholder="Ej. A, AA, B, BB...">
+            <small class="text-danger error-msg" id="error-categoria"></small>
+          </div>
 
-    <!-- LISTADO DE PRODUCTOS -->
-    <div class="productos-section mt-5">
-      <h2 class="titulo-seccion">
-        <i class="bi bi-box-seam me-2"></i> Productos Registrados
-      </h2>
+          <div class="col-md-6">
+            <label for="imagenProducto" class="form-label fw-semibold">Imagen (URL)</label>
+            <input type="url" id="imagenProducto" class="form-control" placeholder="https://...">
+            <small class="text-danger error-msg" id="error-imagen"></small>
+          </div>
 
-      <div class="table-container">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle text-center" id="tablaProductos">
-            <thead>
-              <tr class="table-success text-center">
-                <th>Imagen</th>
-                <th>Nombre</th>
-                <th>Categoría</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Descripción</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="listaProductos">
-              <!-- productos cargados dinámicamente -->
-            </tbody>
-          </table>
+          <div class="col-md-6">
+            <label for="descripcionProducto" class="form-label fw-semibold">Descripción</label>
+            <textarea id="descripcionProducto" class="form-control" rows="2" placeholder="Descripción del producto..."></textarea>
+            <small class="text-danger error-msg" id="error-descripcion"></small>
+          </div>
+
+          <div class="col-12 text-end mt-3">
+            <button id="btnAgregarProducto" type="submit" class="btn-agregar">
+              <i class="bi bi-plus-circle me-2"></i> Agregar Producto
+            </button>
+            <button id="btnCancelarEdicion" type="button" class="btn-cancelar" style="display:none;">
+              <i class="bi bi-x-circle me-2"></i> Cancelar Edición
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- ===== TABLA DE PRODUCTOS ===== -->
+      <div class="productos-section mt-5">
+        <h2 class="titulo-seccion">
+          <i class="bi bi-box-seam me-2"></i> Productos Registrados
+        </h2>
+
+        <div class="table-container">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle text-center" id="tablaProductos">
+              <thead>
+                <tr class="table-success text-center">
+                  <th>Imagen</th>
+                  <th>Nombre</th>
+                  <th>Categoría</th>
+                  <th>Precio</th>
+                  <th>Stock</th>
+                  <th>Descripción</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="listaProductos">
+                <!-- productos cargados dinámicamente -->
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
   </main>
 
   <!-- ===== Scripts ===== -->
-   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script type="module" src="../js/admin_login.js"></script>
 </body>
