@@ -1,78 +1,153 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Detalles del producto - Distrihuevos JUANMA</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalles del Producto - Distrihuevos JUANMA</title>
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+     <!-- 📦 ICONOS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <!-- Bootstrap 5 -->
+  <!-- 🧩 LIBRERÍAS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- CSS personalizado -->
+  <!-- ===== Fuente y estilos ===== -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/product_detail.css">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/pedidos.css">
+  <link rel="stylesheet" href="../css/productos.css">
+
 </head>
 <body>
 
-  <!-- Header -->
-  <header>
-    <div class="brand">
-      <div class="egg">🥚</div>
-      <h1>Distrihuevos JUANMA</h1>
-    </div>
-    <div>
-      <button class="btn btn-light btn-sm">Login</button>
-      <button class="btn btn-warning btn-sm">🛒 Carrito</button>
+    <!-- ===== HEADER ===== -->
+  <header class="main-header">
+    <div class="header-container">
+      <div class="header-left">
+        <div class="menu-wrapper" id="menuTrigger" onclick="window.location.href='index.html'">
+          <i class="bi bi-arrow-left-circle"></i>
+          <span class="menu-label">INICIO</span>
+        </div>
+        <form id="searchForm" class="search-form" onsubmit="return false;">
+          <input type="text" id="busqueda" placeholder="Buscar por numero, fecha o estado..." />
+          <button type="submit" class="btn-search"><i class="bi bi-search"></i></button>
+        </form>
+      </div>
+
+      <div class="logo">
+        <img src="../html/images/LogoDistrihuevosJUANMA_FINAL.png" alt="Logo" class="logo-img">
+        <h1>Distrihuevos <span>JUANMA</span></h1>
+      </div>
+
+      <div class="header-right">
+        <a href="cart.html" class="cart-btn">
+          <i class="bi bi-cart-fill"></i>
+          <span class="cart-text">Mi Carrito</span>
+          <span class="cart-count">0</span>
+        </a>
+        <a href="productos.html" class="ver-pedidos active">
+           <i class="bi bi-box-seam me-2"></i>Productos
+        </a>
+        <button class="logout-btn" id="btnVolver">
+          Volver <i class="bi bi-box-arrow-right"></i>
+        </button>
+      </div>
     </div>
   </header>
 
-  <!-- Product Detail -->
-  <main class="container my-4">
-    <div class="row g-4">
-      <!-- Imagen -->
-      <div class="col-md-6">
-        <div class="product-card">
-          <img src="https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=800&q=60" alt="Huevos AA" class="img-fluid">
+  <div class="container">
+    <!-- Imagen del producto -->
+    <div class="product-image">
+      <img src="https://images.unsplash.com/photo-1589571894960-20bbe2828e11?auto=format&fit=crop&w=500&q=80" alt="Huevos de Granja">
+    </div>
+
+    <!-- Detalles del producto -->
+    <div class="product-details">
+      <h1>Huevos de Granja</h1>
+      <p class="description">
+        Huevos frescos de granja, naturales y llenos de nutrientes. Ideales para tu desayuno, repostería o cualquier receta saludable.
+      </p>
+      <p class="price">$12.000 x docena</p>
+
+      <div class="quantity">
+        <label for="qty">Cantidad:</label>
+        <input type="number" id="qty" value="1" min="1">
+      </div>
+
+      <div class="buttons">
+        <button class="add-cart">Agregar al carrito</button>
+        <button class="buy-now">Comprar ahora</button>
+      </div>
+
+      <!-- Detalles saludables -->
+      <div class="nutritional-details">
+        <h2>Detalles y beneficios</h2>
+        <div class="nutritional-cards">
+          <div class="card">
+            <h3>Proteínas</h3>
+            <p>Los huevos son una excelente fuente de proteína de alta calidad para el desarrollo muscular y energía.</p>
+          </div>
+          <div class="card">
+            <h3>Vitaminas</h3>
+            <p>Ricos en vitaminas A, D, E y B12, esenciales para la visión, huesos y sistema inmunológico.</p>
+          </div>
+          <div class="card">
+            <h3>Minerales</h3>
+            <p>Contienen hierro, zinc y fósforo, que ayudan a mantener la salud ósea y la formación de glóbulos rojos.</p>
+          </div>
+          <div class="card">
+            <h3>Grasas saludables</h3>
+            <p>Incluyen grasas buenas que apoyan la función cerebral y el corazón, sin químicos ni aditivos.</p>
+          </div>
         </div>
       </div>
 
-      <!-- Info -->
-      <div class="col-md-6 d-flex flex-column justify-content-center">
-        <h2 class="fw-bold product-title">Huevos AA</h2>
-        <p class="text-muted">Frescos, de gallinas criadas en campo abierto. Ideales para tu familia.</p>
-        <div class="price mb-3">$6.000</div>
-
-        <div class="mb-3">
-          <label for="qty" class="form-label fw-bold">Cantidad</label>
-          <input type="number" id="qty" value="1" min="1" class="form-control w-25">
+      <!-- Reseñas -->
+      <div class="reviews">
+        <h2>Reseñas</h2>
+        <div class="review-card">
+          <p class="author">Juan P.</p>
+          <p>¡Excelente calidad! Los huevos son frescos y muy sabrosos.</p>
         </div>
-
-        <div class="d-flex gap-2">
-          <button class="btn btn-primary-custom px-4" id="btnAddCart">Agregar al carrito</button>
-          <button class="btn btn-success-custom px-4" id="btnBuyNow">Comprar ahora</button>
-        </div>
-
-        <div class="mt-4">
-          <h5>Detalles del producto</h5>
-          <ul>
-            <li>Calidad garantizada 🥚</li>
-            <li>Entrega a domicilio en 24h 🚚</li>
-            <li>Empaque ecológico ♻️</li>
-          </ul>
+        <div class="review-card">
+          <p class="author">María L.</p>
+          <p>Me encanta que sean naturales y de granja. Perfectos para mis recetas.</p>
         </div>
       </div>
     </div>
-  </main>
+  </div>
 
-  <footer>
-    © <strong>Distrihuevos JUANMA</strong> • Entregas rápidas • Contacto: +57 300 000 0000
-  </footer>
+<!-- ===== FOOTER ===== -->
+  <footer class="footer">
+  <div class="footer-container">
+    <div class="footer-info">
+      <p><span>Distrihuevos JUANMA</span></p>
+      <p>Huevos frescos del campo a tu mesa 🍳</p>
+      <p>Tel: 321 654 9870</p>
+      <p class="direccion"><strong>Dirección:</strong> Calle 12 #34-56, Barrio Campo Verde</p>
+    </div>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- JS personalizado -->
-  <script src="../js/product_detail.js"></script>
+    <div class="footer-links">
+      <a href="index.html">Inicio</a>
+      <a href="productos.html">Productos</a>
+      <a href="pedidos.html">Pedidos</a>
+      <a href="#" id="btnPerfilFooter">Perfil</a>
+    </div>
+
+    <div class="footer-icons">
+      <h4 class="contact-title">Contáctanos</h4>
+      <div class="icon-container">
+        <a href="https://www.facebook.com" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" class="footer-icon"></a>
+        <a href="https://www.instagram.com" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733558.png" alt="Instagram" class="footer-icon"></a>
+        <a href="https://wa.me/573216549870" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" class="footer-icon"></a>
+        <a href="mailto:contacto@distrihuevosjuanma.com"><img src="https://cdn-icons-png.flaticon.com/512/5968/5968534.png" alt="Correo" class="footer-icon"></a>
+      </div>
+    </div>
+  </div>
+</footer>
 </body>
 </html>

@@ -944,4 +944,3 @@ window.actualizarCarrito = actualizarCarrito;
 window.updateCartCount = updateCartCount;
 window.showRedToast = showRedToast;
 window.showGreenToast = showGreenToast;
-

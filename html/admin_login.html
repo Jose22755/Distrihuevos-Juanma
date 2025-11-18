@@ -165,6 +165,74 @@
         </div>
       </div>
     </section>
+
+
+        <!-- ===== SECCIÓN PEDIDOS ===== -->
+    <section id="pedidos" class="section">
+      <h2><i class="bi bi-truck"></i> Gestión de Pedidos</h2>
+      <p>Visualiza, actualiza y administra los pedidos de los clientes.</p>
+
+      <!-- Filtro de estado -->
+      <div class="filtro-contenedor">
+        <label for="filtroEstado">Filtrar por estado:</label>
+        <select id="filtroEstado">
+          <option value="todos">Todos</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="entregado">Entregado</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+      </div>
+
+
+      <div id="toast" class="toast"></div>
+
+
+      <div class="table-container mt-4">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle text-center" id="tablaPedidos">
+            <thead class="table-success">
+              <tr>
+                <th>ID Pedido</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Total</th>
+                <th>Detalles</th>
+              </tr>
+            </thead>
+            <tbody id="listaPedidos">
+              <!-- pedidos cargados dinámicamente -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modal detalles de pedido -->
+    <div class="modal fade" id="modalDetallePedido" tabindex="-1">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content modal-detalle">
+          
+          <div class="modal-header detalle-header">
+            <h5 class="titulo-detalles">
+              <i class="bi bi-receipt"></i> Detalles del Pedido
+            </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body detalle-body">
+            <div id="detallePedidoContent"></div>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn-cerrar" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <!-- ===== Scripts ===== -->

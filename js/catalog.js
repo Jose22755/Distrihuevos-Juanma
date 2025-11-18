@@ -351,7 +351,7 @@ async function guardarCarritoEnFirestore() {
   if (!usuarioUID) return;
   try {
     const carritoRef = doc(db, "carritos", usuarioUID);
-    await setDoc(carritoRef, { items: carrito }, { merge: true });
+    await setDoc(carritoRef, { items: carrito });
   } catch (err) {
     console.error("Error guardando carrito:", err);
   }
@@ -944,4 +944,3 @@ window.actualizarCarrito = actualizarCarrito;
 window.updateCartCount = updateCartCount;
 window.showRedToast = showRedToast;
 window.showGreenToast = showGreenToast;
-

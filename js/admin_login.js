@@ -444,3 +444,179 @@ function mostrarError(campo, mensaje) {
   if (input) input.classList.add("is-invalid");
   if (error) error.textContent = mensaje;
 }
+
+
+/* Logica para la gestion de PRODUCTOS */
+const listaPedidos = document.getElementById("listaPedidos");
+const filtroEstado = document.getElementById("filtroEstado");
+const detalleModal = new bootstrap.Modal(document.getElementById("modalDetallePedido"));
+window.detalleModal = detalleModal;
+const detallePedidoContent = document.getElementById("detallePedidoContent");
+
+// ===============================
+// 📌 Cargar pedidos
+// ===============================
+async function cargarPedidos() {
+  const snap = await getDocs(collection(db, "pedidos"));
+  const pedidos = [];
+
+  for (const docu of snap.docs) {
+    const data = docu.data();
+
+    let nombreCompleto = data.usuario; // primero usar lo que ya existe
+    if (!nombreCompleto && data.usuarioUID) {
+      nombreCompleto = await obtenerNombreCompleto(data.usuarioUID);
+    }
+    if (!nombreCompleto) nombreCompleto = "Nombre no disponible";
+
+    pedidos.push({
+      id: docu.id,
+      ...data,
+      nombreUsuario: nombreCompleto
+    });
+  }
+
+  mostrarPedidos(pedidos);
+}
+
+
+// ===============================
+// 📌 Función para aplicar colores al select
+// ===============================
+function aplicarColorEstado(select, estado) {
+  select.classList.remove(
+    "estado-pendiente",
+    "estado-entregado",
+    "estado-cancelado"
+  );
+
+  if (estado === "pendiente") select.classList.add("estado-pendiente");
+  if (estado === "entregado") select.classList.add("estado-entregado");
+  if (estado === "cancelado") select.classList.add("estado-cancelado");
+}
+
+// ===============================
+// 📌 Mostrar pedidos en tabla
+// ===============================
+function mostrarPedidos(pedidos) {
+  listaPedidos.innerHTML = "";
+  const estadoFiltro = filtroEstado.value;
+
+  pedidos
+    .filter(p => estadoFiltro === "todos" || p.estado === estadoFiltro)
+    .sort((a, b) => b.pedidoNumero - a.pedidoNumero)
+    .forEach(pedido => {
+
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${pedido.codigoPedido}</td>
+        <td>${pedido.nombreUsuario}</td>
+        <td>${pedido.fecha}</td>
+        <td>
+          <select class="form-select form-select-sm estadoPedido">
+            <option value="pendiente" ${pedido.estado === "pendiente" ? "selected" : ""}>Pendiente</option>
+            <option value="entregado" ${pedido.estado === "entregado" ? "selected" : ""}>Entregado</option>
+            <option value="cancelado" ${pedido.estado === "cancelado" ? "selected" : ""}>Cancelado</option>
+          </select>
+        </td>
+        <td>$${pedido.total}</td>
+        <td class="detalles-col">
+          <button class="btn-verDetalle" data-id="${pedido.id}">
+            Ver detalles
+          </button>
+        </td>
+      `;
+
+      listaPedidos.appendChild(tr);
+
+      const selectEstado = tr.querySelector(".estadoPedido");
+
+      // Aplicar color inicial
+      aplicarColorEstado(selectEstado, pedido.estado);
+
+      // Cambiar estado
+      selectEstado.addEventListener("change", async (e) => {
+        const nuevoEstado = e.target.value;
+
+        try {
+          await updateDoc(doc(db, "pedidos", pedido.id), { estado: nuevoEstado });
+
+          aplicarColorEstado(selectEstado, nuevoEstado); // Actualizar color
+
+          // Toast igual al de productos
+          Swal.fire({
+            toast: true,
+            position: "top-end",
+            icon: "success",
+            title: "Estado actualizado",
+            text: `Nuevo estado: ${nuevoEstado}`,
+            showConfirmButton: false,
+            timer: 1400,
+          });
+
+        } catch (err) {
+          Swal.fire({
+            toast: true,
+            position: "top-end",
+            icon: "error",
+            title: "Error",
+            text: "No se pudo actualizar el estado",
+            showConfirmButton: false,
+            timer: 1500
+          });
+        }
+      });
+
+      // Ver detalles
+      tr.querySelector(".btn-verDetalle").addEventListener("click", () => {
+        mostrarDetallePedido(pedido);
+      });
+    });
+}
+
+// ===============================
+// 📌 Modal detalles
+// ===============================
+function mostrarDetallePedido(pedido) {
+  const productosHTML = pedido.items?.length
+  
+    ? pedido.items.map(item => `
+        <div class="detalle-producto">
+          <span><strong>${item.nombre}</strong></span>
+          <span>Cantidad: ${item.cantidad}</span>
+          <span>Precio: $${Number(item.precio || 0).toLocaleString("es-CO")}</span>
+        </div>
+      `).join("")
+    : "<p>No hay productos registrados.</p>";
+
+  detallePedidoContent.innerHTML = `
+    <p><strong>Código:</strong> ${pedido.codigoPedido || "Sin código"}</p>
+    <p><strong>Usuario:</strong> ${pedido.nombreUsuario || pedido.usuario || "Desconocido"}</p>
+    <p><strong>Fecha:</strong> ${pedido.fecha}</p>
+    <p><strong>Estado:</strong> ${pedido.estado}</p>
+    <p><strong>Método de Pago:</strong> ${pedido.metodoPago || "No registrado"}</p>
+    <p><strong>Referencia Pago:</strong> ${pedido.referenciaPago || "---"}</p>
+
+    <h5 class="titulo-productos mt-3 mb-2">Productos</h5>
+    ${productosHTML}
+
+    <p class="detalle-total">
+      <span class="total-label">Total:</span>
+      <span class="total-valor">$${Number(pedido.total || 0).toLocaleString("es-CO")}</span>
+    </p>
+  `;
+
+  detalleModal.show();
+}
+
+
+// ===============================
+// 📌 Filtro
+// ===============================
+filtroEstado.addEventListener("change", cargarPedidos);
+
+// ===============================
+// 📌 Inicio
+// ===============================
+cargarPedidos();

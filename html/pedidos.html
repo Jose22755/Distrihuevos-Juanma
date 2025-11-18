@@ -27,7 +27,7 @@
           <span class="menu-label">INICIO</span>
         </div>
         <form id="searchForm" class="search-form" onsubmit="return false;">
-          <input type="text" id="busqueda" placeholder="Buscar productos..." />
+          <input type="text" id="busqueda" placeholder="Buscar por numero, fecha o estado..." />
           <button type="submit" class="btn-search"><i class="bi bi-search"></i></button>
         </form>
       </div>
@@ -43,10 +43,10 @@
           <span class="cart-text">Mi Carrito</span>
           <span class="cart-count">0</span>
         </a>
-        <a href="pedidos.html" class="ver-pedidos active">
-          <span>Mis pedidos</span>
+        <a href="productos.html" class="ver-pedidos active">
+           <i class="bi bi-box-seam me-2"></i>Productos
         </a>
-        <button class="logout-btn" id="logoutBtn" onclick="window.location.href='index.html'">
+        <button class="logout-btn" id="btnVolver">
           Volver <i class="bi bi-box-arrow-right"></i>
         </button>
       </div>
@@ -77,7 +77,7 @@
       <table class="tabla-pedidos">
         <thead>
           <tr>
-            <th>Tracking ID</th>
+            <th>Numero de pedido</th>
             <th>Fecha</th>
             <th>Cantidad</th>
             <th>Estado</th>
@@ -89,9 +89,13 @@
         <tbody id="bodyPedidos"></tbody>
       </table>
 
+      <p id="sinResultados" class= "vacio" style="display:none; text-align:center; margin-top:10px;">
+        No hay resultados.
+      </p>
+
       <!-- Mensaje cuando no hay pedidos -->
       <div id="mensajeVacio" class="vacio" style="display:none;">
-        No tienes pedidos registrados 🥚
+        ¡No tienes pedidos registrados!
       </div>
     </div>
   </main>

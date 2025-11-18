@@ -497,3 +497,250 @@ body {
   margin-top: 2px;
   display: block;
 }
+
+
+/* ESTILOD FILTRO DE BUSQUEDA DE ESTAD0 */
+.filtro-contenedor {
+  display: flex;
+  align-items: center !important;
+  gap: 12px;
+  background: #ffffff;
+  padding: 10px 14px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  width: max-content;
+  margin-bottom: 20px;
+  margin: 0 auto 20px auto; /* centra horizontalmente */
+
+}
+
+.filtro-contenedor label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+#filtroEstado {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+#filtroEstado:hover {
+  background: #f0f0f0;
+}
+
+#filtroEstado:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 4px rgba(74,144,226,0.5);
+}
+
+.estado-pendiente {
+  background-color: #fff3cd !important; /* Amarillo suave */
+  color: #856404 !important;
+  border-color: #ffeeba !important;
+  font-weight: 600;
+}
+
+.estado-entregado {
+  background-color: #d4edda !important; /* Verde suave */
+  color: #155724 !important;
+  border-color: #c3e6cb !important;
+  font-weight: 600;
+}
+
+.estado-cancelado {
+  background-color: #f8d7da !important; /* Rojo suave */
+  color: #721c24 !important;
+  border-color: #f5c6cb !important;
+  font-weight: 600;
+}
+
+/* Para que el selector no pierda estilo */
+.estadoPedido {
+  transition: 0.2s ease-in-out;
+}
+
+/* Columna acciones */
+.acciones {
+  text-align: center;
+}
+
+/* Botón de ver detalles */
+.btn-verDetalle {
+  padding: 6px 14px;
+  font-size: 13px;
+  background: #e8f3ff;          /* azul suave */
+  border: 1px solid #b5d4ff;
+  color: #1a73e8;                /* azul Google */
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-verDetalle:hover {
+  background: #d4e7ff;
+  border-color: #8bb7ff;
+  color: #0b5fd3;
+  transform: translateY(-1px);
+}
+
+.btn-verDetalle:active {
+  transform: scale(0.97);
+}
+
+td.detalles-col {
+  background: transparent !important;
+}
+
+
+/* Modal estilizado */
+.modal-detalle {
+  border-radius: 14px;
+  overflow: hidden;
+  border: none;
+}
+
+
+.detalle-header {
+  background: #0c8c4d;
+  color: white;
+  padding: 16px 20px;
+  font-weight: bold;
+}
+
+
+.detalle-body {
+  padding: 22px 26px;
+  font-size: 16px;
+  color: #333;
+}
+
+.detalle-body p {
+  margin-bottom: 10px;
+}
+
+.detalle-body strong {
+  color: #000000;
+}
+
+/* Lista de productos */
+.detalle-producto {
+  background: #f5f5f5;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border-left: 4px solid #0c8c4d;
+}
+
+.detalle-producto span {
+  display: block;
+  font-size: 15px;
+}
+
+/* Total */
+.detalle-total {
+  margin-top: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #0c8c4d;
+}  
+
+.modal-footer .btn-cerrar {
+  background-color: #ff4b4b;   /* Rojo más moderno */
+  color: #ffffff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  transition: 0.25s ease-in-out;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.modal-footer .btn-cerrar:hover {
+  background-color: #d62828;   /* Rojo oscuro elegante */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+#modalDetallePedido .modal-footer {
+  display: flex;
+  justify-content: center;     /* Centra el botón */
+  padding: 1.2rem 0 1.6rem;     /* Más espacio abajo */
+}
+
+
+.detalle-header {
+  position: relative;
+  padding-top: 1.2rem;   /* Ajusta si lo quieres más abajo */
+  padding-bottom: .8rem;
+}
+
+.titulo-detalles {
+  color: #ffffff !important;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: .5px;
+
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+  width: auto;           /* ← CAMBIO CLAVE */
+  pointer-events: none;  /* ← Evita que vuelva a tapar la X */
+  white-space: nowrap;   /* ← Evita que se parta la línea */
+}
+
+
+
+.titulo-productos {
+  color: #000 !important;
+  font-weight: 600;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+/* Solo el precio centrado */
+/* Precio centrado y en naranja */
+.detalle-precio {
+  text-align: center;
+  color: #ff7b00 !important;
+  font-weight: 700;
+  display: block;
+}
+
+/* Contenedor del total centrado */
+.detalle-total {
+  text-align: center;
+  margin-top: 12px;
+}
+
+/* Texto "Total:" en negro */
+.detalle-total .total-label {
+  color: #000 !important;
+  font-weight: 700;
+}
+
+/* Valor del total en naranja */
+.detalle-total .total-valor {
+  color: #ff7b00 !important;
+  font-weight: 700;
+}
+
+/* Quitar borde azul del botón de cerrar */
+.btn-close:focus,
+.btn-close:active {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+
+

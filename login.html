@@ -333,7 +333,7 @@ form.addEventListener('submit', async (e)=>{
   try{
     const userCredential = await signInWithEmailAndPassword(auth, fields.email.value.trim(), fields.pass.value.trim());
     const user = userCredential.user;
-    const userRef = doc(db, "users", user.uid);
+    const userRef = doc(db, "users", user.email);
     const userSnap = await getDoc(userRef);
 
     hideSpinner();
@@ -385,7 +385,7 @@ googleBtn.addEventListener("click", async () => {
     const user = result.user;
 
     // 🔥 Verificamos Firestore
-    const userRef = doc(db, "users", user.uid);
+    const userRef = doc(db, "users", user.email);
     const userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {

@@ -122,6 +122,14 @@ function cargarPedidos() {
 
     // 🔹 Reasignar eventos
     asignarEventos();
+
+    // ----- BUSCADOR POR TRACKING ID -----
+const inputBusqueda = document.getElementById("busqueda");
+inputBusqueda?.addEventListener("input", () => {
+  const texto = inputBusqueda.value.trim().toLowerCase();
+  filtrarPorTracking(texto);
+});
+
   });
 }
 
@@ -129,6 +137,8 @@ function cargarPedidos() {
 filtroSelect?.addEventListener("change", () => {
   cargarPedidos();
 });
+
+
 
 // ------------------------------------------------------------
 // FUNCIONES DE EVENTOS
@@ -250,3 +260,45 @@ function mostrarConfirmacion(mensaje, callbackConfirmar) {
 
   btnCancelar.onclick = cerrar;
 }
+// -------------------------------------------------------------
+// BUSQUEDA EN TIEMPO REAL
+// -------------------------------------------------------------
+function filtrarPorTracking(texto) {
+  const filas = document.querySelectorAll("#bodyPedidos tr");
+  const mensaje = document.getElementById("sinResultados");
+
+  let coincidencias = 0;
+
+  filas.forEach(fila => {
+    const tracking = fila.querySelector("td:nth-child(1)")?.textContent.toLowerCase() || "";
+    const fecha = fila.querySelector("td:nth-child(2)")?.textContent.toLowerCase() || "";
+    const estado = fila.querySelector("td:nth-child(4)")?.textContent.toLowerCase() || "";
+
+    if (
+      tracking.includes(texto) ||
+      fecha.includes(texto) ||
+      estado.includes(texto)
+    ) {
+      fila.style.display = "";
+      coincidencias++;
+    } else {
+      fila.style.display = "none";
+    }
+  });
+
+  // Mostrar u ocultar mensaje
+  mensaje.style.display = coincidencias === 0 ? "block" : "none";
+}
+
+
+// --------------------------------------------------------------
+// LOGICA BOTON "VOLVER"
+// --------------------------------------------------------------
+
+document.getElementById("btnVolver")?.addEventListener("click", () => {
+  if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    window.location.href = "index.html"; // Respaldo
+  }
+});
