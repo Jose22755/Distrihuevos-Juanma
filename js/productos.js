@@ -120,212 +120,216 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (loadingMessage) loadingMessage.style.display = "block";
   if (contenedor) contenedor.style.display = "none";
 
-  try {
-    const q = await getDocs(collection(db, "products"));
-    if (q.empty) {
-      contenedor.innerHTML = "<p>No hay productos disponibles.</p>";
-    } else {
-      productosArray = [];
-      q.forEach(docSnap => {
-        const p = docSnap.data();
-        p.id = docSnap.id;
-        productosArray.push(p);
-        stockCache[p.id] = p.Stock ?? 0;
-      });
-      renderProductos(productosArray);
-    }
-  } catch (err) {
-    console.error("Error cargando productos:", err);
-    contenedor.innerHTML = "<p>Error al cargar productos.</p>";
-  } finally {
-    hideSpinner();
-    setTimeout(() => {
-      if (loadingMessage) loadingMessage.style.display = "none";
-      if (contenedor) contenedor.style.display = "grid";
-    }, 800);
-  }
+const productosRef = collection(db, "products");
+
+onSnapshot(productosRef, (snapshot) => {
+  productosArray = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  productosArray.forEach(p => stockCache[p.id] = p.Stock ?? 0);
+  renderProductos(productosArray);
+
+  hideSpinner();
+  if (loadingMessage) loadingMessage.style.display = "none";
+  if (contenedor) contenedor.style.display = "grid";
+}, (err) => {
+  console.error("Error escuchando productos:", err);
+  contenedor.innerHTML = "<p>Error al cargar productos.</p>";
+  hideSpinner();
+  if (loadingMessage) loadingMessage.style.display = "none";
+});
 
   // =========================
   // RENDER PRODUCTOS (con delegación de eventos para btn-add)
   // =========================
-  function renderProductos(productos) {
-    if (!contenedor) return;
-    if (renderizando) return;
-    renderizando = true;
+function renderProductos(productos) {
+  if (!contenedor) return;
+  if (renderizando) return;
+  renderizando = true;
 
+  // ⚡ Verificar si hay cambios reales para evitar parpadeo
+  const currentIds = Array.from(contenedor.querySelectorAll(".card")).map(c => c.dataset.id);
+  const newIds = productos.map(p => p.id);
+  const hayCambios = currentIds.length !== newIds.length || !newIds.every(id => currentIds.includes(id));
+
+  if (hayCambios) {
     contenedor.classList.remove("fade-in");
     contenedor.classList.add("fade-out");
+  }
 
-    setTimeout(() => {
-      // limpiar contenedor
-      contenedor.innerHTML = "";
+  setTimeout(() => {
+    if (hayCambios) contenedor.innerHTML = "";
 
-      if (!productos || productos.length === 0) {
-        contenedor.innerHTML = "<p>No se encontraron productos.</p>";
-        renderizando = false;
+    if (!productos || productos.length === 0) {
+      contenedor.innerHTML = "<p>No se encontraron productos.</p>";
+      renderizando = false;
+      if (hayCambios) {
         contenedor.classList.remove("fade-out");
         contenedor.classList.add("fade-in");
-        return;
       }
+      return;
+    }
 
-      productos.forEach(p => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.dataset.id = p.id;
-        card.dataset.cat = (p.Categoria || "general").toLowerCase();
+    productos.forEach(p => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.dataset.id = p.id;
+      card.dataset.cat = (p.Categoria || "general").toLowerCase();
 
-        const tieneStock = (p.Stock ?? 0) > 0;
-        const stockTexto = tieneStock ? `Stock: ${p.Stock}` : "Agotado";
-        const stockColor = tieneStock ? "linear-gradient(90deg,#4CAF50,#81C784)" : "linear-gradient(90deg,#e53935,#ef5350)";
-        const btnTexto = tieneStock ? "Agregar" : "Sin productos";
-        const btnColor = tieneStock ? "linear-gradient(90deg,#4CAF50,#66bb6a)" : "linear-gradient(90deg,#9e9e9e,#bdbdbd)";
+      const tieneStock = (p.Stock ?? 0) > 0;
+      const stockTexto = tieneStock ? `Stock: ${p.Stock}` : "Agotado";
+      const stockColor = tieneStock ? "linear-gradient(90deg,#4CAF50,#81C784)" : "linear-gradient(90deg,#e53935,#ef5350)";
+      const btnTexto = tieneStock ? "Agregar" : "Sin productos";
+      const btnColor = tieneStock ? "linear-gradient(90deg,#4CAF50,#66bb6a)" : "linear-gradient(90deg,#9e9e9e,#bdbdbd)";
 
-        card.innerHTML = `
-          <img src="${p.imagen || 'https://cdn.pixabay.com/photo/2017/03/19/03/18/eggs-2151533_1280.jpg'}" alt="${p.Nombre}">
-          <div class="card-content">
-            <h3>${p.Nombre}</h3>
-            <p>${p.Descripción || ""}</p>
-            <p class="price">$${p.Precio?.toLocaleString() || 0}</p>
-            <p class="stock" style="background:${stockColor};">${stockTexto}</p>
-            <div class="card-controls">
-              <div class="cantidad-control" data-product-id="${p.id}">
-                <button class="menos">-</button>
-                <span class="cantidad">1</span>
-                <button class="mas">+</button>
-              </div>
-              <button class="btn-add" data-product-id="${p.id}" style="background:${btnColor}" ${tieneStock ? "" : "disabled"}>
-                <i class="bi bi-cart-plus"></i> ${btnTexto}
-              </button>
+      card.innerHTML = `
+        <img src="${p.imagen || 'https://cdn.pixabay.com/photo/2017/03/19/03/18/eggs-2151533_1280.jpg'}" alt="${p.Nombre}">
+        <div class="card-content">
+          <h3>${p.Nombre}</h3>
+          <p>${p.Descripción || ""}</p>
+          <p class="price">$${p.Precio?.toLocaleString() || 0}</p>
+          <p class="stock" style="background:${stockColor};">${stockTexto}</p>
+          <div class="card-controls">
+            <div class="cantidad-control" data-product-id="${p.id}">
+              <button class="menos">-</button>
+              <span class="cantidad">1</span>
+              <button class="mas">+</button>
             </div>
-            <a class="btn-detalle" href="product_detail.htm+?id=${p.id}">Ver más detalles</a>
+            <button class="btn-add" data-product-id="${p.id}" style="background:${btnColor}" ${tieneStock ? "" : "disabled"}>
+              <i class="bi bi-cart-plus"></i> ${btnTexto}
+            </button>
           </div>
-        `;
+          <a class="btn-detalle" href="product_detail.html?id=${p.id}">Ver más detalles</a>
+        </div>
+      `;
 
-        contenedor.appendChild(card);
+      if (hayCambios) contenedor.appendChild(card);
 
-        // Inicializar stock local variable para control por card
-        stockCache[p.id] = stockCache[p.id] ?? (p.Stock ?? 0);
+      stockCache[p.id] = stockCache[p.id] ?? (p.Stock ?? 0);
+    });
+
+    // Delegación para controles de cantidad
+    contenedor.querySelectorAll(".cantidad-control").forEach(control => {
+      const productId = control.dataset.productId;
+      const cantidadEl = control.querySelector(".cantidad");
+      let cantidad = 1;
+
+      control.querySelector(".mas")?.addEventListener("click", () => {
+        const stockActual = stockCache[productId] ?? 0;
+        if (cantidad < stockActual) {
+          cantidad++;
+          if (cantidadEl) cantidadEl.textContent = cantidad;
+        }
       });
 
-      // Delegación para controles de cantidad (mas/menos)
-      contenedor.querySelectorAll(".cantidad-control").forEach(control => {
-        const productId = control.dataset.productId;
-        const cantidadEl = control.querySelector(".cantidad");
-        let cantidad = 1;
-
-        control.querySelector(".mas")?.addEventListener("click", () => {
-          const stockActual = stockCache[productId] ?? 0;
-          if (cantidad < stockActual) {
-            cantidad++;
-            if (cantidadEl) cantidadEl.textContent = cantidad;
-          }
-        });
-
-        control.querySelector(".menos")?.addEventListener("click", () => {
-          if (cantidad > 1) {
-            cantidad--;
-            if (cantidadEl) cantidadEl.textContent = cantidad;
-          }
-        });
+      control.querySelector(".menos")?.addEventListener("click", () => {
+        if (cantidad > 1) {
+          cantidad--;
+          if (cantidadEl) cantidadEl.textContent = cantidad;
+        }
       });
+    });
 
-      // Delegación única: manejar clicks en botones "Agregar"
-      // Para evitar duplicación de handlers, siempre usar un único listener en el contenedor
-      // y filtrar por el selector .btn-add
-      // Antes de añadirlo, quitamos cualquier listener previo idéntico (protección)
-      // Nota: no existe forma directa de eliminar listener anonymous — usamos atributo data para bloqueo
-      if (!contenedor._hasAddDelegate) {
-        contenedor.addEventListener("click", async (e) => {
-          const btn = e.target.closest && e.target.closest(".btn-add");
-          if (!btn) return;
-          e.preventDefault();
+    // Delegación única para botón "Agregar"
+    if (!contenedor._hasAddDelegate) {
+      contenedor.addEventListener("click", async (e) => {
+        const btn = e.target.closest && e.target.closest(".btn-add");
+        if (!btn) return;
+        e.preventDefault();
 
-          const productId = btn.dataset.productId;
-          if (!productId) return;
+        const productId = btn.dataset.productId;
+        if (!productId) return;
 
-          // Buscamos card y cantidad seleccionada
-          const card = document.querySelector(`.card[data-id="${productId}"]`);
-          if (!card) return;
+        const card = document.querySelector(`.card[data-id="${productId}"]`);
+        if (!card) return;
 
-          const cantidadEl = card.querySelector(".cantidad");
-          const cantidad = parseInt(cantidadEl?.textContent || "1", 10) || 1;
+        const cantidadEl = card.querySelector(".cantidad");
+        const cantidad = parseInt(cantidadEl?.textContent || "1", 10) || 1;
 
-          // Lock por botón: evitar doble-click rápido
-          if (btn.dataset.locked === "1") return;
-          btn.dataset.locked = "1";
-          btn.disabled = true;
-          btn.style.opacity = "0.7";
+        if (btn.dataset.locked === "1") return;
+        btn.dataset.locked = "1";
+        btn.disabled = true;
+        btn.style.opacity = "0.7";
+
+        try {
+          const producto = productosArray.find(x => x.id === productId);
+          const stockActual = stockCache[productId] ?? (producto?.Stock ?? 0);
+
+          if ((stockActual ?? 0) <= 0) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Sin stock',
+            text: 'Este producto ya no tiene unidades disponibles',
+            showConfirmButton: false,
+            timer: 1800
+          });
+            return;
+          }
+
+          const take = Math.min(cantidad, stockActual);
+
+          const existente = carrito.find(item => item.id === productId);
+          if (existente) {
+            existente.cantidad += take;
+          } else {
+            carrito.push({
+              id: productId,
+              nombre: producto?.Nombre || "Producto",
+              precio: producto?.Precio || 0,
+              imagen: producto?.imagen || "",
+              cantidad: take
+            });
+          }
+
+          const nuevoStock = Math.max((stockActual ?? 0) - take, 0);
+          stockCache[productId] = nuevoStock;
+
+          const idx = productosArray.findIndex(x => x.id === productId);
+          if (idx !== -1) productosArray[idx].Stock = nuevoStock;
+
+          localStorage.setItem("carrito", JSON.stringify(carrito));
+          actualizarCarrito();
+          renderCartPanel();
+          Swal.fire({
+            icon: 'success',
+            title: 'Producto agregado',
+            text: `"${producto?.Nombre || 'Producto'}" se agregó al carrito`,
+            showConfirmButton: false,
+            timer: 700          
+           });
+          if (usuarioUID) await guardarCarritoEnFirestore();
 
           try {
-            // Obtener producto desde productosArray
-            const producto = productosArray.find(x => x.id === productId);
-            const stockActual = stockCache[productId] ?? (producto?.Stock ?? 0);
-
-            if ((stockActual ?? 0) <= 0) {
-              showGreenToast("Sin stock disponible ❌");
-              return;
-            }
-
-            const take = Math.min(cantidad, stockActual);
-
-            // Añadir/actualizar carrito
-            const existente = carrito.find(item => item.id === productId);
-            if (existente) {
-              existente.cantidad = existente.cantidad + take;
-            } else {
-              carrito.push({
-                id: productId,
-                nombre: producto?.Nombre || "Producto",
-                precio: producto?.Precio || 0,
-                imagen: producto?.imagen || "",
-                cantidad: take
-              });
-            }
-
-            // Actualizar cache y Firestore stock
-            const nuevoStock = Math.max((stockActual ?? 0) - take, 0);
-            stockCache[productId] = nuevoStock;
-
-            // Actualizar productosArray para mantener coherencia en futuras operaciones
-            const idx = productosArray.findIndex(x => x.id === productId);
-            if (idx !== -1) productosArray[idx].Stock = nuevoStock;
-
-            // Persistir carrito local y remoto
-            localStorage.setItem("carrito", JSON.stringify(carrito));
-            actualizarCarrito();
-            renderCartPanel();
-            showGreenToast(`"${producto?.Nombre || 'Producto'}" agregado al carrito ✅`);
-            if (usuarioUID) await guardarCarritoEnFirestore();
-
-            // Actualizar Firestore de stock (no se espera, pero se espera aquí para consistencia)
-            try {
-              await updateDoc(doc(db, "products", productId), { Stock: nuevoStock });
-            } catch (err) {
-              console.error("Error actualizando stock en Firestore:", err);
-            }
-
-            // Actualizar visual del card
-            actualizarStockCard(productId, nuevoStock);
-
-            // reset contador visual a 1
-            if (cantidadEl) cantidadEl.textContent = "1";
+            await updateDoc(doc(db, "products", productId), { Stock: nuevoStock });
           } catch (err) {
-            console.error("Error manejando agregar:", err);
-          } finally {
-            // unlock
-            delete btn.dataset.locked;
-            btn.disabled = false;
-            btn.style.opacity = "1";
+            console.error("Error actualizando stock en Firestore:", err);
           }
-        });
-        contenedor._hasAddDelegate = true;
-      }
 
+          actualizarStockCard(productId, nuevoStock);
+
+          if (cantidadEl) cantidadEl.textContent = "1";
+        } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Hubo un problema agregando el producto',
+          showConfirmButton: false,
+          timer: 1800        
+  });
+        } finally {
+          delete btn.dataset.locked;
+          btn.disabled = false;
+          btn.style.opacity = "1";
+        }
+      });
+      contenedor._hasAddDelegate = true;
+    }
+
+    if (hayCambios) {
       contenedor.classList.remove("fade-out");
       contenedor.classList.add("fade-in");
-      renderizando = false;
-    }, 300);
-  } // end renderProductos
+    }
+    renderizando = false;
+  }, hayCambios ? 300 : 0);
+}
 
   // =========================
   // SINCRONIZACIÓN CARRITO CON FIRESTORE
@@ -357,54 +361,125 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  function escucharCambiosCarrito() {
-    if (!usuarioUID) return;
-    const docRef = doc(db, "carritos", usuarioUID);
-    onSnapshot(docRef, (snapshot) => {
-      if (snapshot.exists()) {
-        carrito = snapshot.data().items || [];
-        localStorage.setItem("carrito", JSON.stringify(carrito));
-        renderCartPanel();
-        actualizarCarrito();
+function escucharCambiosCarrito() {
+  if (!usuarioUID) return;
+  const docRef = doc(db, "carritos", usuarioUID);
+
+  onSnapshot(docRef, (snapshot) => {
+    if (!snapshot.exists()) return;
+
+    const nuevosItems = snapshot.data().items || [];
+
+    // 🔹 Crear un mapa de cantidades por id de producto
+    const cantidadesPrevias = {};
+    carrito.forEach(item => cantidadesPrevias[item.id] = item.cantidad);
+
+    // Actualizamos carrito
+    carrito = nuevosItems;
+    localStorage.setItem("carrito", JSON.stringify(carrito));
+
+    // 🔹 Actualizar solo cantidades en las cards que cambiaron
+    carrito.forEach(item => {
+      const prevCantidad = cantidadesPrevias[item.id] ?? 0;
+      if (prevCantidad !== item.cantidad) {
+        const card = document.querySelector(`.card[data-id="${item.id}"]`);
+        if (card) {
+          const cantidadEl = card.querySelector(".cantidad");
+          if (cantidadEl) cantidadEl.textContent = item.cantidad;
+        }
       }
     });
-  }
+
+    // 🔹 Si el carrito quedó vacío, reiniciamos inicialización para render vacío
+    const cartItemsContainer = document.getElementById("cart-items");
+    if (carrito.length === 0 && cartItemsContainer) {
+      cartItemsContainer._initialized = false;
+    }
+
+    // 🔹 Actualizar contador y panel lateral
+    actualizarCarrito();
+    renderCartPanel(true); // solo actualizar cantidades, o mostrar vacío si está vacío
+  });
+}
 
   // =========================
   // VACIAR CARRITO / CHECKOUT
   // =========================
-  const clearCartBtn = document.getElementById("clear-cart");
-  clearCartBtn?.addEventListener("click", async () => {
-    // Antes de vaciar reponemos stocks en Firestore (opcional, según tu lógica)
-    try {
-      for (const item of carrito) {
-        const productoRef = doc(db, "products", item.id);
-        // Obtener stock actual y sumarle item.cantidad
-        const snap = await getDoc(productoRef);
-        let stockActual = snap.exists() ? (snap.data().Stock ?? 0) : (stockCache[item.id] ?? 0);
-        stockActual += item.cantidad;
-        await updateDoc(productoRef, { Stock: stockActual });
-        stockCache[item.id] = stockActual;
-        const idx = productosArray.findIndex(p => p.id === item.id);
-        if (idx !== -1) productosArray[idx].Stock = stockActual;
-        actualizarStockCard(item.id, stockActual);
-      }
-    } catch (err) {
-      console.error("Error reponiendo stock al vaciar carrito:", err);
+const clearCartBtn = document.getElementById("clear-cart");
+
+clearCartBtn?.addEventListener("click", async () => {
+
+  // ⭐ NUEVA VALIDACIÓN ANTES DE TODO
+  if (!carrito || carrito.length === 0) {
+    return Swal.fire({
+      icon: "info",
+      title: "Carrito vacío",
+      text: "No hay productos en el carrito.",
+      showConfirmButton: false,
+      timer: 1500
+    });
+  }
+
+  try {
+    // 🔹 Reponer stock de cada producto
+    for (const item of carrito) {
+      const productoRef = doc(db, "products", item.id);
+      const snap = await getDoc(productoRef);
+
+      let stockActual = snap.exists()
+        ? (snap.data().Stock ?? 0)
+        : (stockCache[item.id] ?? 0);
+
+      stockActual += item.cantidad;
+
+      await updateDoc(productoRef, { Stock: stockActual });
+
+      stockCache[item.id] = stockActual;
+
+      const idx = productosArray.findIndex(p => p.id === item.id);
+      if (idx !== -1) productosArray[idx].Stock = stockActual;
+
+      actualizarStockCard(item.id, stockActual);
     }
 
+    // 🔹 Vaciar carrito
     carrito = [];
     localStorage.setItem("carrito", JSON.stringify(carrito));
     await guardarCarritoEnFirestore();
+
+    // 🔹 Actualizar cards visibles
+    productosArray.forEach(p =>
+      actualizarStockCard(p.id, stockCache[p.id] ?? 0)
+    );
+
     renderCartPanel();
     actualizarCarrito();
-    showGreenToast("Carrito vaciado 🗑️");
-  });
+
+    // ⭐ SWEET ALERT DE ÉXITO (sin botón)
+    Swal.fire({
+      icon: 'success',
+      title: 'Carrito vacío',
+      text: 'Tu carrito ha sido limpiado completamente',
+      showConfirmButton: false,
+      timer: 1800
+    });
+
+  } catch (err) {
+    console.error("Error reponiendo stock al vaciar carrito:", err);
+  }
+});
+
 
   const checkoutBtn = document.getElementById("checkout");
 checkoutBtn?.addEventListener("click", () => {
   if (carrito.length === 0) {
-    showGreenToast("Tu carrito está vacío 🛒❌ No puedes finalizar la compra", 2500);
+    Swal.fire({
+  icon: 'success',
+  title: 'Carrito vacío',
+  text: 'Tu carrito está vacío 🛒❌ No puedes finalizar la compra',
+  showConfirmButton: false,
+  timer: 1800
+});
     return;
   }
   window.location.href = "cart.html";
@@ -535,36 +610,34 @@ checkoutBtn?.addEventListener("click", () => {
     window.location.href = "cart.html";
   });
 
-  // =========================
-  // RENDER PANEL CARRITO (delegación de eventos)
-  // =========================
-  function renderCartPanel() {
-    const cartItemsContainer = document.getElementById("cart-items");
-    const subtotalEl = document.getElementById("cart-subtotal");
-    const totalEl = document.getElementById("cart-total");
-    if (!cartItemsContainer) return;
+function renderCartPanel(soloActualizarCantidades = false) {
+  const cartItemsContainer = document.getElementById("cart-items");
+  const subtotalEl = document.getElementById("cart-subtotal");
+  const totalEl = document.getElementById("cart-total");
+  if (!cartItemsContainer) return;
 
-    if (!carrito || carrito.length === 0) {
-      cartItemsContainer.innerHTML = `<p class="empty-cart">Tu carrito está vacío 🛍️</p>`;
-      if (subtotalEl) subtotalEl.textContent = "$0";
-      if (totalEl) totalEl.textContent = "$0";
-      cartItemsContainer.onclick = cartItemsContainer.onclick || (() => {});
-      return;
-    }
+  // Si el carrito está vacío
+  if (!carrito || carrito.length === 0) {
+    cartItemsContainer.innerHTML = `<p class="empty-cart">Tu carrito está vacío 🛍️</p>`;
+    if (subtotalEl) subtotalEl.textContent = "$0";
+    if (totalEl) totalEl.textContent = "$0";
+    cartItemsContainer._initialized = false; // reiniciar render
+    actualizarCarrito();
+    return;
+  }
 
+  // Render inicial o forzado
+  if (!cartItemsContainer._initialized || !soloActualizarCantidades) {
     let html = "";
-    let subtotal = 0;
     carrito.forEach((item, index) => {
-      const itemTotal = (item.precio || 0) * (item.cantidad || 0);
-      subtotal += itemTotal;
       html += `
         <div class="cart-item" data-index="${index}">
           <img src="${item.imagen || 'https://cdn.pixabay.com/photo/2017/03/19/03/18/eggs-2151533_1280.jpg'}" alt="${item.nombre}" class="cart-item-img">
           <div class="cart-item-info">
             <h4>${item.nombre}</h4>
-            <p><span class="precio-label">Precio:</span> $${(item.precio || 0).toLocaleString()}</p>
+            <p>Precio: $${(item.precio || 0).toLocaleString()}</p>
             <div class="cart-item-actions">
-              <span class="cantidad-label">Cant:</span>
+              <span>Cant:</span>
               <button class="qty-btn minus" data-index="${index}">−</button>
               <span class="cart-qty">${item.cantidad}</span>
               <button class="qty-btn plus" data-index="${index}">+</button>
@@ -574,13 +647,26 @@ checkoutBtn?.addEventListener("click", () => {
         </div>
       `;
     });
-
     cartItemsContainer.innerHTML = html;
-    if (subtotalEl) subtotalEl.textContent = `$${subtotal.toLocaleString()}`;
-    if (totalEl) totalEl.textContent = `$${subtotal.toLocaleString()}`;
+    cartItemsContainer._initialized = true;
+  } else {
+    // Solo actualizar cantidades
+    carrito.forEach((item, index) => {
+      const cartItemQty = cartItemsContainer.querySelector(`.cart-item[data-index="${index}"] .cart-qty`);
+      if (cartItemQty) cartItemQty.textContent = item.cantidad;
+    });
+  }
 
-    // Delegación: un único listener para el contenedor del carrito
-    cartItemsContainer.onclick = async (e) => {
+  // Actualizar subtotal/total
+  const subtotal = carrito.reduce((sum, item) => sum + ((item.precio || 0) * (item.cantidad || 0)), 0);
+  if (subtotalEl) subtotalEl.textContent = `$${subtotal.toLocaleString()}`;
+  if (totalEl) totalEl.textContent = `$${subtotal.toLocaleString()}`;
+
+  actualizarCarrito();
+
+  // Delegación de botones: solo una vez
+  if (!cartItemsContainer._hasClickDelegate) {
+    cartItemsContainer.addEventListener("click", async (e) => {
       const btn = e.target.closest("button");
       if (!btn) return;
       const idxAttr = btn.dataset.index;
@@ -589,70 +675,87 @@ checkoutBtn?.addEventListener("click", () => {
       const item = carrito[idx];
       if (!item) return;
 
+      const cartItemEl = cartItemsContainer.querySelector(`.cart-item[data-index="${idx}"]`);
+      const qtyEl = cartItemEl?.querySelector(".cart-qty");
+
       // + (aumentar)
       if (btn.classList.contains("plus")) {
-        const productoRef = doc(db, "products", item.id);
         let stockActual = stockCache[item.id] ?? (productosArray.find(p => p.id === item.id)?.Stock ?? 0);
         if (stockActual <= 0) {
-          showGreenToast("Sin stock disponible ❌");
+        Swal.fire({
+          icon: 'error',
+          title: 'Sin stock',
+          text: 'Este producto ya no tiene unidades disponibles',
+          confirmButtonColor: '#e53935'
+        });
           return;
         }
         item.cantidad += 1;
         stockActual -= 1;
         stockCache[item.id] = stockActual;
-        try { await updateDoc(productoRef, { Stock: stockActual }); } catch (err) { console.error(err); }
+
+        if (qtyEl) qtyEl.textContent = item.cantidad;
+        actualizarStockCard(item.id, stockActual);
         localStorage.setItem("carrito", JSON.stringify(carrito));
         setTimeout(() => guardarCarritoEnFirestore(), 0);
-        actualizarStockCard(item.id, stockActual);
-        renderCartPanel();
         actualizarCarrito();
         return;
       }
 
       // - (disminuir)
       if (btn.classList.contains("minus")) {
-        const productoRef = doc(db, "products", item.id);
         let stockActual = stockCache[item.id] ?? (productosArray.find(p => p.id === item.id)?.Stock ?? 0);
         stockActual += 1;
+
         if (item.cantidad > 1) item.cantidad -= 1;
         else carrito.splice(idx, 1);
+
         stockCache[item.id] = stockActual;
-        try { await updateDoc(productoRef, { Stock: stockActual }); } catch (err) { console.error(err); }
+
+        // Actualizar visual
+        if (qtyEl) qtyEl.textContent = item.cantidad ?? 0;
+        actualizarStockCard(item.id, stockActual);
+
         localStorage.setItem("carrito", JSON.stringify(carrito));
         setTimeout(() => guardarCarritoEnFirestore(), 0);
+
+        // Si eliminamos todo, reiniciar inicialización
+        if (carrito.length === 0) cartItemsContainer._initialized = false;
         renderCartPanel();
-        actualizarStockCard(item.id, stockActual);
-        actualizarCarrito();
         return;
       }
 
       // eliminar
       if (btn.classList.contains("remove-item")) {
-        try {
-          const productoRef = doc(db, "products", item.id);
-          const productoSnap = await getDoc(productoRef);
-          let stockActual = productoSnap.exists() ? (productoSnap.data().Stock ?? 0) : (stockCache[item.id] ?? 0);
-          stockActual += item.cantidad;
-          await updateDoc(productoRef, { Stock: stockActual });
-          stockCache[item.id] = stockActual;
-          const idxProd = productosArray.findIndex(p => p.id === item.id);
-          if (idxProd !== -1) productosArray[idxProd].Stock = stockActual;
+        let stockActual = stockCache[item.id] ?? (productosArray.find(p => p.id === item.id)?.Stock ?? 0);
+        stockActual += item.cantidad;
 
-          carrito.splice(idx, 1);
-          localStorage.setItem("carrito", JSON.stringify(carrito));
-          await guardarCarritoEnFirestore();
+        stockCache[item.id] = stockActual;
+        const idxProd = productosArray.findIndex(p => p.id === item.id);
+        if (idxProd !== -1) productosArray[idxProd].Stock = stockActual;
 
-          actualizarStockCard(item.id, stockActual);
-          actualizarCarrito();
-          renderCartPanel();
-          showGreenToast("Producto eliminado del carrito 🗑️");
-        } catch (err) {
-          console.error("Error al eliminar producto:", err);
-        }
-        return;
-      }
-    };
-  } // end renderCartPanel
+        carrito.splice(idx, 1);
+        localStorage.setItem("carrito", JSON.stringify(carrito));
+        setTimeout(() => guardarCarritoEnFirestore(), 0);
+
+        actualizarStockCard(item.id, stockActual);
+
+        // Reiniciar si quedó vacío
+        if (carrito.length === 0) cartItemsContainer._initialized = false;
+        renderCartPanel();
+        Swal.fire({
+          icon: 'success',
+          title: 'Carrito vacío',
+          text: 'Producto eliminado del carrito',
+          showConfirmButton: false,
+          timer: 1800
+        });
+     }
+    });
+
+    cartItemsContainer._hasClickDelegate = true;
+  }
+}
 
   // =========================
   // ACTUALIZAR STOCK EN CARDS

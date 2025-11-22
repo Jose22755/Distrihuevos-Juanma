@@ -4,12 +4,13 @@ import {
   setDoc,
   deleteDoc,
   onSnapshot,
+  getDoc,
+  updateDoc,
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
 import {
   collection,
   getDocs,
-  updateDoc,
   query,
   orderBy,
   limit,
@@ -31,6 +32,16 @@ const totalEl = document.querySelector("#total");
 const btnFinalizar = document.querySelector(".btn-checkout");
 const btnVaciar = document.querySelector(".btn-vaciar");
 const btnSeguir = document.querySelector(".btn-seguir");
+
+// --------------------------------------------------------------
+// BOTÓN VERDE "IR A PAGAR" → ABRIR PANEL DE PAGO
+// --------------------------------------------------------------
+if (btnFinalizar) {
+  btnFinalizar.addEventListener("click", () => {
+    document.dispatchEvent(new Event("abrirPanelPago"));
+  });
+}
+
 
 // 🔍 Referencias del buscador
 const inputBusqueda = document.querySelector("#busqueda");
@@ -140,6 +151,7 @@ function renderCarritoCompleto() {
 
   cartContainer.innerHTML = html + botonVerMas;
   actualizarTotales();
+  actualizarBotonesCantidad(); // ← agrega esta línea
 }
 
 // 🧱 Renderizar un solo producto
@@ -172,45 +184,181 @@ function renderItem(item, i) {
   `;
 }
 
-// ➕➖ Cambiar cantidad
 window.cambiarCantidad = async (index, cambio) => {
-  const item = carrito[index];
-  if (!item) return;
+  // index viene relativo a carritoFiltrado (lo que se renderiza)
+  const filteredItem = carritoFiltrado[index];
+  if (!filteredItem) return;
 
-  item.cantidad += cambio;
-  if (item.cantidad <= 0) {
-    carrito.splice(index, 1);
-    carritoFiltrado = [...carrito];
-    await guardarCarrito();
+  // Buscar índice real en el carrito global por id
+  const globalIndex = carrito.findIndex(i => i.id === filteredItem.id);
+  if (globalIndex === -1) return;
+
+  const item = carrito[globalIndex];
+
+  // Nueva cantidad
+  const nuevaCantidad = item.cantidad + cambio;
+  if (nuevaCantidad < 1) return; // no permitir menos de 1
+
+  item.cantidad = nuevaCantidad;
+
+  // Actualizar solo el número de cantidad en el DOM (buscamos el cart-item relativo al render)
+  const itemElements = cartContainer.querySelectorAll(".cart-item");
+  const itemElement = itemElements[index]; // coincide con carritoFiltrado
+  if (itemElement) {
+    const cantidadEl = itemElement.querySelector(".cantidad");
+    if (cantidadEl) cantidadEl.textContent = item.cantidad;
+
+    const btnMenos = itemElement.querySelector(".btn-qty:first-child");
+    const btnMas = itemElement.querySelector(".btn-qty:last-child");
+
+    if (btnMenos) {
+      btnMenos.disabled = item.cantidad <= 1;
+      btnMenos.classList.toggle("btn-disabled", item.cantidad <= 1);
+    }
+    if (btnMas) btnMas.disabled = false;
+  }
+
+  // Actualizar totales en tiempo real
+  actualizarTotales();
+
+  // Actualizar stock en Firestore (buscamos por id)
+  try {
+    const productoRef = doc(db, "products", item.id);
+    const productoSnap = await getDoc(productoRef);
+    if (!productoSnap.exists()) {
+      Swal.fire("Atención", "El producto ya no está disponible.", "warning");
+      return;
+    }
+
+    const productoData = productoSnap.data();
+    let stockActual = productoData.Stock ?? 0;
+
+    if (cambio > 0) {
+      if (stockActual < cambio) {
+        Swal.fire("Atención", "No hay suficiente stock disponible.", "warning");
+        item.cantidad -= cambio; // revertir cantidad
+        if (itemElement) {
+          const cantidadEl = itemElement.querySelector(".cantidad");
+          if (cantidadEl) cantidadEl.textContent = item.cantidad;
+        }
+        return;
+      }
+      stockActual -= cambio;
+    } else {
+      stockActual += Math.abs(cambio);
+    }
+
+    await updateDoc(productoRef, { Stock: stockActual });
+  } catch (error) {
+    console.error(error);
+    Swal.fire("Error", "Ocurrió un problema al actualizar la cantidad.", "error");
+  }
+
+  // Guardar carrito actualizado en Firestore (usa la función nueva)
+  await guardarCarrito(carrito);
+};
+
+// 🗑️ Eliminar producto con mini toast en el centro
+window.eliminarItem = async (index) => {
+  // index relativo a carritoFiltrado (lo que se está mostrando)
+  const filteredItem = carritoFiltrado[index];
+  if (!filteredItem) return;
+
+  // Encontrar índice global
+  const globalIndex = carrito.findIndex(i => i.id === filteredItem.id);
+  if (globalIndex === -1) {
+    // Si no está en el carrito global, solo re-renderizamos
+    carritoFiltrado = carrito.filter(Boolean);
     renderCarritoCompleto();
+    actualizarTotales();
     return;
   }
 
-  const itemElement = cartContainer.children[index];
-  const cantidadEl = itemElement?.querySelector(".cantidad");
-  if (cantidadEl) cantidadEl.textContent = item.cantidad;
+  const itemEliminado = carrito[globalIndex];
 
-  await guardarCarrito();
-  actualizarTotales();
-};
-
-// 🗑️ Eliminar producto
-window.eliminarItem = async (index) => {
-  carrito.splice(index, 1);
+  // Sacar del array global
+  carrito.splice(globalIndex, 1);
   carritoFiltrado = [...carrito];
-  await guardarCarrito();
+
+  await guardarCarrito(carrito);
+  renderCarritoCompleto();
+  actualizarTotales();
+
+  // 🔔 Mostrar toast pequeño en el centro
+  Swal.fire({
+    position: 'center',
+    icon: 'success',
+    title: `Producto eliminado ✅`,
+    showConfirmButton: false,
+    timer: 2000,
+    timerProgressBar: true,
+    toast: true
+  });
+
+  // Actualizar stock: verificar que exista antes
+  try {
+    const productoRef = doc(db, "products", itemEliminado.id);
+    const productoSnap = await getDoc(productoRef);
+    if (!productoSnap.exists()) {
+      console.warn(`⚠️ Producto ${itemEliminado.id} ya no existe. No se actualiza stock.`);
+      return;
+    }
+    const productoData = productoSnap.data();
+    await updateDoc(productoRef, { Stock: (productoData.Stock || 0) + itemEliminado.cantidad });
+  } catch (error) {
+    console.error(error);
+  }
 };
+
 
 // 🧹 Vaciar carrito
-if (btnVaciar) {
-  btnVaciar.addEventListener("click", async () => {
-    if (confirm("¿Seguro que deseas vaciar el carrito?")) {
-      carrito = [];
-      carritoFiltrado = [];
-      await guardarCarrito();
+// 🧹 Vaciar carrito con actualización de stock
+btnVaciar.addEventListener("click", async () => {
+  if (carrito.length === 0) return;
+
+  Swal.fire({
+    title: "¿Seguro que deseas vaciar el carrito?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Sí, vaciar",
+    cancelButtonText: "Cancelar",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        // 🔹 Devolver stock
+        // 🔹 Devolver stock
+      for (const item of carrito) {
+        const productoRef = doc(db, "products", item.id);
+        const productoSnap = await getDoc(productoRef);
+      if (!productoSnap.exists()) {
+        console.warn(`⚠️ Producto ${item.id} ya no existe. No se actualiza stock.`);
+        continue;
+      }
+
+      const productoData = productoSnap.data();
+      const stockActual = productoData.Stock ?? 0;
+      await updateDoc(productoRef, { Stock: stockActual + item.cantidad });
+      }
+
+        // 🔹 Vaciar carrito
+        carrito = [];
+        carritoFiltrado = [];
+        await guardarCarrito();
+
+        renderCarritoCompleto();
+
+        Swal.fire("¡Carrito vaciado!", "Todos los productos han sido devueltos al stock.", "success");
+      } catch (error) {
+        console.error(error);
+        Swal.fire("Error", "Ocurrió un problema al vaciar el carrito.", "error");
+      }
     }
   });
-}
+});
+
+
 
 // ↩️ Seguir comprando
 if (btnSeguir) {
@@ -220,10 +368,28 @@ if (btnSeguir) {
 }
 
 // 💾 Guardar carrito
-async function guardarCarrito() {
-  const ref = doc(db, "carritos", usuarioActual);
-  await setDoc(ref, { items: carrito });
+// Guardar carrito (items opcional; por defecto usa la variable global)
+async function guardarCarrito(items = carrito) {
+  return new Promise((resolve, reject) => {
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        console.warn("⚠️ No hay usuario autenticado, no guardo carrito.");
+        return resolve(false);
+      }
+
+      try {
+        const safeItems = Array.isArray(items) ? items.filter(Boolean) : [];
+        const ref = doc(db, "carritos", user.uid);
+        await setDoc(ref, { items: safeItems });
+        resolve(true);
+      } catch (error) {
+        console.error("Error guardando carrito:", error);
+        reject(error);
+      }
+    });
+  });
 }
+
 
 // 💰 Calcular totales
 function actualizarTotales() {
@@ -239,92 +405,6 @@ function actualizarTotales() {
 // ✅ Finalizar compra con spinner + toast
 // ✅ Finalizar compra con spinner + toast (versión con pedidos consecutivos)
 // 🧾 Panel Checkout Control
-document.addEventListener("DOMContentLoaded", () => {
-  const btnCheckout = document.querySelector(".btn-checkout"); // botón verde de "Finalizar compra"
-  const overlay = document.getElementById("checkoutContainer"); // panel overlay
-  const closeBtn = document.getElementById("closeCheckout"); // botón X
-
-  if (!btnCheckout || !overlay || !closeBtn) return;
-
-  // Evita que ejecute el pago directo
-  btnCheckout.addEventListener("click", (e) => {
-    e.preventDefault(); // anula acción anterior
-    overlay.style.display = "flex";
-    setTimeout(() => overlay.classList.add("show"), 10); // animación suave
-  });
-
-  // Cerrar panel con la X
-  closeBtn.addEventListener("click", () => {
-    overlay.classList.remove("show");
-    setTimeout(() => (overlay.style.display = "none"), 300);
-  });
-});
-
-
-// 🔎 Buscador en tiempo real
-if (inputBusqueda) {
-  inputBusqueda.addEventListener("input", (e) => {
-    const valor = e.target.value.toLowerCase().trim();
-
-    if (valor === "") {
-      carritoFiltrado = [...carrito];
-    } else {
-      carritoFiltrado = carrito.filter((item) =>
-        item.nombre.toLowerCase().includes(valor)
-      );
-    }
-
-    renderCarritoCompleto();
-  });
-}
-
-// 🧾 Lógica de pago (actualizada para radios)
-const infoPago = document.getElementById("infoPago");
-const campoReferencia = document.getElementById("campoReferencia");
-const numeroReferencia = document.getElementById("numeroReferencia");
-const btnConfirmarPago = document.getElementById("btnConfirmarPago");
-const btnCerrarModal = document.getElementById("btnCerrarModal");
-const radiosPago = document.querySelectorAll('input[name="pago"]');
-
-// 🔄 Textos dinámicos según el método seleccionado
-const textosPago = {
-  nequi: `
-    <p>📱 Transfiere el valor total a:</p>
-    <p><strong>Nequi 300 123 4567</strong></p>
-    <p class="text-muted">Después ingresa el número de comprobante.</p>
-  `,
-  bancolombia: `
-    <p>🏦 Transfiere el valor total a:</p>
-    <p><strong>Bancolombia cuenta 123-456789-01</strong></p>
-    <p class="text-muted">Después ingresa el número de referencia del pago.</p>
-  `,
-  efectivo: `
-    <p>💵 Pagará en efectivo al momento de la entrega.</p>
-  `,
-};
-
-// Mostrar por defecto la info de Nequi
-if (infoPago) {
-  infoPago.innerHTML = textosPago.nequi;
-  infoPago.style.display = "block";
-  campoReferencia.style.display = "block";
-}
-
-// Escuchar cambios en los radios
-radiosPago.forEach((radio) => {
-  radio.addEventListener("change", () => {
-    const metodo = radio.value;
-    infoPago.innerHTML = textosPago[metodo];
-    infoPago.style.display = "block";
-
-    if (metodo === "efectivo") {
-      campoReferencia.style.display = "none";
-      numeroReferencia.value = "";
-    } else {
-      campoReferencia.style.display = "block";
-    }
-  });
-});
 
 
 // 🔎 Buscador en tiempo real
@@ -355,3 +435,20 @@ document.getElementById("btnVolver")?.addEventListener("click", () => {
     window.location.href = "index.html"; // Respaldo
   }
 });
+
+function actualizarBotonesCantidad() {
+  carritoFiltrado.forEach((item, index) => {
+    const itemElement = cartContainer.children[index];
+    if (!itemElement) return;
+
+    const btnMenos = itemElement.querySelector(".btn-qty:first-child");
+    const btnMas = itemElement.querySelector(".btn-qty:last-child");
+
+    // Desactivar si la cantidad es 1 y aplicar clase gris
+    btnMenos.disabled = item.cantidad <= 1;
+    btnMenos.classList.toggle("btn-disabled", item.cantidad <= 1);
+
+    // El botón + siempre activo
+    btnMas.disabled = false;
+  });
+}

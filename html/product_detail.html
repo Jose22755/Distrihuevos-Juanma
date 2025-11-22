@@ -59,67 +59,119 @@
     </div>
   </header>
 
+ 
+<div class="product-details-container">
   <div class="container">
-    <!-- Imagen del producto -->
-    <div class="product-image">
-      <img src="https://images.unsplash.com/photo-1589571894960-20bbe2828e11?auto=format&fit=crop&w=500&q=80" alt="Huevos de Granja">
-    </div>
 
-    <!-- Detalles del producto -->
-    <div class="product-details">
-      <h1>Huevos de Granja</h1>
-      <p class="description">
-        Huevos frescos de granja, naturales y llenos de nutrientes. Ideales para tu desayuno, repostería o cualquier receta saludable.
-      </p>
-      <p class="price">$12.000 x docena</p>
+    <div class="product-title-box">
+  <i></i>
+  Detalles del producto
+</div>
 
-      <div class="quantity">
-        <label for="qty">Cantidad:</label>
-        <input type="number" id="qty" value="1" min="1">
+
+<!-- Imagen del producto -->
+<div class="product-image" id="product-image">
+
+  <div class="product-images">
+      <img id="main-image" src="" alt="Producto" class="main-product-img">
+
+      <div class="image-thumbs" id="thumbs-container">
+          <!-- Miniaturas se agregan por JS -->
       </div>
 
+      <a href="products.html" class="btn-volver-productos">
+        <i class="bi bi-arrow-left-circle"></i> Volver a productos
+      </a>
+
+  </div>
+
+</div>
+
+
+    <!-- Detalles del producto -->
+    <div class="product-details" style="background-color: #F1FFF4; padding: 25px; border-radius: 15px;">
+      
+      <!-- Nombre del producto -->
+      <h1 id="product-name"></h1>
+      
+      <!-- Categoría del producto -->
+      <p id="product-category"></p>
+      
+      <!-- Descripción -->
+      <p class="description" id="product-description"></p>
+      
+      <!-- Stock -->
+      <p id="product-stock"></p>
+      
+      <!-- Precio -->
+      <p class="price" id="product-price"></p>
+
+      <!-- Controles de cantidad -->
+      <div class="quantity">
+        <label for="qty">Cantidad:</label>
+        <div class="cantidad-control">
+          <button type="button" class="minus">-</button>
+          <span class="cantidad" id="qty">1</span>
+          <button type="button" class="plus">+</button>
+        </div>
+      </div>
+
+      <!-- Botones -->
       <div class="buttons">
         <button class="add-cart">Agregar al carrito</button>
         <button class="buy-now">Comprar ahora</button>
       </div>
 
-      <!-- Detalles saludables -->
-      <div class="nutritional-details">
-        <h2>Detalles y beneficios</h2>
-        <div class="nutritional-cards">
-          <div class="card">
-            <h3>Proteínas</h3>
-            <p>Los huevos son una excelente fuente de proteína de alta calidad para el desarrollo muscular y energía.</p>
-          </div>
-          <div class="card">
-            <h3>Vitaminas</h3>
-            <p>Ricos en vitaminas A, D, E y B12, esenciales para la visión, huesos y sistema inmunológico.</p>
-          </div>
-          <div class="card">
-            <h3>Minerales</h3>
-            <p>Contienen hierro, zinc y fósforo, que ayudan a mantener la salud ósea y la formación de glóbulos rojos.</p>
-          </div>
-          <div class="card">
-            <h3>Grasas saludables</h3>
-            <p>Incluyen grasas buenas que apoyan la función cerebral y el corazón, sin químicos ni aditivos.</p>
-          </div>
-        </div>
-      </div>
+    </div> <!-- cierre .product-details -->
 
-      <!-- Reseñas -->
-      <div class="reviews">
-        <h2>Reseñas</h2>
-        <div class="review-card">
-          <p class="author">Juan P.</p>
-          <p>¡Excelente calidad! Los huevos son frescos y muy sabrosos.</p>
+
+    <!-- Detalles saludables -->
+    <div class="nutritional-details">
+      <h2>Detalles y beneficios</h2>
+      <div class="nutritional-cards">
+        <div class="card">
+          <h3>Proteínas</h3>
+          <p>Los huevos son una excelente fuente de proteína de alta calidad para el desarrollo muscular y energía.</p>
         </div>
-        <div class="review-card">
-          <p class="author">María L.</p>
-          <p>Me encanta que sean naturales y de granja. Perfectos para mis recetas.</p>
+        <div class="card">
+          <h3>Vitaminas</h3>
+          <p>Ricos en vitaminas A, D, E y B12, esenciales para la visión, huesos y sistema inmunológico.</p>
+        </div>
+        <div class="card">
+          <h3>Minerales</h3>
+          <p>Contienen hierro, zinc y fósforo, que ayudan a mantener la salud ósea y la formación de glóbulos rojos.</p>
+        </div>
+        <div class="card">
+          <h3>Grasas saludables</h3>
+          <p>Incluyen grasas buenas que apoyan la función cerebral y el corazón, sin químicos ni aditivos.</p>
         </div>
       </div>
     </div>
-  </div>
+
+
+    <!-- Reseñas -->
+    <div class="reviews">
+      <h2>Reseñas</h2>
+      <div class="review-card">
+        <p class="author">Juan P.</p>
+        <p>¡Excelente calidad! Los huevos son frescos y muy sabrosos.</p>
+      </div>
+      <div class="review-card">
+        <p class="author">María L.</p>
+        <p>Me encanta que sean naturales y de granja. Perfectos para mis recetas.</p>
+      </div>
+    </div>
+
+  </div> <!-- cierre .container -->
+</div> <!-- cierre .product-details-container -->
+
+  <section class="productos-relacionados">
+    <h3>Otros productos que podrían interesarte</h3>
+    <div class="relacionados-grid" id="relacionados-grid">
+      <!-- Aquí se cargarán los productos desde Firestore -->
+    </div>
+  </section>
+
 
 <!-- ===== FOOTER ===== -->
   <footer class="footer">
@@ -149,5 +201,8 @@
     </div>
   </div>
 </footer>
+
+<script type="module" src="../js/product_detail.js"></script>
+<script type="module" src="../js/productos.js"></script>
 </body>
 </html>

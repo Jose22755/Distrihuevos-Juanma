@@ -576,3 +576,44 @@ a.btn:active,
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
 }
 
+.swal2-container {
+  z-index: 999999 !important;
+}
+
+/* 🔥 Estilo base del panel (checkout y pago) */
+.checkout-overlay,
+.payment-overlay {
+  opacity: 0;
+  transform: translateY(20px) scale(0.97);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+/* 🔥 Cuando se muestra */
+.checkout-overlay.show,
+.payment-overlay.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* ✨ Animación del modal interno */
+.checkout-modal,
+.payment-modal {
+  opacity: 0;
+  transform: translateY(25px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* ✨ Cuando está visible */
+.checkout-overlay.show .checkout-modal,
+.payment-overlay.show .payment-modal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+.btn-qty.btn-disabled {
+  background-color: #ccc; /* gris claro */
+  color: #666 !important;            /* texto gris oscuro */
+  cursor: not-allowed;    /* cursor prohibido */
+  pointer-events: none;   /* evita clicks */
+}
