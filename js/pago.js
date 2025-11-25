@@ -97,15 +97,32 @@ closePayment.addEventListener("click", () => {
 // ---------------------------------------------------------
 // CALCULAR TOTAL
 // ---------------------------------------------------------
+// ---------------------------------------------------------
+// CALCULAR TOTAL SIN SUMAR IVA (solo para mostrar)
+// ---------------------------------------------------------
 function actualizarTotales() {
+  // Subtotal = suma de productos
   subtotal = carrito.reduce((acc, i) => acc + i.precio * i.cantidad, 0);
-  impuesto = Math.round(subtotal * 0.19);
-  total = subtotal + impuesto;
 
-  paymentSubtotal.textContent = `$${subtotal.toLocaleString()}`;
-  paymentImpuesto.textContent = `$${impuesto.toLocaleString()}`;
-  paymentTotal.textContent = `$${total.toLocaleString()}`;
+  // IVA solo como variable interna, lista para usar si se necesita
+  impuesto = Math.round(subtotal * 0.19);
+
+  // Total real SIN IVA
+  total = subtotal; // <- Aquí quitamos la suma del impuesto
+
+  // Actualizar interfaz
+  if (paymentSubtotal) paymentSubtotal.textContent = `$${subtotal.toLocaleString()}`;
+  if (paymentImpuesto) paymentImpuesto.textContent = `$0`; // mostramos cero o podemos ocultar
+  if (paymentTotal) paymentTotal.textContent = `$${total.toLocaleString()}`;
+
+  // Actualizar monto dinámico en panel de QR si ya existe
+  const montoTexto = document.getElementById("montoTexto");
+  if (montoTexto) montoTexto.textContent = `$${total.toLocaleString()}`;
+
+  const textoMontoPagar = document.getElementById("textoMontoPagar");
+  if (textoMontoPagar) textoMontoPagar.textContent = `$${total.toLocaleString()}`;
 }
+
 
 // ---------------------------------------------------------
 // MOSTRAR MÉTODO DE PAGO + QR + ANIMACIÓN
@@ -147,16 +164,16 @@ paymentMethodContainer.innerHTML = `
   </div>
 
   <!-- NÚMERO DE CUENTA / TELEFONO -->
-  <p class="text-center" style="font-size:16px; margin-bottom:15px;">
-    📞 <strong>Número:</strong> 317432XXXX 
-    <span class="copy-icon" id="copiarNumero" style="cursor:pointer; font-size:16px;">📋</span>
-  </p>
+<p class="text-center" style="font-size:16px; margin-bottom:15px;">
+  📞 <strong>Número:</strong> 3212864555 
+  <i class="fa-regular fa-copy copy-icon" id="copiarNumero" style="color:#000000; cursor:pointer;" title="Copiar"></i>
+</p>
 
   <!-- MONTO -->
-  <p class="text-center" style="font-size:16px; margin-bottom:20px;">
-    💰 <strong>Monto:</strong> <span id="montoTexto"></span> 
-    <span class="copy-icon" id="copiarMonto" style="cursor:pointer; font-size:16px;">📋</span>
-  </p>
+<p class="text-center" style="font-size:16px; margin-bottom:20px;">
+  💰 <strong>Monto:</strong> <span id="montoTexto"></span> 
+  <i class="fa-regular fa-copy copy-icon" id="copiarMonto" style="color:#000000; cursor:pointer;" title="Copiar"></i>
+</p>
 
   <!-- Subir comprobante -->
   <div style="text-align:center; margin-top:10px;">

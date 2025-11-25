@@ -52,6 +52,37 @@
       </div>
     </div>
   </header>
+  
+  <!-- 🛒 BOTÓN FLOTANTE DEL CARRITO -->
+<a href="#" id="floating-cart" class="floating-cart">
+  <i class="bi bi-cart-fill" style="font-size: 24px;"></i>
+  <span id="cart-count">0</span>
+</a>
+
+  <!-- 🛒 PANEL LATERAL DEL CARRITO -->
+  <div id="cart-panel" class="cart-panel">
+    <div class="cart-header">
+      <h2>Tu carrito</h2>
+      <button id="close-cart" class="close-cart">&times;</button>
+    </div>
+    <div id="cart-items" class="cart-items">
+      <p class="empty-cart">Tu carrito está vacío 🛍️</p>
+    </div>
+    <div class="cart-footer">
+      <p>Subtotal: <span id="cart-subtotal">$0</span></p>
+      <p>Total: <span id="cart-total">$0</span></p>
+      <button id="go-to-cart" class="go-to-cart">Ver carrito completo</button>
+    </div>
+    <div class="cart-actions">
+      <button id="clear-cart" class="btn-clear">🗑️ Vaciar carrito</button>
+      <button id="checkout" class="btn-checkout">💳 Finalizar compra</button>
+    </div>
+  </div>
+
+  <div id="cart-overlay" class="cart-overlay"></div>
+
+
+  
 
   <!-- ===== CONTENEDOR PRINCIPAL ===== -->
   <main class="contenedor-pedidos">
@@ -61,6 +92,13 @@
     <p class="subtitulo-pedidos">
       Aquí puedes ver el estado de tus compras recientes 🧺
     </p>
+
+    <div class="acciones-pedidos" style="margin: 15px 0;">
+      <button id="btnCrearPedido" class="btn-crear-pedido">
+        🛒 Hacer Pedido
+      </button>
+    </div>
+
 
     <div class="filtro-estados">
       <label for="filtro">Filtrar por estado:</label>
@@ -148,6 +186,10 @@
   <!-- JS DE FIREBASE Y PEDIDOS -->
   <!-- ===== SCRIPTS ===== -->
 <script type="module" src="/js/firebase-config.js?v=3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="module" src="/js/pedidos.js?v=3"></script>
+<script type="module" src="/js/productos.js"></script>
+
+
 </body>
 </html>

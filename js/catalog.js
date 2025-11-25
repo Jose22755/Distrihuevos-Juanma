@@ -174,6 +174,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 🔄 Escuchar cambios en colección "products"
   escucharCambiosProductos();
 
+const agotados = productosArray.filter(p => p.Stock <= 0);
+renderProductosAgotados(agotados);
+
+
   // ⚙️ Eventos de UI
   floatingCartBtn?.addEventListener("click", openCartPanel);
   closeCartBtn?.addEventListener("click", closeCartPanel);
@@ -944,3 +948,99 @@ window.actualizarCarrito = actualizarCarrito;
 window.updateCartCount = updateCartCount;
 window.showRedToast = showRedToast;
 window.showGreenToast = showGreenToast;
+
+
+function renderProductosAgotados(lista) {
+  const cont = document.getElementById("productos-agotados");
+  if (!cont) return;
+
+  if (lista.length === 0) {
+    cont.innerHTML = "";
+    return;
+  }
+
+cont.innerHTML = `
+  <style>
+    /* Animación del título */
+    @keyframes pulse {
+      0% { transform: scale(1); color: #FF9800; }
+      50% { transform: scale(1.05); color: #FFB74D; }
+      100% { transform: scale(1); color: #FF9800; }
+    }
+
+    /* Animación de las tarjetas */
+    @keyframes fadeInUp {
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .agotados-list {
+      display:flex;
+      gap:10px;
+      overflow-x:auto;
+      padding:10px 20px;
+      max-width:90%;
+      max-height:220px;
+      margin: 0 auto;
+      justify-content:center;
+    }
+
+    .agotado-item {
+      min-width:120px;
+      background: linear-gradient(135deg, #FFCDD2, #FF8A65);
+      border: 2px solid #FF5722;
+      border-radius:8px;
+      padding:6px;
+      text-align:center;
+      opacity:0.9;
+      flex-shrink:0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transform: translateY(20px);
+      opacity: 0;
+      animation: fadeInUp 0.5s forwards;
+      animation-delay: calc(var(--i) * 0.1s);
+    }
+
+    .agotado-item h4 {
+      margin:6px 0;
+      color:#fff;
+      font-size:0.85rem;
+    }
+
+    .agotado-item span {
+      color:#fff;
+      font-weight:700;
+      font-size:0.85rem;
+    }
+  </style>
+
+<h2 style="
+  text-align:center;
+  margin: 30px 0 20px 0;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #FF3D00; /* rojo intenso que resalta sobre verde */
+  background: rgba(255,255,255,0.85); /* fondo semitransparente */
+  padding: 8px 20px;
+  border-radius: 12px;
+  display: inline-block;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+  animation: pulse 1.5s infinite;
+">
+  ⚠️ PRODUCTOS AGOTADOS
+</h2>
+
+
+  <div class="agotados-list">
+    ${lista.map((p, i) => `
+      <div class="agotado-item" style="--i:${i}">
+        <img src="${p.imagen}" style="width:100%; height:80px; object-fit:cover; border-radius:6px;">
+        <h4>${p.Nombre}</h4>
+        <span>⚠️ AGOTADO</span>
+      </div>
+    `).join('')}
+  </div>
+`;
+
+}
+
+

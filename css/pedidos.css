@@ -405,3 +405,58 @@ button {
   transform: scale(1.05);
 }
 
+/* Botones + y - del carrito */
+.cart-item-actions .qty-btn {
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 18px;
+  cursor: pointer;
+  margin: 0 0px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-item-actions .qty-btn:hover {
+  background-color: #45a049;
+}
+
+/* Contenedor centrado */
+.acciones-pedidos {
+  display: flex;
+  justify-content: center; /* centra horizontalmente */
+  margin: 20px 0; /* separación arriba y abajo */
+}
+
+/* Estilo del botón */
+.btn-crear-pedido {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Efecto hover */
+.btn-crear-pedido:hover {
+  background-color: #45a049;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+  transform: translateY(-2px);
+}
+
+/* Efecto al presionar */
+.btn-crear-pedido:active {
+  transform: translateY(1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+

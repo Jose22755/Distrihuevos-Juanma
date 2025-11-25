@@ -394,11 +394,15 @@ async function guardarCarrito(items = carrito) {
 // 💰 Calcular totales
 function actualizarTotales() {
   const subtotal = carritoFiltrado.reduce((acc, i) => acc + i.precio * i.cantidad, 0);
-  const impuesto = Math.round(subtotal * 0.19);
-  const total = subtotal + impuesto;
+  
+  // IVA solo como variable interna, NO sumarlo al total
+  const impuesto = Math.round(subtotal * 0.19); 
+
+  // Total real SIN IVA
+  const total = subtotal; // <- aquí quitamos la suma del impuesto
 
   if (subtotalEl) subtotalEl.textContent = `$${subtotal.toLocaleString()}`;
-  if (impuestoEl) impuestoEl.textContent = `$${impuesto.toLocaleString()}`;
+  if (impuestoEl) impuestoEl.textContent = `$0`; // ocultamos o ponemos cero
   if (totalEl) totalEl.textContent = `$${total.toLocaleString()}`;
 }
 

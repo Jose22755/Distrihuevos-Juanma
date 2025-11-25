@@ -18,11 +18,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/product_detail.css">
   <link rel="stylesheet" href="../css/main.css">
-  <link rel="stylesheet" href="../css/pedidos.css">
   <link rel="stylesheet" href="../css/productos.css">
 
 </head>
-<body>
+<body class="detalle-producto">
 
     <!-- ===== HEADER ===== -->
   <header class="main-header">
@@ -59,6 +58,30 @@
     </div>
   </header>
 
+  <a href="#" id="floating-cart" class="floating-cart">
+  <i class="bi bi-cart-fill" style="font-size: 24px;"></i>
+  <span id="cart-count">0</span>
+</a>
+
+  <!-- 🛒 PANEL LATERAL DEL CARRITO -->
+  <div id="cart-panel" class="cart-panel">
+    <div class="cart-header">
+      <h2>Tu carrito</h2>
+      <button id="close-cart" class="close-cart">&times;</button>
+    </div>
+    <div id="cart-items" class="cart-items">
+      <p class="empty-cart">Tu carrito está vacío 🛍️</p>
+    </div>
+    <div class="cart-footer">
+      <p>Subtotal: <span id="cart-subtotal">$0</span></p>
+      <p>Total: <span id="cart-total">$0</span></p>
+      <button id="go-to-cart" class="go-to-cart">Ver carrito completo</button>
+    </div>
+    <div class="cart-actions">
+      <button id="clear-cart" class="btn-clear">🗑️ Vaciar carrito</button>
+      <button id="checkout" class="btn-checkout">💳 Finalizar compra</button>
+    </div>
+  </div>
  
 <div class="product-details-container">
   <div class="container">
@@ -79,7 +102,7 @@
           <!-- Miniaturas se agregan por JS -->
       </div>
 
-      <a href="products.html" class="btn-volver-productos">
+      <a href="productos.html" class="btn-volver-productos">
         <i class="bi bi-arrow-left-circle"></i> Volver a productos
       </a>
 
@@ -92,16 +115,13 @@
     <div class="product-details" style="background-color: #F1FFF4; padding: 25px; border-radius: 15px;">
       
       <!-- Nombre del producto -->
-      <h1 id="product-name"></h1>
-      
-      <!-- Categoría del producto -->
-      <p id="product-category"></p>
+      <h1 class="detalle-titulo" id="product-name"></h1>
       
       <!-- Descripción -->
       <p class="description" id="product-description"></p>
-      
-      <!-- Stock -->
-      <p id="product-stock"></p>
+
+            <!-- Categoría del producto -->
+      <p id="product-category"></p>
       
       <!-- Precio -->
       <p class="price" id="product-price"></p>
@@ -116,6 +136,9 @@
         </div>
       </div>
 
+       <!-- Stock -->
+      <p id="product-stock"></p>
+
       <!-- Botones -->
       <div class="buttons">
         <button class="add-cart">Agregar al carrito</button>
@@ -126,43 +149,46 @@
 
 
     <!-- Detalles saludables -->
-    <div class="nutritional-details">
-      <h2>Detalles y beneficios</h2>
-      <div class="nutritional-cards">
-        <div class="card">
-          <h3>Proteínas</h3>
-          <p>Los huevos son una excelente fuente de proteína de alta calidad para el desarrollo muscular y energía.</p>
-        </div>
-        <div class="card">
-          <h3>Vitaminas</h3>
-          <p>Ricos en vitaminas A, D, E y B12, esenciales para la visión, huesos y sistema inmunológico.</p>
-        </div>
-        <div class="card">
-          <h3>Minerales</h3>
-          <p>Contienen hierro, zinc y fósforo, que ayudan a mantener la salud ósea y la formación de glóbulos rojos.</p>
-        </div>
-        <div class="card">
-          <h3>Grasas saludables</h3>
-          <p>Incluyen grasas buenas que apoyan la función cerebral y el corazón, sin químicos ni aditivos.</p>
-        </div>
-      </div>
-    </div>
+<!-- Detalles saludables -->
+<div class="nutritional-details">
+  <div class="nutritional-title-box">
+    Beneficios
+  </div>
+  <div class="nutritional-cards" id="nutritional-cards">
+    <!-- Las cards se generarán aquí dinámicamente -->
+  </div>
+</div>
 
 
     <!-- Reseñas -->
-    <div class="reviews">
-      <h2>Reseñas</h2>
-      <div class="review-card">
-        <p class="author">Juan P.</p>
-        <p>¡Excelente calidad! Los huevos son frescos y muy sabrosos.</p>
-      </div>
-      <div class="review-card">
-        <p class="author">María L.</p>
-        <p>Me encanta que sean naturales y de granja. Perfectos para mis recetas.</p>
-      </div>
+<div class="reviews-section">
+  <div class="product-title-box">
+    Comentarios
+  </div>
+
+  <div class="reviews-layout">
+
+    <!-- Lista de reseñas -->
+    <div class="reviews-container" id="reviews-container">
+      <!-- dinámico desde JS -->
     </div>
 
-  </div> <!-- cierre .container -->
+    <!-- Formulario -->
+    <form id="review-form" class="review-form">
+
+
+      <div class="field">
+        <textarea id="review-text" placeholder="Escribe tu comentario"></textarea>
+        <span id="error-text" class="error"></span>
+      </div>
+
+      <button type="submit" class="btn-review">Enviar</button>
+    </form>
+
+  </div>
+</div>
+
+  </div>
 </div> <!-- cierre .product-details-container -->
 
   <section class="productos-relacionados">
@@ -204,5 +230,6 @@
 
 <script type="module" src="../js/product_detail.js"></script>
 <script type="module" src="../js/productos.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

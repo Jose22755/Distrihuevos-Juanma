@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="../css/cart.css" />
 
   <!-- 📦 ICONOS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-…" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -160,10 +161,11 @@
 
 <!-- 🧾 PANEL DE PAGO -->
 <div id="paymentContainer" class="checkout-overlay" style="display: none;">
-  <div class="checkout-modal">
 
-    <!-- ❌ Botón cerrar -->
+      <!-- ❌ Botón cerrar -->
     <button class="close-checkout" id="closePayment">&times;</button>
+
+  <div class="checkout-modal">
 
     <!-- 🏦 Título -->
     <h3 class="checkout-title">Método de pago</h3>
@@ -255,8 +257,11 @@
 
 <!-- 🧾 PANEL CHECKOUT -->
 <div id="checkoutContainer" class="checkout-overlay" style="display: none;">
+
   <div class="checkout-modal">
-    <!-- ❌ Botón cerrar -->
+
+    
+      <!-- ❌ Botón cerrar -->
     <button class="close-checkout" id="closeCheckout">&times;</button>
 
     <!-- 🧺 Títulos -->
@@ -584,6 +589,32 @@
 
 .checkout-details-btn:hover {
   background-color: #e6b800;
+}
+
+/* X del checkout y payment siempre visible */
+.checkout-overlay .close-checkout,
+#paymentContainer #closePayment {
+  position: fixed; /* <-- lo más importante */
+  top: 15px;
+  right: 15px;
+  font-size: 1.8rem;
+  color: #333;
+  background: rgba(255,255,255,0.8);
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.checkout-overlay .close-checkout:hover,
+#paymentContainer #closePayment:hover {
+  background: rgba(200,200,200,0.9);
 }
 
 

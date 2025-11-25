@@ -1,6 +1,6 @@
 // ../js/product_detail.js
 import { auth, db } from "../js/firebase-config.js";
-import { doc, getDoc, setDoc, updateDoc, increment, collection, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import { doc, getDoc, setDoc, addDoc, updateDoc, onSnapshot, increment, collection, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -66,6 +66,230 @@ document.addEventListener("DOMContentLoaded", async () => {
     // PRODUCTO
     const producto = docSnap.data();
     let stock = producto.Stock ?? 0;
+
+    // ------------------------------------------
+// 🔥 BENEFICIOS DEL PRODUCTO
+// ------------------------------------------
+// ------------------------------------------
+// 🔥 BENEFICIOS DEL PRODUCTO
+// ------------------------------------------
+const beneficiosContainer = document.querySelector(".nutritional-cards");
+
+if (beneficiosContainer) {
+
+  // Array de beneficios por defecto con iconos
+  const beneficiosPorDefecto = [
+    { 
+      titulo: "Proteínas de alta calidad", 
+      descripcion: "Los huevos contienen proteínas completas con todos los aminoácidos esenciales, ideales para el desarrollo muscular y energía.",
+    },
+    { 
+      titulo: "Vitaminas esenciales", 
+      descripcion: "Ricos en vitaminas A, D, E y B12, importantes para la visión, el sistema inmunológico, la salud de los huesos y la piel.",
+    },
+    { 
+      titulo: "Minerales importantes", 
+      descripcion: "Aportan hierro, fósforo, zinc y selenio, que apoyan la formación de glóbulos rojos, la salud ósea y funciones antioxidantes.",
+    },
+    { 
+      titulo: "Grasas saludables", 
+      descripcion: "Incluyen ácidos grasos insaturados y lecitina que favorecen la salud cerebral y cardiovascular.",
+    },
+    { 
+      titulo: "Colina", 
+      descripcion: "Fuente natural de colina, esencial para la memoria, el cerebro y el sistema nervioso.",
+    },
+    { 
+      titulo: "Saciedad y control de peso", 
+      descripcion: "Su combinación de proteínas y grasas ayuda a sentirse lleno por más tiempo, favoreciendo el control del apetito.",
+    },
+    { 
+      titulo: "Antioxidantes", 
+      descripcion: "Contienen luteína y zeaxantina, que protegen la vista y ayudan a prevenir daños oxidativos en las células.",
+    }
+  ];
+
+  async function crearBeneficios(productoId) {
+    const docRef = doc(db, "products", productoId);
+    try {
+      await setDoc(docRef, { beneficios: beneficiosPorDefecto }, { merge: true });
+      console.log("Beneficios guardados en Firestore ✅");
+    } catch (err) {
+      console.error("No se pudo guardar los beneficios en Firestore:", err);
+    }
+  }
+
+  async function renderizarBeneficios(producto) {
+    onAuthStateChanged(auth, async (user) => {
+      if (user && !producto.beneficios) {
+        await crearBeneficios(productoId);
+        producto.beneficios = beneficiosPorDefecto;
+      }
+
+      const listaBeneficios = producto.beneficios || beneficiosPorDefecto;
+      beneficiosContainer.innerHTML = "";
+
+      listaBeneficios.forEach(b => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.innerHTML = `
+          <h3>${b.titulo}</h3>
+          <p>${b.descripcion}</p>
+        `;
+        beneficiosContainer.appendChild(card);
+      });
+    });
+  }
+
+  renderizarBeneficios(producto);
+}
+
+// =====================
+// 🔥 RESEÑAS DESDE FIRESTORE CON SWEETALERT (sin botón)
+// =====================
+const reviewsContainer = document.getElementById("reviews-container");
+const reviewForm = document.getElementById("review-form");
+
+// ==========================
+// VALIDACIÓN EN TIEMPO REAL
+// ==========================
+const textInput = document.getElementById("review-text");
+const errorName = document.getElementById("error-name");
+const errorText = document.getElementById("error-text");
+
+
+textInput.addEventListener("input", () => {
+  if (textInput.value.trim() === "") {
+    errorText.textContent = "⚠️ Escribe tu reseña antes de enviar";
+    textInput.classList.add("error-shake");
+  } else {
+    errorText.textContent = "";
+    textInput.classList.remove("error-shake");
+  }
+});
+
+
+
+
+reviewForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const texto = document.getElementById('review-text').value.trim();
+  const errorText = document.getElementById('error-text');
+
+  // limpiar mensajes
+  errorText.innerHTML = "";
+
+  // sacar nombre del usuario de firebase
+  let nombre = "Usuario";
+
+  const user = auth.currentUser;
+  if(user){
+    nombre = user.displayName || "Usuario";
+  }
+
+  let valido = true;
+
+  if(texto === ""){
+    errorText.textContent = "⚠️ Escribe tu reseña antes de enviar";
+    valido = false;
+  }
+
+  if(!valido) return;
+
+  try {
+
+    await addDoc(collection(db, "products", productoId, "reviews"), {
+      nombre,
+      texto,
+      fecha: new Date()
+    });
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Reseña agregada',
+      text: 'Gracias por tu comentario!',
+      timer: 2000,
+      showConfirmButton: false
+    });
+
+    reviewForm.reset();
+
+  } catch(err) {
+    console.error(err);
+  }
+
+});
+
+
+if (reviewsContainer && reviewForm && productoId) {
+
+  const reviewsColRef = collection(db, "products", productoId, "reviews");
+
+  // 🔥 escuchar cambios en tiempo real
+onSnapshot(reviewsColRef, () => {
+  renderReviews();
+});
+
+
+
+  // Función para renderizar reseñas
+async function renderReviews() {
+  reviewsContainer.innerHTML = "";
+  const snapshot = await getDocs(reviewsColRef);
+  const reviewsData = [];
+
+  snapshot.forEach(doc => {
+    reviewsData.push(doc.data());
+  });
+
+  // Si no hay reseñas, mostrar mensaje grande
+  if (reviewsData.length === 0) {
+    reviewsContainer.innerHTML = `
+      <p class="no-reviews" style="
+        text-align: center;
+        color: #555;
+        padding: 32px;
+        font-size: 1.5rem;
+        font-style: italic;
+        font-weight: 600;
+      ">
+        Aún no hay comentarios para este producto.
+      </p>
+    `;
+    return; // salir de la función
+  }
+
+  // ordenar por fecha descendente (más recientes primero)
+  reviewsData.sort((a, b) => b.fecha - a.fecha);
+
+  // tomar solo los 2 más recientes
+  const ultimas2 = reviewsData.slice(0, 2);
+
+  ultimas2.forEach(data => {
+    const card = document.createElement("div");
+    card.classList.add("review-card");
+    card.innerHTML = `
+      <div class="review-avatar">
+        ${data.nombre.charAt(0).toUpperCase()}
+      </div>
+
+      <div class="review-content">
+        <p class="author">${data.nombre}</p>
+        <p class="text">${data.texto}</p>
+      </div>
+    `;
+    reviewsContainer.appendChild(card);
+  });
+}
+
+
+  // Render inicial
+
+  // Evento para agregar nueva reseña
+
+}
+
   
     // ------------------------------------------
     // 🔥 FUNCIÓN PARA DESCONTAR EN FIRESTORE
@@ -89,7 +313,6 @@ if (mainImg) {
 }
 
 // Miniaturas
-cargarImagenesProducto([producto.imagen]);
 
 
 // 🔥 Cargar miniaturas (si tienes más imágenes en Firestore)
@@ -102,6 +325,8 @@ const imagenes = [
 cargarImagenesProducto(imagenes);
 
 nameEl.textContent = producto.Nombre;
+
+
 
 descEl.innerHTML = `
   <span class="descripcion-label">Descripción:</span> 
@@ -127,9 +352,10 @@ const stockActual = Number(producto.Stock ?? 0);
 // Render HTML
 stockEl.innerHTML = `
   <div class="stock-top">
-    <span class="stock-label">Stock:</span> 
-    <span class="stock-valor">${stockActual}</span>
-
+    <div class="stock-left">
+      <span class="stock-label">Stock:</span> 
+      <span class="stock-valor">${stockActual}</span>
+    </div>
     <span class="stock-maximo" id="stock-maximo-text">
       ${stockActual}/${STOCK_MAX}
     </span>
@@ -139,7 +365,6 @@ stockEl.innerHTML = `
     <div class="stock-barra" id="stock-barra"></div>
   </div>
 `;
-
 // Llamamos a la función que actualiza el semáforo
 actualizarSemaforo(stockActual);
 
@@ -246,19 +471,33 @@ function actualizarSemaforo(stock) {
     }
 
 // ------------------------------------------------------------
-// FUNCION PARA AGREGAR AL CARRITO
+// BOTÓN: AGREGAR AL CARRITO
 // ------------------------------------------------------------
 addCartBtn.addEventListener("click", async () => {
+
+  // prevenir clicks dobles
+  addCartBtn.disabled = true;
+
   if (cantidad <= 0 || stock <= 0) {
-    showToast("Producto agotado ❌", "red", 3000);
+Swal.fire({
+  toast: true,
+  position: 'top-end',
+  icon: 'error', // porque es un producto agotado
+  title: 'Producto agotado ❌',
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  background: '#f44336', // opcional, rojo similar al tu showToast
+  color: '#fff'            // color del texto
+});
+    addCartBtn.disabled = false;
     return;
   }
 
-  // Siempre toma solo lo que hay disponible
   const take = Math.min(cantidad, stock);
 
-  // Actualizar carrito
-  const existe = carrito.find(p => p.id === productoId);
+  let existe = carrito.find(p => p.id === productoId);
+
   if (existe) {
     existe.cantidad += take;
   } else {
@@ -271,38 +510,58 @@ addCartBtn.addEventListener("click", async () => {
     });
   }
 
-  // Restar del stock local solo lo que realmente se agregó
   stock -= take;
 
-  // Actualizar Firestore
   await descontarStockEnFirestore(take);
 
-  // Actualizar barra y botones
   actualizarStockVisual(stock);
   cantidad = 1;
   actualizarBotones();
   actualizarStock();
 
-  // Guardar en localStorage y Firestore
   localStorage.setItem("carrito", JSON.stringify(carrito));
   guardarCarritoFirestore();
 
-  showToast("Producto agregado ✅", "green", 2000);
+Swal.fire({
+  icon: 'success',
+  title: '¡Listo!',
+  text: 'Producto agregado al carrito',
+  timer: 2000,
+  showConfirmButton: false
 });
 
+  addCartBtn.disabled = false;
+});
+
+
 // ------------------------------------------------------------
-// FUNCION COMPRAR AHORA
+// BOTÓN: COMPRAR AHORA
 // ------------------------------------------------------------
 buyNowBtn.addEventListener("click", async () => {
+
+  // prevención de doble click
+  buyNowBtn.disabled = true;
+
   if (cantidad <= 0 || stock <= 0) {
     showToast("Producto agotado ❌", "red", 3000);
+    buyNowBtn.disabled = false;
     return;
   }
-
-  // Siempre agregamos solo 1 al carrito
+Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: 'Producto agotado ❌',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      background: '#f44336',
+      color: '#fff'
+    });
   const take = Math.min(1, stock);
 
-  const existe = carrito.find(p => p.id === productoId);
+  let existe = carrito.find(p => p.id === productoId);
+
   if (existe) {
     existe.cantidad += take;
   } else {
@@ -315,24 +574,20 @@ buyNowBtn.addEventListener("click", async () => {
     });
   }
 
-  // Restar solo 1 al stock local
   stock -= take;
 
-  // Actualizar Firestore
   await descontarStockEnFirestore(take);
 
-  // Actualizar barra y botones
   actualizarStockVisual(stock);
   cantidad = 1;
   actualizarBotones();
   actualizarStock();
 
-  // Guardar en localStorage y Firestore
   localStorage.setItem("carrito", JSON.stringify(carrito));
   guardarCarritoFirestore();
 
-  // Redirigir al carrito
   window.location.href = "cart.html";
+
 });
 
 // ------------------------------------------------------------
@@ -373,15 +628,16 @@ if (relacionadosGrid) {
   async function cargarProductosRelacionados() {
     try {
       const productosCol = collection(db, "products");
-      const q = query(productosCol, limit(10)); // traemos más por si el actual está allá
+      const q = query(productosCol, limit(10));
       const snapshot = await getDocs(q);
 
       relacionadosGrid.innerHTML = "";
 
-      let count = 0; // contador para mostrar solo 3
+      let count = 0;
+      const tarjetasArray = [];
 
       snapshot.forEach(doc => {
-        if (doc.id === productoId) return; // ignorar el producto que ya está abierto
+        if (doc.id === productoId) return;
         if (count >= 3) return;
         count++;
 
@@ -407,7 +663,63 @@ if (relacionadosGrid) {
         `;
 
         relacionadosGrid.appendChild(tarjeta);
+        tarjetasArray.push(tarjeta);
       });
+
+      // FILTRADO
+      const inputBusqueda = document.getElementById("busqueda");
+      const btnBuscar = document.querySelector(".btn-search");
+
+      if (inputBusqueda) {
+
+        function filtrarProductos(alertSiNoHay = false) {
+          const valor = inputBusqueda.value.toLowerCase();
+          let primerVisible = null;
+
+          tarjetasArray.forEach(tarjeta => {
+            const nombre = tarjeta.querySelector("h4")?.textContent.toLowerCase() || "";
+            if (nombre.includes(valor)) {
+              tarjeta.style.display = "block";
+              if (!primerVisible) primerVisible = tarjeta;
+              tarjeta.classList.add("resaltado");
+            } else {
+              tarjeta.style.display = "none";
+              tarjeta.classList.remove("resaltado");
+            }
+          });
+
+          if (primerVisible) {
+            primerVisible.scrollIntoView({ behavior: "smooth", block: "start" });
+            setTimeout(() => primerVisible.classList.remove("resaltado"), 2000);
+          } else if (alertSiNoHay && valor.trim() !== "") {
+            Swal.fire({
+              icon: 'info',
+              title: 'No se encontraron productos',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          }
+        }
+
+        // Filtrado en tiempo real mientras escribe (sin alert)
+        inputBusqueda.addEventListener("input", () => filtrarProductos(false));
+
+        // Filtrado al presionar ENTER (con alert si no encuentra)
+        inputBusqueda.addEventListener("keypress", e => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            filtrarProductos(true);
+          }
+        });
+
+        // Filtrado al hacer click en lupa (con alert si no encuentra)
+        if (btnBuscar) {
+          btnBuscar.addEventListener("click", e => {
+            e.preventDefault();
+            filtrarProductos(true);
+          });
+        }
+      }
 
     } catch (err) {
       console.error("Error cargando productos relacionados:", err);
@@ -416,6 +728,7 @@ if (relacionadosGrid) {
 
   cargarProductosRelacionados();
 }
+
 
 
 // ------------------------------------------------------------
@@ -430,8 +743,19 @@ window.agregarCarrito = function(id, nombre, precio, imagen) {
     carrito.push({ id, nombre, precio, imagen, cantidad: 1 });
   }
   localStorage.setItem("carrito", JSON.stringify(carrito));
-  showToast(`${nombre} agregado al carrito ✅`, "green", 2000);
+  Swal.fire({
+    toast: true,
+    position: 'top-end',
+    icon: 'success',
+    title: `${nombre} agregado al carrito ✅`,
+    showConfirmButton: false,
+    timer: 2000,
+    timerProgressBar: true,
+    background: '#4CAF50',
+    color: '#fff'
+  });
 };
+
 
 
 });
@@ -503,10 +827,3 @@ function showToast(message = "", color = "green", duration = 3000) {
   }, duration);
 }
 
-// ------------------------------------------
-  // BOTÓN VOLVER
-  // ------------------------------------------
-  document.getElementById("btnVolver")?.addEventListener("click", () => {
-    if (window.history.length > 1) window.history.back();
-    else window.location.href = "index.html";
-  });

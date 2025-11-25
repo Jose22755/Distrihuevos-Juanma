@@ -11,23 +11,48 @@
 
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
-  background-color: var(--gris-claro);
+  background: #edf6ff !important;
   margin: 0;
   padding: 0;
 }
 
+#product-name {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #ffb700 !important;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin: 20px 0 22px;
+  line-height: 1.15;
+  text-shadow:
+    0px 3px 12px rgba(0,0,0,0.45),
+    0px 1px 3px rgba(0,0,0,0.65);
+}
+
+#product-subtitle {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #058c37;   /* verde vivo más oscuro */
+  margin-top: 6px;
+  margin-bottom: 24px;
+  letter-spacing: 1px;
+}
+
+
+
 .container {
   max-width: 1100px;
-  margin: 40px auto;
+  margin: 10px auto;      /* antes 40px */
   padding: 25px;
-background: linear-gradient(135deg, #66BB6A, #FDD835);
+  background: linear-gradient(135deg, #66BB6A, #FDD835);
   border-radius: 15px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.08);
   display: flex;
   flex-wrap: wrap;
   gap: 25px;
-  align-items: stretch; /* 🔥 IGUALA las alturas */
-
+  align-items: stretch;
 }
 
 
@@ -114,23 +139,6 @@ background: linear-gradient(135deg, #66BB6A, #FDD835);
 /* Iconos dentro de los botones */
 .buttons button i {
   font-size: 1.1rem;
-}
-
-/* --- Sección de detalles saludables --- */
-.nutritional-details {
-  margin-top: 35px;
-}
-
-.nutritional-details h2 {
-  color: var(--negro);
-  margin-bottom: 20px;
-  font-size: 1.6em;
-}
-
-.nutritional-cards {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
 }
 
 .card {
@@ -391,15 +399,6 @@ background: linear-gradient(135deg, #66BB6A, #FDD835);
     margin-bottom: 6px; /* más pegadito */
 }
 
-#product-name {
-  font-size: 1.8rem;
-  font-weight: 700;
-  background: linear-gradient(90deg, #ffba08, #f8d98d);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.5px;
-}
 
 
 @keyframes gradientShift {
@@ -484,6 +483,10 @@ background: linear-gradient(135deg, #66BB6A, #FDD835);
   font-weight: 700;
   margin-bottom: 20px;
   color: #333;
+}
+
+.product-title-box .detalle-titulo {
+  color: black;
 }
 
 .product-title-box {
@@ -809,5 +812,261 @@ box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
 .btn-volver-productos i {
   font-size: 1.2rem;
 }
+/* --- Sección de detalles saludables --- */
+.nutritional-details {
+  margin-top: 35px;
+  text-align: center; /* centra todo el contenido */
+}
+
+/* Box para el título de detalles saludables */
+.nutritional-details .nutritional-title-box {
+  width: 80%;
+  margin: 0 auto 30px auto; /* centrado y separación abajo */
+  padding: 18px 40px;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A); /* degradado verde */
+  border-radius: 18px;
+  color: var(--blanco); /* título blanco */
+  font-size: 2.2em; /* tamaño imponente */
+  font-weight: 900; /* negrita fuerte */
+  display: flex;
+  align-items: center;
+  justify-content: center; /* centrado real */
+  gap: 12px;
+  text-transform: none; /* mantiene minúsculas */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  margin-top: 40px; /* separación desde arriba */
+}
+
+/* Centrar sección de beneficios / cards */
+.nutritional-cards {
+  display: flex !important;        /* asegura flex */
+  flex-wrap: wrap !important;      /* que haga wrap */
+  justify-content: center !important;  /* centrado horizontal */
+  align-items: stretch;            /* mantiene altura consistente */
+  gap: 20px;                       /* separación entre cards */
+}
+
+/* Tarjetas dentro de beneficios */
+.nutritional-cards .card {
+  flex: 1 1 220px;                 /* ancho base */
+  max-width: 250px;                /* evita que crezcan demasiado */
+  text-align: center;              /* centrado del texto */
+  margin: 0;                        /* evita márgenes heredados */
+}
+
+/* Títulos de cada beneficio más gruesos y destacados */
+.nutritional-cards .card h3,
+.nutritional-cards .card h4 {
+  font-weight: 700;       /* más grosor */
+  font-size: 1.2rem;      /* tamaño un poco más grande */
+  color: #df9d0dcb;       /* mismo verde de tu paleta */
+  margin-bottom: 10px;    /* separación del texto de abajo */
+}
+ .nutritional-cards .card .card-icon {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 12px;
+  object-fit: contain;
+}
+
+.nutritional-cards .card:hover .card-icon {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+/* Sección general */
+.reviews-section {
+  margin-top: 50px;
+  padding: 0 20px;
+  width: 100%;
+}
+
+/* TITULO */
+.reviews-section h2 {
+  font-size: 2.6rem;
+  font-weight: 800;
+  margin-bottom: 45px;
+  color: white;
+  text-align: center;
+}
+
+
+/* --- Layout 2 columnas --- */
+.reviews-layout {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 60px;
+  width: 100%;
+}
+
+
+/* --- LISTA reseñas --- */
+.reviews-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 450px;
+}
+
+
+/* tarjeta */
+.review-card {
+  background: white;
+  border-radius: 15px;
+  padding: 18px 22px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+.review-card:hover {
+  transform: translateY(-3px);
+}
+
+
+/* formulario */
+#review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 350px;
+}
+
+#review-form input,
+#review-form textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 10px;
+  border: none;
+  background: white;
+  font-size: 1.1rem;
+}
+
+#review-form button {
+  background: linear-gradient(90deg, #E53935, #C62828); /* rojo suave degradado */
+  color: #fff;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.28s ease;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+}
+
+#review-form button:hover {
+  background: linear-gradient(90deg, #C62828, #E53935); /* rojo hover */
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.22);
+  filter: brightness(1.05);
+}
+
+#review-form button:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+}
+
+
+#review-form input,
+#review-form textarea {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  background: #ffffff;
+  font-size: 1.1rem;
+  box-shadow: 0 0 0 2px transparent;
+  transition: .25s ease;
+  /* sombra suave alrededor */
+  box-shadow: 0 3px 12px rgba(0,0,0,0.10);
+}
+
+/* cuando hacen click */
+#review-form input:focus,
+#review-form textarea:focus {
+  box-shadow: 0 0 0 3px rgba(76,175,80,.4), 0 4px 14px rgba(0,0,0,.15);
+  transform: scale(1.01);
+}
+
+.error {
+  color: #b60000;
+  font-size: .9rem;
+  padding-left: 4px;
+  margin-top: 4px;
+  display: block;
+  font-weight: 600;
+}
+ .error-shake {
+  animation: shake 0.2s ease-in-out 0s 2;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  50% { transform: translateX(3px); }
+  75% { transform: translateX(-3px); }
+  100% { transform: translateX(0); }
+}
+
+
+.review-card {
+  display: flex;
+  gap: 15px;
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.review-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--verde);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: white;
+}
+
+.review-content .author {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.review-content .text {
+  margin: 4px 0 0;
+}
+
+.tarjeta-relacionada.resaltado {
+  animation: resaltar 2s ease;
+  border: 2px solid #FFD700;
+  box-shadow: 0 0 10px #FFD700;
+}
+
+@keyframes resaltar {
+  0% { background-color: #fff9c4; }
+  50% { background-color: #fff176; }
+  100% { background-color: #fff9c4; }
+}
+
+.rating-wrapper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 10px;
+}
+
+.rating-label {
+  font-weight: 700; /* más gruesa */
+  font-size: 16px;
+}
+
+
+
+
 
 

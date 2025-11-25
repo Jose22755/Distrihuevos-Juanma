@@ -24,6 +24,9 @@ const filtroSelect = document.getElementById("filtro");
 const ADMIN_EMAILS = ["admin@gmail.com"];
 let usuarioActual = null;
 
+
+
+
 // ------------------------------------------------------------
 // VERIFICAR AUTENTICACIÓN
 // ------------------------------------------------------------
@@ -36,6 +39,7 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = "login.html";
   }
 });
+
 
 // ------------------------------------------------------------
 // CARGAR PEDIDOS Y APLICAR FILTRO
@@ -152,10 +156,20 @@ function asignarEventos() {
       mostrarConfirmacion("¿Deseas cancelar este pedido?", async () => {
         try {
           await updateDoc(doc(db, "pedidos", id), { estado: "cancelado" });
-          mostrarToast("Pedido cancelado correctamente 🧺", "warning");
+Swal.fire({
+  icon: 'warning',
+  title: 'Pedido cancelado',
+  text: 'El pedido fue cancelado correctamente 🧺',
+  confirmButtonColor: '#FFC107'
+});
         } catch (err) {
           console.error("❌ Error al cancelar pedido:", err);
-          mostrarToast("Error al cancelar pedido", "error");
+Swal.fire({
+  icon: 'error',
+  title: 'Error',
+  text: 'Error al cancelar el pedido',
+  confirmButtonColor: '#e53935'
+});
         }
       });
     });
@@ -171,53 +185,29 @@ function asignarEventos() {
         await updateDoc(doc(db, "pedidos", id), {
           estado: nuevoEstado.toLowerCase(),
         });
-        mostrarToast(`Pedido actualizado a "${nuevoEstado}" ✅`, "success");
+Swal.fire({
+  icon: 'success',
+  title: 'Pedido actualizado',
+  text: `Pedido actualizado a "${nuevoEstado}" ✅`,
+  confirmButtonColor: '#4CAF50'
+});
       } catch (err) {
         console.error("❌ Error al actualizar estado:", err);
-        mostrarToast("Error al actualizar pedido", "error");
+Swal.fire({
+  icon: 'error',
+  title: 'Error',
+  text: 'Error al actualizar pedido',
+  confirmButtonColor: '#e53935'
+});
       }
     });
   });
 }
 
-// ------------------------------------------------------------
-// FORMULARIO DE NUEVO PEDIDO
-// ------------------------------------------------------------
-formPedido?.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-  if (carrito.length === 0) {
-    mostrarToast("El carrito está vacío 🛒", "error");
-    return;
-  }
-
-  const metodoPago = document.getElementById("metodoPago").value;
-  const total = carrito.reduce((acc, item) => acc + item.subtotal, 0);
-
-  const nuevoPedido = {
-    codigoPedido: generarCodigoPedido(),
-    estado: "pendiente",
-    fecha: new Date().toISOString(),
-    items: carrito,
-    metodoPago,
-    pedidoNumero: Math.floor(Math.random() * 1000) + 1,
-    referenciaPago: "N/A",
-    total,
-    usuario: usuarioActual.uid,
-    createdAt: serverTimestamp(),
-  };
-
-  try {
-    await addDoc(collection(db, "pedidos"), nuevoPedido);
-    localStorage.removeItem("carrito");
-    mostrarToast("Pedido confirmado exitosamente 🎉", "success");
-    formPedido.reset();
-  } catch (err) {
-    console.error("❌ Error al guardar pedido:", err);
-    mostrarToast("Error al confirmar el pedido", "error");
-  }
+document.getElementById("btnCrearPedido")?.addEventListener("click", () => {
+  window.location.href = "productos.html"; // o donde se haga el pedido
 });
+
 
 // ------------------------------------------------------------
 // FUNCIONES AUXILIARES
@@ -291,14 +281,4 @@ function filtrarPorTracking(texto) {
 }
 
 
-// --------------------------------------------------------------
-// LOGICA BOTON "VOLVER"
-// --------------------------------------------------------------
 
-document.getElementById("btnVolver")?.addEventListener("click", () => {
-  if (window.history.length > 1) {
-    window.history.back();
-  } else {
-    window.location.href = "index.html"; // Respaldo
-  }
-});

@@ -159,46 +159,31 @@ formProducto?.addEventListener("submit", async (e) => {
   document.querySelectorAll(".form-control").forEach(el => el.classList.remove("is-invalid"));
 
   // Validaciones
-  if (Nombre === "") {
-    mostrarError("nombre", "El nombre del producto es obligatorio");
-    valido = false;
-  }
-  if (Precio === "" || parseFloat(Precio) <= 0) {
-    mostrarError("precio", "Ingresa un precio válido");
-    valido = false;
-  }
-  if (Stock === "" || parseInt(Stock) < 0) {
-    mostrarError("stock", "El stock no puede estar vacío ni negativo");
-    valido = false;
-  }
-  if (Categoria === "") {
-    mostrarError("categoria", "Debes ingresar una categoría");
-    valido = false;
-  }
-  if (imagen === "" || !imagen.startsWith("http")) {
-    mostrarError("imagen", "Ingresa una URL válida para la imagen");
-    valido = false;
-  }
-  if (Descripción === "") {
-    mostrarError("descripcion", "La descripción no puede estar vacía");
-    valido = false;
-  }
+  if (Nombre === "") { mostrarError("nombre", "El nombre del producto es obligatorio"); valido = false; }
+  if (Precio === "" || parseFloat(Precio) <= 0) { mostrarError("precio", "Ingresa un precio válido"); valido = false; }
+  if (Stock === "" || parseInt(Stock) < 0) { mostrarError("stock", "El stock no puede estar vacío ni negativo"); valido = false; }
+  if (Categoria === "") { mostrarError("categoria", "Debes ingresar una categoría"); valido = false; }
+  if (imagen === "" || !imagen.startsWith("http")) { mostrarError("imagen", "Ingresa una URL válida para la imagen"); valido = false; }
+  if (Descripción === "") { mostrarError("descripcion", "La descripción no puede estar vacía"); valido = false; }
 
   if (!valido) return;
 
   try {
-  // Referencia al documento con el nombre del producto como ID
     const productoRef = doc(db, "products", Nombre);
 
-    // Verificar si ya existe un documento con ese nombre
-    const productoSnap = await getDoc(productoRef);
-    if (productoSnap.exists()) {
-      Swal.fire("Duplicado", "Ya existe un producto con ese nombre.", "warning");
-      return;
+    // ✅ Solo verificar duplicado si NO estamos editando
+    if (!window.productoEditando) {
+      const productoSnap = await getDoc(productoRef);
+      if (productoSnap.exists()) {
+        Swal.fire("Duplicado", "Ya existe un producto con ese nombre.", "warning");
+        return;
+      }
     }
 
-    // Crear el documento usando el nombre como ID
-    await setDoc(productoRef, {
+    // Si estamos editando, usamos el ID del producto que estamos editando
+    const idAUsar = window.productoEditando || Nombre;
+
+    await setDoc(doc(db, "products", idAUsar), {
       Categoria,
       Descripción,
       Nombre,
@@ -210,16 +195,25 @@ formProducto?.addEventListener("submit", async (e) => {
 
     Swal.fire({
       icon: "success",
-      title: "Producto agregado",
-      text: `${Nombre} fue registrado exitosamente.`,
+      title: window.productoEditando ? "Producto actualizado" : "Producto agregado",
+      text: `${Nombre} ${window.productoEditando ? "fue actualizado" : "fue registrado"} exitosamente.`,
       timer: 1500,
       showConfirmButton: false
     });
 
     formProducto.reset();
+    window.productoEditando = null;
+    const btnAgregar = document.getElementById("btnAgregarProducto");
+    if (btnAgregar) {
+      btnAgregar.innerHTML = `<i class="bi bi-plus-circle me-2"></i> Agregar Producto`;
+      btnAgregar.classList.remove("modo-edicion");
+    }
+    const btnCancelar = document.getElementById("btnCancelarEdicion");
+    if (btnCancelar) btnCancelar.style.display = "none";
+
   } catch (error) {
-    console.error("Error al agregar producto:", error);
-    Swal.fire("Error", "No se pudo agregar el producto.", "error");
+    console.error("Error al agregar o actualizar producto:", error);
+    Swal.fire("Error", "No se pudo procesar el producto.", "error");
   }
 });
 
@@ -349,7 +343,6 @@ productosListContainer.addEventListener("click", async (event) => {
 // Botón cancelar edición
 const btnAgregar = document.getElementById("btnAgregarProducto");
 const btnCancelar = document.getElementById("btnCancelarEdicion");
-
 if (btnCancelar) {
   btnCancelar.addEventListener("click", () => {
     // Limpiar el formulario
