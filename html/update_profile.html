@@ -132,9 +132,6 @@
         </div>
       </form>
 
-      <!-- TOAST -->
-      <div id="register-success-message">✅ Perfil actualizado correctamente</div>
-
       <!-- Spinner overlay -->
       <div id="spinner-overlay">
         <div class="spinner"></div>
@@ -254,20 +251,34 @@ form.addEventListener("submit", async(ev)=>{
       Direccion: fields.address.value.trim(),
       Telefono: fields.phone.value.trim()
     });
-
-    // Mantener spinner visible 2 segundos antes de mostrar mensaje
-    setTimeout(()=>{
-      hideSpinner();
-      showSuccessMessage();
-      setTimeout(()=> hideSuccessMessage(), 2000);
-    }, 2000); // <-- aquí defines el tiempo de carga
+setTimeout(()=>{
+  hideSpinner();
+  Swal.fire({
+    icon: "success",
+    title: "✅ Perfil actualizado correctamente",
+    position: "center",
+    showConfirmButton: false,
+    heightAuto: false,
+    timer: 2000,
+    timerProgressBar: true
+  });
+}, 2000);
 
   }catch(err){
     hideSpinner();
     console.error(err);
-    alert("❌ Error al actualizar perfil");
+Swal.fire({
+  icon: "error",
+  title: "❌ Error al actualizar perfil",
+  position: "center",
+  showConfirmButton: false,
+  heightAuto: false,
+  timer: 2000,
+  timerProgressBar: true
+});
   }
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

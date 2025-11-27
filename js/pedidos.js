@@ -55,7 +55,7 @@ function cargarPedidos() {
   } else {
     pedidosQuery = query(
       collection(db, "pedidos"),
-      where("usuario", "==", usuarioActual.uid),
+      where("usuarioUID", "==", usuarioActual.uid),
       orderBy("fecha", "desc")
     );
   }
@@ -113,7 +113,6 @@ function cargarPedidos() {
           ADMIN_EMAILS.includes(usuarioActual.email)
             ? `
               <td>
-                <button class="btn-estado" data-id="${pedido.id}" data-estado="en camino">🚚 En camino</button>
                 <button class="btn-estado" data-id="${pedido.id}" data-estado="entregado">✅ Entregado</button>
               </td>`
             : pedido.estado?.toLowerCase() === "pendiente"

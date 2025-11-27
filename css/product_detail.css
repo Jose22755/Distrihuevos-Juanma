@@ -18,16 +18,16 @@ body {
 
 #product-name {
   text-align: center;
-  font-size: 2rem;
+  font-size: 2.6rem;          /* Más grande y profesional */
   font-weight: 900;
-  color: #ffb700 !important;
-  letter-spacing: 3px;
+  color: #ffb700 !important;  /* Amarillo brillante */
+  letter-spacing: 4px;        /* Más separación, estilo premium */
   text-transform: uppercase;
-  margin: 20px 0 22px;
-  line-height: 1.15;
-  text-shadow:
-    0px 3px 12px rgba(0,0,0,0.45),
-    0px 1px 3px rgba(0,0,0,0.65);
+  margin: 25px 0 25px;
+  line-height: 1.1;
+
+  /* 🌟 Toque profesional sin sombra negra */
+  filter: drop-shadow(0px 2px 4px rgba(255, 183, 0, 0.35));
 }
 
 #product-subtitle {

@@ -87,6 +87,92 @@
       border-color: #4caf50;
       box-shadow: 0 0 0 4px rgba(76,175,80,0.1);
     }
+/* =======================
+   LOGIN / REGISTER MOBILE
+   Solo afecta pantallas <= 600px
+   ======================= */
+@media (max-width: 600px) {
+  /* Contenedor principal centrado y con padding */
+  .login-container {
+    width: 95%;
+    margin: 20px auto;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  /* Tarjeta del formulario */
+  .login-card {
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+  }
+
+  /* Logo y título */
+  .logo-container img.logo-register {
+    width: 120px;
+    height: auto;
+    display: block;
+    margin: 0 auto 10px auto;
+  }
+
+  .logo-container h1 {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+  .logo-container span {
+    font-size: 1.3rem;
+  }
+
+  /* Titulos h2 y enlaces */
+  h2 {
+    font-size: 1.2rem;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .back-link-card {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  /* Inputs generales */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"] {
+    font-size: 0.9rem;
+    padding: 8px 10px;
+  }
+
+  /* Password eye toggle */
+  .toggle-pass, .toggle-pass2 {
+    right: 6px;
+  }
+
+  /* Botón registrar */
+  form button[type="submit"] {
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 10px;
+    margin-top: 10px;
+  }
+
+  /* Mensajes de error y éxito */
+  .error-msg, .success-msg {
+    font-size: 0.8rem;
+  }
+
+  /* Mensajes overlay y spinner */
+  #register-success-message, #spinner-message {
+    font-size: 1rem;
+    padding: 12px 20px;
+  }
+
+}
+
+    
   </style>
 </head>
 <body>
@@ -314,12 +400,18 @@ form.addEventListener("submit", async(ev)=>{
         "rol": "usuario" 
       });
 
-      hideSpinner();
-      showSuccessMessage();
-      setTimeout(()=>{
-        hideSuccessMessage();
-        window.location.href="login.html";
-      },2000);
+hideSpinner();
+Swal.fire({
+  icon: "success",
+  title: "✅ ¡Te has registrado correctamente!",
+  position: "center",
+  showConfirmButton: false,
+  heightAuto: false,
+  timer: 2000,
+  timerProgressBar: true
+}).then(() => {
+  window.location.href = "login.html";
+});
 
     }catch(error){
       console.log("Registro detenido por error.", error);

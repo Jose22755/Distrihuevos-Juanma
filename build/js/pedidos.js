@@ -49,7 +49,7 @@ function cargarPedidos(pedidosContainer, mensajeVacio) {
   } else {
     pedidosQuery = query(
       collection(db, "pedidos"),
-      where("usuario", "==", usuarioActual.uid)
+    where("usuarioUID", "==", usuarioActual.uid)
     );
   }
 

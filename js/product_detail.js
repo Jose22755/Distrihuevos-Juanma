@@ -478,21 +478,21 @@ addCartBtn.addEventListener("click", async () => {
   // prevenir clicks dobles
   addCartBtn.disabled = true;
 
-  if (cantidad <= 0 || stock <= 0) {
-Swal.fire({
-  toast: true,
-  position: 'top-end',
-  icon: 'error', // porque es un producto agotado
-  title: 'Producto agotado ❌',
-  showConfirmButton: false,
-  timer: 3000,
-  timerProgressBar: true,
-  background: '#f44336', // opcional, rojo similar al tu showToast
-  color: '#fff'            // color del texto
-});
-    addCartBtn.disabled = false;
-    return;
-  }
+if (stock <= 0) {
+  Swal.fire({
+    toast: true,
+    position: 'top-end',
+    icon: 'error',
+    title: 'Producto agotado ❌',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    background: '#f44336',
+    color: '#fff'
+  });
+  addCartBtn.disabled = false;
+  return;
+}
 
   const take = Math.min(cantidad, stock);
 
@@ -533,31 +533,32 @@ Swal.fire({
   addCartBtn.disabled = false;
 });
 
+console.log("¿Existe buyNowBtn?:", buyNowBtn);
+console.log("ID real del botón:", document.getElementById("buyNowBtn"));
+console.log("¿El script está cargado?: LLEGÓ AL SCRIPT");
 
 // ------------------------------------------------------------
 // BOTÓN: COMPRAR AHORA
 // ------------------------------------------------------------
 buyNowBtn.addEventListener("click", async () => {
 
-  // prevención de doble click
   buyNowBtn.disabled = true;
 
-  if (cantidad <= 0 || stock <= 0) {
-    showToast("Producto agotado ❌", "red", 3000);
+  // 🔥 Validación infalible: sin stock → sí o sí muestra alerta
+  if (!stock || stock === 0) {
+    Swal.fire({
+      icon: "error",
+      title: "Sin stock",
+      text: "Este producto ya no está disponible 😢",
+      timer: 2000,
+      showConfirmButton: false
+    });
+
     buyNowBtn.disabled = false;
     return;
   }
-Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'error',
-      title: 'Producto agotado ❌',
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-      background: '#f44336',
-      color: '#fff'
-    });
+
+  // SI HAY STOCK → COMPRAR
   const take = Math.min(1, stock);
 
   let existe = carrito.find(p => p.id === productoId);
@@ -577,7 +578,6 @@ Swal.fire({
   stock -= take;
 
   await descontarStockEnFirestore(take);
-
   actualizarStockVisual(stock);
   cantidad = 1;
   actualizarBotones();
@@ -589,6 +589,8 @@ Swal.fire({
   window.location.href = "cart.html";
 
 });
+
+
 
 // ------------------------------------------------------------
 // FUNCION PARA ACTUALIZAR BARRA Y TEXTO DE STOCK

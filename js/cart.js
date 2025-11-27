@@ -150,6 +150,19 @@ function renderCarritoCompleto() {
   `;
 
   cartContainer.innerHTML = html + botonVerMas;
+
+// 🔹 🔹 NUEVO: hacer cada card clickable
+cartContainer.querySelectorAll(".cart-item").forEach((card, index) => {
+  card.addEventListener("click", (e) => {
+    // Evitar que click en botones de cantidad o eliminar active la redirección
+    if (e.target.closest(".btn-qty") || e.target.closest(".remove-item")) return;
+
+    const producto = carritoFiltrado[index]; // obtener producto correspondiente
+    if (producto?.id) {
+      window.location.href = `product_detail.html?id=${producto.id}`;
+    }
+  });
+});
   actualizarTotales();
   actualizarBotonesCantidad(); // ← agrega esta línea
 }
@@ -292,7 +305,6 @@ window.eliminarItem = async (index) => {
     showConfirmButton: false,
     timer: 2000,
     timerProgressBar: true,
-    toast: true
   });
 
   // Actualizar stock: verificar que exista antes
@@ -396,7 +408,7 @@ function actualizarTotales() {
   const subtotal = carritoFiltrado.reduce((acc, i) => acc + i.precio * i.cantidad, 0);
   
   // IVA solo como variable interna, NO sumarlo al total
-  const impuesto = Math.round(subtotal * 0.19); 
+ /* const impuesto = Math.round(subtotal * 0.19);*/
 
   // Total real SIN IVA
   const total = subtotal; // <- aquí quitamos la suma del impuesto

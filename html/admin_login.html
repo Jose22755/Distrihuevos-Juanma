@@ -68,6 +68,7 @@
             id="buscadorProductos"
             placeholder="Buscar producto..."
           />
+
           <i class="bi bi-search"></i>
         </div>
 
@@ -232,6 +233,100 @@
         </div>
       </div>
     </div>
+
+    <!-- ===== SECCIÓN CLIENTES ===== -->
+<section id="clientes" class="section">
+  <div class="d-flex justify-content-end mb-3">
+  <button id="btnNuevoCliente" class="btn btn-success fw-semibold px-4">
+    <i class="bi bi-person-plus me-2"></i> Nuevo Cliente
+  </button>
+</div>
+  <h2><i class="bi bi-people"></i> Gestión de Clientes</h2>
+  <p>Visualiza, actualiza y administra los clientes registrados.</p>
+
+      <!-- ===== FORMULARIO DE CLIENTE ===== -->
+<form id="formCliente" class="mt-4 p-4 bg-white rounded-4 shadow-sm border border-success-subtle" style="display:none;">
+  <h4 class="text-center text-success fw-semibold mb-4">
+    <i class="bi bi-person-plus me-2"></i> Añadir / Editar Cliente
+  </h4>
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <label for="nombreCliente" class="form-label fw-semibold">Nombres</label>
+      <input type="text" id="nombreCliente" class="form-control" placeholder="Ej. Juan">
+    </div>
+
+    <div class="col-md-6">
+      <label for="apellidoCliente" class="form-label fw-semibold">Apellidos</label>
+      <input type="text" id="apellidoCliente" class="form-control" placeholder="Ej. Ortiz">
+    </div>
+
+    <div class="col-md-6">
+      <label for="correoCliente" class="form-label fw-semibold">Correo electrónico</label>
+      <input type="email" id="correoCliente" class="form-control" placeholder="correo@ejemplo.com">
+    </div>
+
+    <div class="col-md-6">
+      <label for="telefonoCliente" class="form-label fw-semibold">Teléfono</label>
+      <input type="text" id="telefonoCliente" class="form-control" placeholder="3212345678">
+    </div>
+
+    <div class="col-md-6">
+      <label for="direccionCliente" class="form-label fw-semibold">Dirección</label>
+      <input type="text" id="direccionCliente" class="form-control" placeholder="Barrio o ciudad">
+    </div>
+
+    <div class="col-md-6">
+      <label for="rolCliente" class="form-label fw-semibold">Rol</label>
+      <select id="rolCliente" class="form-select">
+        <option value="cliente">Cliente</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+
+    <div class="col-12 text-end mt-3">
+ <button id="btnAgregarCliente" type="submit" class="btn-agregar">Agregar Cliente</button>
+<button id="btnCancelarEdicionCliente" type="button" class="btn-cancelar" style="display:none;">Cancelar</button>
+    </div>
+  </div>
+</form>
+
+
+  <div class="table-container mt-3">
+    <div class="table-responsive">
+      <div style="margin-bottom: 15px; display:flex; justify-content:center; gap:15px; align-items:center; width:100%;">
+        
+        <label style="font-weight:600;">Filtrar por rol:</label>
+
+        <select id="filtroRol" style="padding:6px 10px; border-radius:6px;">
+          <option value="todos">Todos</option>
+          <option value="cliente">Cliente</option>
+          <option value="admin">Admin</option>
+        </select>
+
+      </div>
+
+      <table class="table table-hover align-middle text-center" id="tablaClientes">
+        <thead class="table-success">
+          <tr>
+            <th>Nombre</th>
+            <th>Correo electrónico</th>
+            <th>Teléfono</th>
+            <th>Fecha de registro</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+            <th>Detalles</th>
+
+          </tr>
+        </thead>
+        <tbody id="listaClientes">
+          <!-- clientes cargados dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 
   </main>
 

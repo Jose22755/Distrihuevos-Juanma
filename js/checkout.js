@@ -104,29 +104,4 @@ document.addEventListener("DOMContentLoaded", () => {
   closeCheckout?.addEventListener("click", cerrarCheckout);
   document.addEventListener("abrirCheckoutForce", abrirCheckout);
 
-  // 🔥 Confirmar compra → SOLO valida método y manda la señal a pagos.js
-  confirmPurchase?.addEventListener("click", () => {
-    if (!usuarioActual)
-      return Swal.fire("Inicia sesión", "Debes iniciar sesión 😅", "warning");
-
-    if (carrito.length === 0)
-      return Swal.fire("Vacío", "Tu carrito está vacío 🥚", "warning");
-
-    if (!metodoPagoSeleccionado) {
-      return Swal.fire({
-        icon: "warning",
-        title: "Selecciona un método de pago",
-        text: "Debes escoger Nequi o Bancolombia antes de pagar.",
-      });
-    }
-
-    // 🔹 Mandar señal a pagos.js para finalizar pago
-    document.dispatchEvent(
-      new CustomEvent("procesarPagoFinal", {
-        detail: metodoPagoSeleccionado,
-      })
-    );
-
-    cerrarCheckout();
-  });
 });

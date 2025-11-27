@@ -95,9 +95,6 @@ closePayment.addEventListener("click", () => {
 });
 
 // ---------------------------------------------------------
-// CALCULAR TOTAL
-// ---------------------------------------------------------
-// ---------------------------------------------------------
 // CALCULAR TOTAL SIN SUMAR IVA (solo para mostrar)
 // ---------------------------------------------------------
 function actualizarTotales() {
@@ -368,7 +365,7 @@ confirmPayment.addEventListener("click", async () => {
 // 1️⃣ Validar que haya comprobante si no es efectivo
 // El bloque de subida a Storage se repite `if (metodoSel !== "efectivo")` dos veces.
 // Puedes unir validación + subida para que quede más limpio:
-if (metodoSel !== "efectivo") {
+/*if (metodoSel !== "efectivo") {
   const comprobanteInput = document.getElementById("comprobantePago");
   if (!comprobanteInput?.files?.length) {
     return Swal.fire({ icon: "warning", title: "Sube tu comprobante", text: "Debes subir el comprobante de pago antes de confirmar el pedido." });
@@ -378,48 +375,59 @@ if (metodoSel !== "efectivo") {
   const storageRef = ref(storage, `comprobantes/${usuarioActual}_${Date.now()}_${archivoComprobante.name}`);
   const snapshot = await uploadBytes(storageRef, archivoComprobante);
   urlComprobante = await getDownloadURL(snapshot.ref);
-}
+} */
   // ---------------------------------------------------------
   // 🔥 Validación REAL del pago (antes la querías reactivar)
   // ---------------------------------------------------------
-  if (metodoSel !== "efectivo" && !metodoPagoValidado) {
+  /* if (metodoSel !== "efectivo" && !metodoPagoValidado) {
     return Swal.fire({
       icon: "warning",
       title: "Confirma el pago",
       text: "Debes abrir Nequi o Bancolombia para validar el pago 📱"
     });
-  }
+  } */
 
   try {
     const pedidosRef = collection(db, "pedidos");
     const q = query(pedidosRef, orderBy("pedidoNumero", "desc"), limit(1));
-    const snapshot = await getDocs(q);
+    const snapshot = await getDocs(q); 
 
-    let nuevoNumero = 1;
+let nuevoNumero = 1;
 
-    if (!snapshot.empty) {
-      const ultimo = snapshot.docs[0].data();
-      nuevoNumero = (ultimo.pedidoNumero && ultimo.pedidoNumero < 100000) 
-        ? ultimo.pedidoNumero + 1 
-        : 1;
-    }
+if (!snapshot.empty) {
+  const ultimo = snapshot.docs[snapshot.docs.length - 1].data();
+  nuevoNumero = (ultimo.pedidoNumero ?? 0) + 1;
+}
 
     const codigoPedido = `PED-${nuevoNumero}`;
+
+      // 📌 Obtener nombre real del user
+const userRef = doc(db, "users", usuarioActual);
+  const userSnap = await getDoc(userRef);
+
+  let nombreUsuario = "";
+
+ if (userSnap.exists()) {
+  const data = userSnap.data();
+
+  nombreUsuario = data.Nombres;
+  
+  if (data.Apellidos) {
+    nombreUsuario += " " + data.Apellidos;
+  }
+}
 
     await setDoc(doc(db, "pedidos", codigoPedido), {
       pedidoNumero: nuevoNumero,
       codigoPedido,
-      usuario: usuarioActual,
+      usuarioUID: usuarioActual,
+      nombreUsuario,       // ← AGREGAS ESTO
       items: carrito,
-      subtotal,
-      impuesto,
       total,
       metodoPago: metodoSel,
-      urlComprobante: urlComprobante || "",
       estado: "pendiente",
       fecha: new Date().toISOString()
     });
-
 
     await setDoc(doc(db, "carritos", usuarioActual), { items: [] });
     carrito = [];
@@ -432,7 +440,7 @@ if (metodoSel !== "efectivo") {
       icon: "success",
       title: "Pedido creado 🎉",
       text: `Tu pedido fue registrado correctamente. Número: ${codigoPedido}`
-    }).then(() => window.location.href = "cart.html");
+    }).then(() => window.location.href = "pedidos.html");
 
   } catch (error) {
     console.error(error);

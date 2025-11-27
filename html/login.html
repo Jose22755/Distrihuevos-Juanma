@@ -114,6 +114,51 @@
       text-decoration:underline;
     }
     .forgot-pass:hover { color:#0d47a1; }
+
+@media (max-width: 480px) {
+  .login-container {
+    box-sizing: border-box; /* Esto hace que padding no afecte al ancho total */
+    margin: 15px auto;
+    padding: 12px;
+    width: 95%;
+    max-width: 400px; /* Limita el ancho máximo, opcional */
+  }
+
+  input[type="email"], input[type="password"] {
+    width: 100%;
+    box-sizing: border-box; /* Asegura que padding no haga overflow */
+    font-size: 0.9rem;
+    padding: 8px 10px;
+  }
+
+  .toggle-pass {
+    right: 8px;
+  }
+
+  .google-btn {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 0.85rem;
+    height: 38px;
+    gap: 5px;
+  }
+
+  #login-success-message {
+    font-size: 0.95rem;
+    padding: 12px 20px;
+  }
+
+  #spinner-message {
+    font-size: 0.95rem;
+  }
+
+  .forgot-pass {
+    font-size: 0.85rem;
+  }
+}
+
+
+    
   </style>
 </head>
 <body>

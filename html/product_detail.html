@@ -32,7 +32,7 @@
           <span class="menu-label">INICIO</span>
         </div>
         <form id="searchForm" class="search-form" onsubmit="return false;">
-          <input type="text" id="busqueda" placeholder="Buscar por numero, fecha o estado..." />
+          <input type="text" id="busqueda" placeholder="Buscar producto..." />
           <button type="submit" class="btn-search"><i class="bi bi-search"></i></button>
         </form>
       </div>
@@ -139,11 +139,14 @@
        <!-- Stock -->
       <p id="product-stock"></p>
 
-      <!-- Botones -->
-      <div class="buttons">
-        <button class="add-cart">Agregar al carrito</button>
-        <button class="buy-now">Comprar ahora</button>
-      </div>
+<!-- Botones -->
+<div class="buttons">
+  <button class="add-cart">Agregar al carrito</button>
+
+  <!-- 👇🏻 AGREGAMOS EL ID QUE FALTABA -->
+  <button id="buyNowBtn" class="buy-now">Comprar ahora</button>
+</div>
+
 
     </div> <!-- cierre .product-details -->
 
@@ -227,7 +230,7 @@
     </div>
   </div>
 </footer>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="module" src="../js/product_detail.js"></script>
 <script type="module" src="../js/productos.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

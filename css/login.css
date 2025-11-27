@@ -567,6 +567,93 @@ input.invalid {
 }
 
 
+/* =======================
+   RESPONSIVE REGISTRO - MÓVILES
+   Pantallas <= 600px
+   ======================= */
+@media (max-width: 600px) {
+  /* Contenedor principal centrado y ancho completo con padding */
+  .login-container {
+    width: 100%;
+    max-width: 400px; /* limita el tamaño para no estirarse demasiado */
+    margin: 20px auto;
+    padding: 0 15px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Tarjeta del formulario centrada y con padding */
+  .login-card {
+    width: 100%;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+  }
+
+  /* Logo centrado */
+  .logo-container img.logo-register {
+    width: 100px;
+    height: auto;
+    display: block;
+    margin: 0 auto 10px auto;
+  }
+
+  .logo-container h1 {
+    font-size: 1.4rem;
+    text-align: center;
+  }
+
+  .logo-container span {
+    font-size: 1.2rem;
+  }
+
+  /* Título h2 centrado */
+  h2 {
+    font-size: 1.1rem;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  /* Enlace volver */
+  .back-link-card {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  /* Inputs y botón ancho completo */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  button[type="submit"] {
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+  }
+
+  /* Password eye toggle */
+  .toggle-pass, .toggle-pass2 {
+    right: 8px;
+  }
+
+  /* Mensajes de error y éxito más pequeños */
+  .error-msg, .success-msg {
+    font-size: 0.85rem;
+  }
+
+  /* Overlay spinner y mensaje */
+  #register-success-message, #spinner-message {
+    font-size: 1rem;
+    padding: 12px 20px;
+  }
+
+}
 
 
 

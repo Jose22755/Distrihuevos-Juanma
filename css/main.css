@@ -1638,3 +1638,92 @@ body {
   font-weight: bold;
 }
 
+/* ===================== */
+/* 📱 HEADER RESPONSIVO  */
+/* ===================== */
+@media (max-width: 1024px) {
+  .header-container {
+    flex-wrap: wrap;
+    padding: 0.8rem 1.5rem;
+  }
+  .menu-label {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .search-form { display: none; }
+  .user-greeting { display: none; }
+  .logo h1 { font-size: 1.4rem; }
+  .cart-btn { padding: 0.45rem 1.5rem; font-size: 1rem; }
+}
+
+@media (max-width: 480px) {
+  .header-container { flex-direction: column; align-items: center; gap: 0.6rem; }
+  .logo { position: static; transform: none; margin-bottom: 0.5rem; }
+  .cart-btn { width: 100%; justify-content: center; }
+}
+
+/* ===================== */
+/* 📱 HERO RESPONSIVO    */
+/* ===================== */
+@media (max-width: 1024px) {
+  .hero-content h1 { font-size: 2rem; }
+  .hero-content p { font-size: 1rem; }
+  .btn-hero { padding: 10px 22px; font-size: 0.95rem; }
+}
+
+@media (max-width: 768px) {
+  .hero { padding: 4rem 1.5rem; }
+  .hero-content h1 { font-size: 1.7rem; }
+  .hero-content p { font-size: 0.95rem; }
+}
+
+@media (max-width: 480px) {
+  .hero { padding: 3rem 1rem; }
+  .btn-hero { padding: 8px 18px; font-size: 0.9rem; }
+}
+
+
+/* ===================== */
+/* 📱 CATALOGO RESPONSIVO */
+/* ===================== */
+@media (max-width: 1024px) {
+  .productos { gap: 1.5rem; }
+  .card { width: 280px; }
+}
+
+@media (max-width: 768px) {
+  .productos { gap: 1rem; }
+  .card { width: 90%; }
+  .swiper { width: 95%; }
+  .swiper-button-prev, .swiper-button-next { display: none; }
+}
+
+@media (max-width: 480px) {
+  .productos { flex-direction: column; align-items: center; gap: 1rem; }
+  .card { width: 100%; }
+}
+
+/* ===================== */
+/* 📱 CARRITO RESPONSIVO  */
+/* ===================== */
+@media (max-width: 768px) {
+  .cart-panel { width: 80%; }
+}
+
+@media (max-width: 480px) {
+  .cart-panel { width: 100%; right: -100%; border-radius: 0; }
+  .cart-footer, .cart-actions { padding: 10px; }
+  .btn-clear, .btn-checkout { font-size: 0.9rem; padding: 8px 0; }
+}
+
+/* ===================== */
+/* 📱 FOOTER RESPONSIVO  */
+/* ===================== */
+@media (max-width: 768px) {
+  .footer-container { flex-direction: column; text-align: center; gap: 1rem; }
+  .footer-info, .footer-links, .footer-icons { transform: none; }
+  .footer-links { flex-direction: column; gap: 0.2rem; }
+}
+

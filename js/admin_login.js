@@ -394,41 +394,72 @@ if (btnCancelar) {
 });
 
 
-// ------------------------------------------------------------
-// 🔍 BUSCADOR DE PRODUCTOS EN TIEMPO REAL
-// ------------------------------------------------------------
+// ==========================================
+// 🔍 BUSCADOR UNIVERSAL SEGÚN SECCIÓN VISIBLE
+// ==========================================
+const buscador = document.getElementById("buscadorProductos");
 
-// Esperar que el DOM esté listo
-document.addEventListener("DOMContentLoaded", () => {
-  const buscador = document.getElementById("buscadorProductos");
-  const tabla = document.getElementById("tablaProductos");
-  const filas = tabla?.getElementsByTagName("tr");
+if (buscador) {
+  buscador.addEventListener("input", () => {
 
-  if (buscador && filas) {
-    buscador.addEventListener("input", (e) => {
-      const texto = e.target.value.toLowerCase().trim();
+    const q = buscador.value
+      .toLowerCase()
+      .trim()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
 
-      // Recorremos todas las filas de la tabla (excepto el encabezado)
-      for (let i = 1; i < filas.length; i++) {
-        const fila = filas[i];
-        const columnas = fila.getElementsByTagName("td");
-        let coincide = false;
+    const seccionActiva = document.querySelector(".section.active")?.id;
 
-        // Revisamos si alguna celda contiene el texto del buscador
-        for (let j = 0; j < columnas.length; j++) {
-          const celdaTexto = columnas[j].innerText.toLowerCase();
-          if (celdaTexto.includes(texto)) {
-            coincide = true;
-            break;
-          }
-        }
+    // ============================
+    // 🔍 BUSCAR EN PEDIDOS
+    // ============================
+    if (seccionActiva === "pedidos") {
+      const filas = document.querySelectorAll("#listaPedidos tr");
 
-        // Mostrar u ocultar la fila según coincidencia
-        fila.style.display = coincide ? "" : "none";
-      }
-    });
-  }
-});
+      filas.forEach(fila => {
+        const texto = fila.innerText
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+
+        fila.style.display = texto.includes(q) ? "" : "none";
+      });
+    }
+
+    // ============================
+    // 🔍 BUSCAR EN PRODUCTOS
+    // ============================
+    else if (seccionActiva === "productos") {
+      const filas = document.querySelectorAll("#listaProductos tr");
+
+      filas.forEach(fila => {
+        const contenido = fila.innerText
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+
+        fila.style.display = contenido.includes(q) ? "" : "none";
+      });
+    }
+
+    // ============================
+    // 🔍 BUSCAR EN CLIENTES
+    // ============================
+    else if (seccionActiva === "clientes") {
+      const filas = document.querySelectorAll("#listaClientes tr");
+
+      filas.forEach(fila => {
+        const contenido = fila.innerText
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+
+        fila.style.display = contenido.includes(q) ? "" : "none";
+      });
+    }
+
+  });
+}
 
 
 function mostrarError(campo, mensaje) {
@@ -446,6 +477,25 @@ const detalleModal = new bootstrap.Modal(document.getElementById("modalDetallePe
 window.detalleModal = detalleModal;
 const detallePedidoContent = document.getElementById("detallePedidoContent");
 
+
+async function obtenerNombreCompleto(uid) {
+  try {
+    const ref = doc(db, "users", uid);
+    const snap = await getDoc(ref);
+
+    if(!snap.exists()) return null;
+
+    const d = snap.data();
+
+    return d.Nombres + " " + d.Apellidos;
+    
+  } catch(err){
+    console.error("error obteniendo nombre:", err);
+    return null;
+  }
+}
+
+
 // ===============================
 // 📌 Cargar pedidos
 // ===============================
@@ -453,21 +503,21 @@ async function cargarPedidos() {
   const snap = await getDocs(collection(db, "pedidos"));
   const pedidos = [];
 
-  for (const docu of snap.docs) {
-    const data = docu.data();
+for (const docu of snap.docs) {
+  const data = docu.data();
 
-    let nombreCompleto = data.usuario; // primero usar lo que ya existe
-    if (!nombreCompleto && data.usuarioUID) {
-      nombreCompleto = await obtenerNombreCompleto(data.usuarioUID);
-    }
-    if (!nombreCompleto) nombreCompleto = "Nombre no disponible";
+  let nombreCompleto = null;
 
-    pedidos.push({
-      id: docu.id,
-      ...data,
-      nombreUsuario: nombreCompleto
-    });
+  if(data.usuarioUID){
+    nombreCompleto = await obtenerNombreCompleto(data.usuarioUID);
   }
+
+  pedidos.push({
+    id: docu.id,
+    ...data,
+    nombreUsuario: (nombreCompleto ?? "").replace("undefined", "").trim() || "Sin nombre"
+  });
+}
 
   mostrarPedidos(pedidos);
 }
@@ -513,7 +563,7 @@ function mostrarPedidos(pedidos) {
             <option value="cancelado" ${pedido.estado === "cancelado" ? "selected" : ""}>Cancelado</option>
           </select>
         </td>
-        <td>$${pedido.total}</td>
+        <td>$${Number(pedido.total || 0).toLocaleString("es-CO")}</td>
         <td class="detalles-col">
           <button class="btn-verDetalle" data-id="${pedido.id}">
             Ver detalles
@@ -613,3 +663,235 @@ filtroEstado.addEventListener("change", cargarPedidos);
 // 📌 Inicio
 // ===============================
 cargarPedidos();
+
+// ==========================================
+// 📌 Gestión de Clientes
+// ==========================================
+const listaClientes = document.getElementById("listaClientes");
+const formCliente = document.getElementById("formCliente");
+const btnAgregarCliente = document.getElementById("btnAgregarCliente");
+const btnCancelarCliente = document.getElementById("btnCancelarEdicionCliente");
+let clienteEditando = null; // variable global para saber si estamos editando
+
+// === Cargar clientes desde Firebase ===
+async function cargarClientes() {
+  listaClientes.innerHTML = ""; // limpiar tabla
+
+  try {
+    const clientesSnapshot = await getDocs(collection(db, "users"));
+    clientesSnapshot.forEach(doc => {
+      const cliente = doc.data();
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${(cliente.Nombres || "") + " " + (cliente.Apellidos || "")}</td>
+        <td>${cliente["Correo Electronico"] || "-"}</td>
+        <td>${cliente.Telefono || "-"}</td>
+        <td>${cliente.Direccion || "-"}</td>
+        <td>${cliente.rol || "cliente"}</td>
+        <td class="text-center">
+          <button class="btn-editar btn btn-sm btn-primary" data-id="${doc.id}">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="btn-eliminar btn btn-sm btn-danger" data-id="${doc.id}">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+        <td class="text-center">
+          <span class="btn-verDetalle" style="color:black; cursor:pointer; font-weight:500;" data-id="${doc.id}">
+            Ver detalles
+          </span>
+        </td>
+      `;
+
+      listaClientes.appendChild(tr);
+    });
+
+    // Lógica para ver detalles
+    document.querySelectorAll(".btn-verDetalle").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        const docRef = doc(db, "users", id);
+        const snap = await getDoc(docRef);
+        if (!snap.exists()) {
+          Swal.fire("Error", "Cliente no encontrado.", "error");
+          return;
+        }
+        const c = snap.data();
+        const modalTitle = document.getElementById("modalTitle");
+        if(modalTitle) modalTitle.textContent = "Detalles del cliente";
+
+        detallePedidoContent.innerHTML = `
+          <div style="text-align:center; color:#000;">
+            <p><strong>Nombre:</strong> ${(c.Nombres || "") + " " + (c.Apellidos || "")}</p>
+            <p><strong>Correo:</strong> ${c["Correo Electronico"] || "-"}</p>
+            <p><strong>Teléfono:</strong> ${c.Telefono || "-"}</p>
+            <p><strong>Dirección:</strong> ${c.Direccion || "-"}</p>
+            <p><strong>Rol:</strong> ${c.rol || "cliente"}</p>
+          </div>
+        `;
+        detalleModal.show();
+      });
+    });
+
+  } catch (error) {
+    console.error("Error cargando clientes:", error);
+  }
+}
+
+// === Mostrar formulario y llenar datos al editar ===
+listaClientes.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".btn-editar, .btn-eliminar");
+  if (!btn) return;
+  const id = btn.dataset.id;
+  if (!id) return;
+
+  // EDITAR
+  if (btn.classList.contains("btn-editar")) {
+    try {
+      const docRef = doc(db, "users", id);
+      const snap = await getDoc(docRef);
+      if (!snap.exists()) {
+        Swal.fire("Error", "Cliente no encontrado.", "error");
+        return;
+      }
+      const c = snap.data();
+
+      // Mostrar formulario
+      formCliente.style.display = "block";
+      formCliente.scrollIntoView({ behavior: "smooth", block: "start" });
+
+      // Llenar inputs
+      document.getElementById("nombreCliente").value = c.Nombres || "";
+      document.getElementById("apellidoCliente").value = c.Apellidos || "";
+      document.getElementById("correoCliente").value = c["Correo Electronico"] || "";
+      document.getElementById("telefonoCliente").value = c.Telefono || "";
+      document.getElementById("direccionCliente").value = c.Direccion || "";
+      document.getElementById("rolCliente").value = c.rol || "cliente";
+
+      // Cambiar botón principal a actualizar
+      btnAgregarCliente.textContent = "Actualizar Cliente";
+      btnAgregarCliente.classList.add("modo-edicion");
+
+      // Mostrar botón de cancelar
+      btnCancelarCliente.style.display = "inline-block";
+
+      // Marcar que estamos editando
+      clienteEditando = id;
+
+    } catch (err) {
+      console.error("Error cargando cliente para editar:", err);
+      Swal.fire("Error", "No se pudo cargar el cliente.", "error");
+    }
+  }
+
+  // ELIMINAR
+  if (btn.classList.contains("btn-eliminar")) {
+    const confirm = await Swal.fire({
+      title: "¿Eliminar cliente?",
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#dc3545",
+      cancelButtonColor: "#6c757d"
+    });
+
+    if (confirm.isConfirmed) {
+      try {
+        await deleteDoc(doc(db, "users", id));
+        Swal.fire("Eliminado", "El cliente fue eliminado.", "success");
+        cargarClientes();
+      } catch (err) {
+        console.error("Error eliminando cliente:", err);
+        Swal.fire("Error", "No se pudo eliminar el cliente.", "error");
+      }
+    }
+  }
+});
+
+// === Cancelar edición ===
+btnCancelarCliente.addEventListener("click", () => {
+  formCliente.reset();
+  formCliente.style.display = "none";
+  clienteEditando = null;
+  btnAgregarCliente.textContent = "Agregar Cliente";
+  btnAgregarCliente.classList.remove("modo-edicion");
+  btnCancelarCliente.style.display = "none";
+});
+
+// === Agregar / Actualizar cliente ===
+formCliente.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const Nombres = document.getElementById("nombreCliente").value.trim();
+  const Apellidos = document.getElementById("apellidoCliente").value.trim();
+  const Correo = document.getElementById("correoCliente").value.trim();
+  const Telefono = document.getElementById("telefonoCliente").value.trim();
+  const Direccion = document.getElementById("direccionCliente").value.trim();
+  const Rol = document.getElementById("rolCliente").value;
+
+  if (!Nombres || !Apellidos || !Correo) {
+    Swal.fire("Error", "Nombres, Apellidos y Correo son obligatorios", "warning");
+    return;
+  }
+
+  try {
+    const idAUsar = clienteEditando || Correo;
+    await setDoc(doc(db, "users", idAUsar), {
+      Nombres,
+      Apellidos,
+      "Correo Electronico": Correo,
+      Telefono,
+      Direccion,
+      rol: Rol,
+      fecha_registro: new Date()
+    });
+
+    Swal.fire({
+      icon: "success",
+      title: clienteEditando ? "Cliente actualizado" : "Cliente agregado",
+      timer: 1500,
+      showConfirmButton: false
+    });
+
+    formCliente.reset();
+    formCliente.style.display = "none";
+    clienteEditando = null;
+    btnAgregarCliente.textContent = "Agregar Cliente";
+    btnAgregarCliente.classList.remove("modo-edicion");
+    btnCancelarCliente.style.display = "none";
+
+
+    cargarClientes();
+  } catch (err) {
+    console.error("Error agregando/actualizando cliente:", err);
+    Swal.fire("Error", "No se pudo guardar el cliente", "error");
+  }
+});
+
+
+// === Inicializar ===
+cargarClientes();
+
+// ===============================
+// Listener para botón "Nuevo Cliente"
+// ===============================
+document.getElementById("btnNuevoCliente").addEventListener("click", () => {
+  document.getElementById("formCliente").style.display = "block";
+  document.getElementById("btnCancelarEdicionCliente").style.display = "none";
+  document.getElementById("btnAgregarCliente").textContent = "Agregar Cliente";
+
+  // limpiar campos
+  document.getElementById("nombreCliente").value = "";
+  document.getElementById("apellidoCliente").value = "";
+  document.getElementById("correoCliente").value = "";
+  document.getElementById("telefonoCliente").value = "";
+  document.getElementById("direccionCliente").value = "";
+  document.getElementById("rolCliente").value = "cliente";
+});
+
+
+
+
