@@ -354,33 +354,48 @@ function exportarPDFDia(dia) {
         return;
     }
 
-    const contenedor = document.getElementById("pdfContent");
+    // ===== Crear iframe oculto =====
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "fixed";
+    iframe.style.left = "-9999px";
+    iframe.style.top = "-9999px";
+    iframe.width = "793";
+    iframe.height = "1122";
+    document.body.appendChild(iframe);
 
-    // insertar HTML
-    contenedor.innerHTML = generarHTMLReporte(dia, pedidos);
+    const doc = iframe.contentWindow.document;
 
-    // asegurarse de que html2canvas lo pueda ver
-    contenedor.style.visibility = "visible";
+    // ===== HTML DEL REPORTE =====
+    let html = `
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                h2 { text-align: center; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th, td { border: 1px solid #000; padding: 6px; font-size: 14px; }
+                th { background: #e2f3e9; }
+                .total { margin-top: 20px; font-size: 18px; font-weight: bold; }
+                .footer { margin-top: 40px; text-align: center; }
+            </style>
+        </head>
+        <body>
 
-    setTimeout(() => {
-        html2pdf()
-            .set({
-                margin: 10,
-                filename: `reporte_${dia}.pdf`,
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-            })
-            .from(contenedor)
-            .save()
-            .then(() => {
-                contenedor.style.visibility = "hidden";
-                contenedor.innerHTML = "";
-            });
-    }, 350); // ← este delay sí asegura que html2canvas pinte bien
-}
+            <h2>Reporte del día ${dia}</h2>
 
-function generarHTMLReporte(dia, pedidos) {
-    let rows = "";
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Total</th>
+                        <th>Productos</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
 
     pedidos.forEach(p => {
         const fecha = convertirFecha(p.fecha);
@@ -388,40 +403,51 @@ function generarHTMLReporte(dia, pedidos) {
         const total = Number(p.total || 0).toLocaleString("es-CO");
         const items = (p.items || []).map(i => `${i.nombre} (${i.cantidad})`).join(", ");
 
-        rows += `
-        <tr>
-            <td>${p.id}</td>
-            <td>${cliente}</td>
-            <td>${fecha}</td>
-            <td>$${total}</td>
-            <td>${items}</td>
-        </tr>`;
+        html += `
+            <tr>
+                <td>${p.id}</td>
+                <td>${cliente}</td>
+                <td>${fecha}</td>
+                <td>$${total}</td>
+                <td>${items}</td>
+            </tr>
+        `;
     });
 
-    const totalDia = pedidos.reduce((a, b) => a + Number(b.total || 0), 0).toLocaleString("es-CO");
+    html += `
+                </tbody>
+            </table>
 
-    return `
-    <div style="font-family: Arial; padding: 20px; width: 800px;">
-        <h2 style="text-align:center;">Reporte del día ${dia}</h2>
+            <div class="total">
+                Total del día: $${pedidos.reduce((a, b) => a + Number(b.total || 0), 0).toLocaleString("es-CO")}
+            </div>
 
-        <table style="width:100%; border-collapse:collapse; margin-top:20px;">
-            <thead>
-                <tr style="background:#e2f3e9;">
-                    <th style="border:1px solid #000; padding:5px;">ID</th>
-                    <th style="border:1px solid #000; padding:5px;">Cliente</th>
-                    <th style="border:1px solid #000; padding:5px;">Fecha</th>
-                    <th style="border:1px solid #000; padding:5px;">Total</th>
-                    <th style="border:1px solid #000; padding:5px;">Productos</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${rows}
-            </tbody>
-        </table>
+            <div class="footer">
+                Sistema Distrihuevos Juanma
+            </div>
 
-        <h3 style="margin-top:25px;">Total del día: $${totalDia}</h3>
-    </div>
+        </body>
+        </html>
     `;
+
+    // ===== Insertar HTML en iframe =====
+    doc.open();
+    doc.write(html);
+    doc.close();
+
+    // ===== Esperar a que cargue y generar PDF =====
+    iframe.onload = () => {
+        html2pdf()
+        .set({
+            margin: 10,
+            filename: `reporte_${dia}.pdf`,
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+        })
+        .from(iframe.contentDocument.body)
+        .save()
+        .then(() => iframe.remove());
+    };
 }
 
   onSnapshot(collection(db,"users"), snap => {
