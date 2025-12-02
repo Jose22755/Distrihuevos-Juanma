@@ -1,0 +1,130 @@
+/* ==== Dashboard Reportes ==== */
+.reportes-totales {
+  justify-content: space-between;
+}
+
+.total-card {
+  flex: 1 1 220px;
+  text-align: center;
+  padding: 25px 20px;
+  border-radius: 15px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.total-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.total-card h5 {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.total-card .total-icon {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 4rem;
+  opacity: 0.2;
+}
+
+.bg-gradient-pedidos { background: linear-gradient(135deg, #0d6efd, #6c757d); }
+.bg-gradient-clientes { background: linear-gradient(135deg, #198754, #20c997); }
+.bg-gradient-ventas { background: linear-gradient(135deg, #ffc107, #fd7e14); }
+.bg-gradient-productos { background: linear-gradient(135deg, #dc3545, #f06595); }
+
+/* ==== Gráficos ==== */
+.reportes-graficos {
+  justify-content: space-between;
+}
+
+.chart-card {
+  flex: 1 1 360px;
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  transition: transform 0.2s;
+}
+
+.chart-card h5 {
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #000000;
+}
+
+.chart-card:hover {
+  transform: translateY(-3px);
+}
+
+/* Lista top 5 */
+#top5Productos li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, #e9ecef, #f8f9fa);
+  font-weight: 500;
+  transition: transform 0.2s, background 0.2s;
+}
+
+#top5Productos li:hover {
+  background: linear-gradient(90deg, #dfe3e6, #e2e6ea);
+  transform: translateX(3px);
+}
+
+#top5Productos .badge {
+  font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .reportes-graficos {
+    flex-direction: column;
+    gap: 30px;
+  }
+  .chart-card {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .total-card { flex: 1 1 45%; margin-bottom: 15px; }
+}
+
+.growth-card { background: #fff; border-radius: 10px; box-shadow: 0 6px 18px rgba(13,110,253,0.06); }
+.growth-card .card-body { padding: 14px; }
+.growth-card #growthRate { font-size: 1.15rem; }
+.growth-card .text-success { color: #198754 !important; } /* verde */
+.growth-card .text-danger  { color: #dc3545 !important; } /* rojo */
+
+#categoriasLista li {
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+}
+
+#chartCategorias {
+  width: 350px !important;
+  height: 350px !important;
+  margin: 0 auto;
+}
+
+h5 {
+  text-align: center;
+  width: 100%;
+}
+
+.dataTables_length {
+  margin-bottom: 15px;
+  text-align: left; /* o center, o right */
+}

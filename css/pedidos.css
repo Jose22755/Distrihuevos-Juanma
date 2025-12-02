@@ -459,4 +459,156 @@ button {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 }
 
+/* ================= RESPONSIVE GENERAL ================= */
+@media (max-width: 992px) {
+  /* Contenedor principal */
+  .contenedor-pedidos {
+    width: 95%;
+    padding: 20px;
+  }
+
+  /* Títulos */
+  h2, .titulo-pedidos {
+    font-size: 1.6rem;
+  }
+
+  .subtitulo-pedidos {
+    font-size: 0.9rem;
+  }
+
+  /* Tabla */
+  .tabla-pedidos {
+    font-size: 0.9rem;
+  }
+
+  .tabla-pedidos th,
+  .tabla-pedidos td {
+    padding: 10px 8px;
+  }
+
+  .estado {
+    font-size: 0.85rem;
+    padding: 4px 10px;
+  }
+
+  /* Filtro de estados */
+  .filtro-estados {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 0;
+  }
+
+  .filtro-estados label, .filtro-estados select {
+    font-size: 0.9rem;
+  }
+
+  /* Botones */
+  button, .btn-crear-pedido {
+    font-size: 0.85rem;
+    padding: 8px 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Contenedor principal */
+  .contenedor-pedidos {
+    width: 100%;
+    margin: 20px 0;
+    padding: 15px;
+  }
+
+  /* Títulos */
+  h2, .titulo-pedidos {
+    font-size: 1.4rem;
+  }
+
+  .subtitulo-pedidos {
+    font-size: 0.85rem;
+  }
+
+  /* Tabla */
+  .tabla-wrapper {
+    padding: 5px;
+  }
+
+  .tabla-pedidos {
+    font-size: 0.8rem;
+  }
+
+  .tabla-pedidos th,
+  .tabla-pedidos td {
+    padding: 8px 6px;
+  }
+
+  /* Estado */
+  .estado {
+    font-size: 0.75rem;
+    padding: 3px 8px;
+  }
+
+  /* Botones */
+  button, .btn-crear-pedido {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+
+  /* Filtro de estados */
+  .filtro-estados {
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px 0;
+  }
+
+  /* Acciones centradas */
+  .acciones-pedidos {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Botones + y - del carrito */
+  .cart-item-actions .qty-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  h2, .titulo-pedidos {
+    font-size: 1.2rem;
+  }
+
+  .subtitulo-pedidos {
+    font-size: 0.8rem;
+  }
+
+  .tabla-pedidos {
+    font-size: 0.75rem;
+  }
+
+  .tabla-pedidos th,
+  .tabla-pedidos td {
+    padding: 6px 4px;
+  }
+
+  button, .btn-crear-pedido {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+  }
+
+  .estado {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+  }
+
+  .filtro-estados {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .acciones-pedidos {
+    gap: 8px;
+  }
+}
+
 

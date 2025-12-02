@@ -1234,3 +1234,95 @@ body.productos-page {
   50% { opacity: 0.5; }
 }
  
+/* 🧺 TARJETAS DE PRODUCTOS RESPONSIVE */
+@media (max-width: 1024px) {
+  .productos {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+  .card {
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .productos {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+    gap: 1.2rem;
+  }
+  .card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .productos {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  .card-content h3 {
+    font-size: 1.1rem;
+  }
+  .card-content p {
+    font-size: 0.85rem;
+  }
+  .price {
+    font-size: 1.4rem !important;
+  }
+  .btn-add, .btn-detalle {
+    width: 100%;
+    padding: 10px 0;
+  }
+  .cantidad-control {
+    gap: 5px;
+  }
+  .cantidad-control span.cantidad {
+    min-width: 25px;
+  }
+}
+
+
+/* BOTONES DE CATEGORÍAS RESPONSIVE */
+@media (max-width: 768px) {
+  .categories {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  .cat-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-left {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .search-form {
+    width: 100%;
+  }
+  .logo {
+    position: relative;
+    left: 0;
+    transform: none;
+    justify-content: center;
+  }
+  .header-right {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-container {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  .footer-info, .footer-links, .footer-icons {
+    transform: none;
+    text-align: center;
+  }
+}

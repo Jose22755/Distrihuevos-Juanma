@@ -14,10 +14,13 @@
   <!-- ===== Swiper CSS ===== -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
   <!-- ===== Fuente y estilos generales ===== -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="../css/admin_login.css">
+  <link rel="stylesheet" href="../css/reportes.css">
 </head>
 
 <body>
@@ -45,6 +48,9 @@
       </li>
       <li data-section="reportes">
         <i class="bi bi-bar-chart-line"></i> Reportes
+      </li>
+      <li data-section="ventas">
+        <i class="bi bi-currency-dollar"></i> Ventas  
       </li>
     </ul>
   </aside>
@@ -327,12 +333,208 @@
   </div>
 </section>
 
+<section id="reportes" class="section">
+  <!-- Título principal -->
+  <h2><i class="bi bi-bar-chart-line"></i> Gestión de Reportes</h2>
+  <p>Visualiza estadísticas de ventas, productos y clientes en tiempo real.</p>
 
+  
+
+  <!-- Mensaje de fecha dinámica centrado -->
+  <div id="fechaHoy"
+       style="font-size:1.5rem; font-weight:bold; color:#28a745; text-align:center; margin-top:1rem; margin-bottom:1rem;">
+    <!-- Aquí se insertará: "Reportes hoy 28 de noviembre" -->
+  </div>
+    <!-- Botón de PDF -->
+  <div class="text-center mt-4">
+    <button id="btnPDF" class="btn btn-primary">📄 Descargar Reporte Diario</button>
+  </div>
+
+  <div id="reporteDiario" style="display:none;">
+    <h1>Reporte Diario - Distrihuevos Juanma</h1>
+    <p><strong>Fecha:</strong> <span id="fechaReporte"></span></p>
+    <p><strong>Total ventas:</strong> <span id="ventasReporte"></span></p>
+    <p><strong>Pedidos realizados:</strong> <span id="pedidosReporte"></span></p>
+    <p><strong>Total productos vendidos: </strong><span id="productosReporte">0</span></p>
+    <p><strong>Tasa de crecimiento:</strong> <span id="growthReporte"></span></p>
+
+    <h3>Ventas por categoría</h3>
+    <ul id="ventasCategoriasReporte"></ul>
+  </div>
+
+
+  <!-- Totales principales -->
+  <div class="reportes-totales d-flex flex-wrap gap-3 mt-4 justify-content-center">
+    <div class="card total-card bg-gradient-pedidos cursor-pointer text-center p-3">
+      <h5>Total de Pedidos Hoy</h5>
+      <span id="totalPedidos" class="fs-3 fw-bold">0</span>
+      <i class="bi bi-bag-fill total-icon fs-2 mt-2"></i>
+    </div>
+    <div class="card total-card bg-gradient-clientes cursor-pointer text-center p-3">
+      <h5>Total de Clientes</h5>
+      <span id="totalClientes" class="fs-3 fw-bold">0</span>
+      <i class="bi bi-people-fill total-icon fs-2 mt-2"></i>
+    </div>
+    <div class="card total-card bg-gradient-ventas cursor-pointer text-center p-3">
+      <h5>Total Ventas Hoy ($)</h5>
+      <span id="totalVentas" class="fs-3 fw-bold">0</span>
+      <i class="bi bi-currency-dollar total-icon fs-2 mt-2"></i>
+    </div>
+    <div class="card total-card bg-gradient-productos cursor-pointer text-center p-3">
+      <h5>Productos Vendidos Hoy</h5>
+      <span id="totalProductos" class="fs-3 fw-bold">0</span>
+      <i class="bi bi-box-seam total-icon fs-2 mt-2"></i>
+    </div>
+  </div>
+<!-- Tarjeta: Tasa de Crecimiento -->
+<div class="card growth-card text-center mx-auto mt-4 p-4" style="max-width:320px;">
+  <div class="card-body">
+    <h6 class="text-white mt-2">Tasa de Crecimiento</h6>
+    <p id="growthRate" class="fs-5 fw-bold mb-1 text-white">—</p>
+    <small id="growthSub" class="text-muted">Comparado con ayer</small>
+  </div>
+</div>
+
+
+  <!-- Gráficos -->
+  <div class="reportes-graficos mt-5 d-flex flex-wrap gap-4 justify-content-center">
+    <div class="chart-card p-3 border rounded shadow-sm" style="min-width:320px; flex:1;">
+      <h5 class="text-center mb-3">Ventas por Producto</h5>
+      <canvas id="graficoVentas" height="300"></canvas>
+    </div>
+
+    <div class="chart-card p-3 border rounded shadow-sm" style="min-width:320px; flex:1;">
+      <h5 class="text-center mb-3">Ventas Últimos 7 Días</h5>
+      <canvas id="graficoVentasDiarias" height="300"></canvas>
+    </div>
+
+    <div class="chart-card p-3 border rounded shadow-sm" style="min-width:320px; flex:1;">
+      <h5 class="text-center mb-3">Top 5 Productos Más Vendidos</h5>
+      <ul id="top5Productos" class="list-group list-group-flush mt-2"></ul>
+    </div>
+
+    <div class="chart-card p-3 border rounded shadow-sm" style="min-width:320px; flex:1;">
+      <h5 class="text-center mb-3">Porcentaje de Ventas por Categoría</h5>
+      <canvas id="chartCategorias"></canvas>
+    </div>
+  </div>
+
+</section>
+
+<!-- ===== SECCIÓN GESTIÓN DE VENTAS ===== -->
+<section id="ventas" class="section">
+  <h2><i class="bi bi-currency-dollar"></i> Gestión de Ventas</h2>
+  <p>Visualiza todas las ventas de manera general e histórica.</p>
+
+  <!-- ===== TARJETAS DE RESUMEN HISTÓRICO ===== -->
+  <div class="ventas-totales d-flex flex-wrap gap-3 mt-4 justify-content-center">
+<div class="card total-card text-center bg-gradient-ventas cursor-pointer p-3">
+      <h5 class="text-white mt-2">Total Ventas ($)</h5>
+      <h3 id="ventas_totalVentas" class="fs-3 fw-bold text-white">0</h3>
+      <i class="bi bi-currency-dollar total-icon fs-2 mt-2 text-white"></i>
+    </div>
+
+<div class="card total-card text-center bg-gradient-pedidos cursor-pointer p-3">
+      <h5 class="text-white mt-2">Total Pedidos</h5>
+      <h3 id="ventas_totalPedidos" class="fs-3 fw-bold text-white">0</h3>
+      <i class="bi bi-bag-fill total-icon fs-2 mt-2 text-white"></i>
+    </div>
+
+<div class="card total-card text-center bg-gradient-productos cursor-pointer p-3">
+      <h5 class="text-white mt-2">Total Productos Vendidos</h5>
+      <h3 id="ventas_totalProductos" class="fs-3 fw-bold text-white">0</h3>
+      <i class="bi bi-box-seam total-icon fs-2 mt-2 text-white"></i>
+    </div>
+
+<div class="card total-card text-center bg-gradient-clientes cursor-pointer p-3">
+      <h5 class="text-white mt-2">Total de Clientes</h5>
+      <h3 id="ventas_totalClientes" class="fs-3 fw-bold text-white">0</h3>
+      <i class="bi bi-people-fill total-icon fs-2 mt-2 text-white"></i>
+    </div>
+  </div>
+
+  <!-- ===== GRÁFICO DE VENTAS POR PRODUCTO ===== -->
+  <div class="ventas-graficos mt-4 d-flex flex-wrap gap-4 justify-content-center">
+    <div class="chart-card p-3 border rounded shadow-sm" style="min-width:320px; max-width:480px; flex:1;">
+      <h5 class="text-center mb-3">Ventas general de productos</h5>
+      <canvas id="ventas_graficoVentas" height="200"></canvas>
+    </div>
+
+    <div class="chart-card p-3 border rounded shadow-sm" style="min-width:320px; max-width:480px; flex:1;">
+      <h5 class="text-center mb-3">Ventas últimos 7 días ($)</h5>
+      <canvas id="ventas_graficoVentasDiarias" height="200"></canvas>
+    </div>
+
+    <div class="chart-card p-3 border rounded shadow-sm" style="min-width:320px; max-width:480px; flex:1;">
+      <h5 class="text-center mb-3">Top 5 histórico de productos más vendidos</h5>
+      <ul id="ventas_top5Productos" class="list-group list-group-flush mt-2"></ul>
+    </div>
+  </div>
+
+<!-- ===== LISTADO HISTORIAL DE VENTAS POR DÍA ===== -->
+<div class="table-responsive mt-4">
+  <h3 class="text-center mb-3" style="color: black;">Historial de Ventas por Día</h3>
+  <table class="table table-striped table-bordered text-center" id="historialVentasTabla">
+    <thead class="table-success">
+      <tr>
+        <th>Fecha</th>
+        <th>Total Vendido ($)</th>
+        <th>Nº Pedidos</th>
+        <th>Promedio por Pedido ($)</th>
+        <th>Productos Vendidos</th>
+        <th>Clientes Únicos</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Aquí se llenará dinámicamente con JS -->
+    </tbody>
+  </table>
+</div>
+
+
+  <!-- ===== Modal para ver pedidos del día ===== -->
+  <div class="modal fade" id="modalPedidosDia" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalDiaTitulo">Pedidos del día</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>#Pedido</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Total ($)</th>
+                <th>Productos</th>
+              </tr>
+            </thead>
+            <tbody id="tablaPedidosDia">
+              <!-- Aquí se llenará dinámicamente -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
   </main>
 
   <!-- ===== Scripts ===== -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script type="module" src="../js/admin_login.js"></script>
+  <script type="module" src="../js/ventas.js"></script>
+  <script type="module" src="../js/reportes.js"></script>
+
+    <!-- DataTables JS -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 </body>
 </html>

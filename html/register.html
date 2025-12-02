@@ -361,66 +361,64 @@ form.addEventListener("submit", async(ev)=>{
   ev.preventDefault();
   showSpinner();
 
-  setTimeout(async()=>{
-    let allValid = true;
-    Object.keys(fields).forEach(k=>{
-      if(!validateField(k)) allValid=false;
-    });
-
-    if(!allValid){ hideSpinner(); return; }
-
-    try{
-      const email = fields.email.value.trim();
-      const password = fields.pass1.value.trim();
-
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-        .catch(error=>{
-          hideSpinner();
-          if(error.code==="auth/email-already-in-use"){
-            errs.email.textContent="❌ Este correo ya está registrado, usa otro";
-            errs.email.style.display="block";
-            fields.email.classList.add("invalid");
-          } else {
-            errs.email.textContent="❌ "+error.message;
-            errs.email.style.display="block";
-            fields.email.classList.add("invalid");
-          }
-          throw error;
-        });
-
-      const user = userCredential.user;
-
-      // Guardar en Firestore con rol "usuario"
-      await setDoc(doc(db,"users",user.uid),{
-        "Nombres": fields.name.value.trim(),
-        "Apellidos": fields.lastname.value.trim(),
-        "Direccion": fields.address.value.trim(),
-        "Telefono": fields.phone.value.trim(),
-        "Correo Electronico": email,
-        "rol": "usuario" 
-      });
-
-hideSpinner();
-Swal.fire({
-  icon: "success",
-  title: "✅ ¡Te has registrado correctamente!",
-  position: "center",
-  showConfirmButton: false,
-  heightAuto: false,
-  timer: 2000,
-  timerProgressBar: true
-}).then(() => {
-  window.location.href = "login.html";
+let allValid = true;
+Object.keys(fields).forEach(k=>{
+  if(!validateField(k)) allValid = false;
 });
 
-    }catch(error){
-      console.log("Registro detenido por error.", error);
-      hideSpinner();
-    }
+if(!allValid){ 
+  hideSpinner(); 
+  return; 
+}
 
-  }, 500); // delay para spinner
+try{
+  const email = fields.email.value.trim();
+  const password = fields.pass1.value.trim();
+
+  // Crear usuario
+  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+  const user = userCredential.user;
+
+  // Guardar en Firestore
+  await setDoc(doc(db,"users",user.uid),{
+    "Nombres": fields.name.value.trim(),
+    "Apellidos": fields.lastname.value.trim(),
+    "Direccion": fields.address.value.trim(),
+    "Telefono": fields.phone.value.trim(),
+    "Correo Electronico": email,
+    "rol": "usuario"
+  });
+
+  hideSpinner();
+
+  await Swal.fire({
+    icon: "success",
+    title: "¡Te has registrado correctamente!",
+    text: "Serás redirigido al inicio de sesión.",
+    position: "center",
+    showConfirmButton: false,
+    timer: 2000,
+    timerProgressBar: true
+  });
+
+  window.location.href = "login.html";
+
+}catch(error){
+
+  hideSpinner();
+
+  if(error.code === "auth/email-already-in-use"){
+    errs.email.textContent = "❌ Este correo ya está registrado, usa otro";
+    errs.email.style.display = "block";
+    fields.email.classList.add("invalid");
+  } else {
+    Swal.fire("Error", error.message, "error");
+  }
+}
+ // delay para spinner
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>
  

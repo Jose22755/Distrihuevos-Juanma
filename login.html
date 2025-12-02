@@ -114,6 +114,8 @@
       text-decoration:underline;
     }
     .forgot-pass:hover { color:#0d47a1; }
+
+    
   </style>
 </head>
 <body>
@@ -328,12 +330,21 @@ form.addEventListener('submit', async (e)=>{
   showSpinner();
   let allValid = true;
   Object.keys(fields).forEach(k=>{ if(!validateField(k)) allValid=false; });
-  if(!allValid){ hideSpinner(); return; }
+  if (!allValid) {
+  hideSpinner();
+  Swal.fire({
+    icon: "warning",
+    title: "Campos incompletos",
+    text: "Por favor completa todos los campos correctamente.",
+    confirmButtonText: "Entendido"
+  });
+  return;
+}
 
   try{
     const userCredential = await signInWithEmailAndPassword(auth, fields.email.value.trim(), fields.pass.value.trim());
     const user = userCredential.user;
-    const userRef = doc(db, "users", user.email);
+    const userRef = doc(db, "users", user.uid);
     const userSnap = await getDoc(userRef);
 
     hideSpinner();
@@ -342,12 +353,16 @@ form.addEventListener('submit', async (e)=>{
 
     if(userSnap.exists()){
       const rol = ((userSnap.data().rol || "")).trim().toLowerCase();
-      showMessage(successMessage);
-      setTimeout(()=>{
-        hideMessage(successMessage);
-        if(rol==="admin") window.location.href="admin_login.html";
-        else window.location.href="index.html";
-      },1500);
+      Swal.fire({
+        icon: "success",
+        title: "¡Bienvenido de nuevo!",
+        timer: 1500,
+        showConfirmButton: false
+      }).then(() => {
+        if (rol === "admin") window.location.href = "admin_login.html";
+        else window.location.href = "index.html";
+      });
+
     } else {
       errs.pass.textContent = "❌ Correo o contraseña incorrectos";
       errs.pass.style.display="block";
@@ -363,14 +378,20 @@ form.addEventListener('submit', async (e)=>{
       const blockedUntil = Date.now() + BLOCK_TIME_MS;
       setLoginAttempts(MAX_ATTEMPTS, blockedUntil);
       startCountdown();
-      errs.pass.textContent = `🚫 Demasiados intentos fallidos. Has sido bloqueado por ${Math.floor(BLOCK_TIME_MS/60000)} minutos.`;
+      Swal.fire({
+        icon: "warning",
+        title: "Demasiados intentos",
+        html: `Has sido bloqueado por <b>${Math.floor(BLOCK_TIME_MS/60000)} minutos</b>.`,
+      });
     } else {
       setLoginAttempts(newAttempts, null);
       const restantes = MAX_ATTEMPTS - newAttempts;
-      errs.pass.textContent = `❌ Credenciales incorrectas. Intentos restantes: ${restantes}`;
+      Swal.fire({
+        icon: "error",
+        title: "Credenciales incorrectas",
+        text: `Intentos restantes: ${restantes}`
+      });
     }
-    errs.pass.style.display='block';
-    fields.pass.classList.add('invalid');
   }
 });
 
@@ -385,7 +406,7 @@ googleBtn.addEventListener("click", async () => {
     const user = result.user;
 
     // 🔥 Verificamos Firestore
-    const userRef = doc(db, "users", user.email);
+    const userRef = doc(db, "users", user.uid);
     const userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {
@@ -401,16 +422,21 @@ googleBtn.addEventListener("click", async () => {
     const data = (await getDoc(userRef)).data();
     const rol = (data.rol || "").trim().toLowerCase();
 
-    hideSpinner();
-    showMessage(successMessage);
-    setTimeout(() => {
-      hideMessage(successMessage);
-      if (rol === "admin") {
-        window.location.href = "admin_login.html";
-      } else {
-        window.location.href = "index.html";
-      }
-    }, 1500);
+hideSpinner();
+
+Swal.fire({
+  icon: "success",
+  title: "¡Bienvenido de nuevo!",
+  timer: 1500,
+  showConfirmButton: false
+}).then(() => {
+  if (rol === "admin") {
+    window.location.href = "admin_login.html";
+  } else {
+    window.location.href = "index.html";
+  }
+});
+
 
   } catch (error) {
     hideSpinner();
@@ -447,8 +473,13 @@ forgotPass.addEventListener('click', async ()=>{
     await sendPasswordResetEmail(auth, email);
     hideSpinner();
 
-    showMessage(resetMessage);
-    setTimeout(()=>{ hideMessage(resetMessage); }, 3000);
+    Swal.fire({
+      icon: "success",
+      title: "Correo enviado",
+      text: "Te enviamos un enlace para restablecer tu contraseña.",
+      timer: 2500,
+      showConfirmButton: false
+    });
 
     // 🚨 Antes redirigía a reset_password.html
     // window.location.href = "reset_password.html";
@@ -488,6 +519,6 @@ $(document).ready(function(){
   });
 });
 </script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>
