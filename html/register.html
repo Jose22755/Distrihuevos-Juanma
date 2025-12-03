@@ -380,14 +380,16 @@ try{
   const user = userCredential.user;
 
   // Guardar en Firestore
-  await setDoc(doc(db,"users",user.uid),{
-    "Nombres": fields.name.value.trim(),
-    "Apellidos": fields.lastname.value.trim(),
-    "Direccion": fields.address.value.trim(),
-    "Telefono": fields.phone.value.trim(),
-    "Correo Electronico": email,
-    "rol": "usuario"
-  });
+await setDoc(doc(db,"users",user.uid),{
+  "Nombres": fields.name.value.trim(),
+  "Apellidos": fields.lastname.value.trim(),
+  "Direccion": fields.address.value.trim(),
+  "Telefono": fields.phone.value.trim(),
+  "Correo Electronico": email,
+  "rol": "usuario",
+  "fecha_registro": new Date()
+});
+
 
   hideSpinner();
 

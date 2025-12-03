@@ -321,7 +321,28 @@ if (growthSub) growthSub.textContent = `Ventas hoy: $${ventasHoy.toLocaleString(
 
 
 
-  onSnapshot(collection(db,"users"), snap=>{ totalClientes.textContent=snap.size });
+onSnapshot(collection(db, "users"), snap => {
+  let clientesHoy = 0;
+
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  snap.forEach(doc => {
+    const u = doc.data();
+
+    if (!u.fecha_registro) return;
+
+    const fecha = new Date(u.fecha_registro.seconds * 1000);
+
+    fecha.setHours(0, 0, 0, 0);
+
+    if (fecha.getTime() === hoy.getTime()) {
+      clientesHoy++;
+    }
+  });
+
+  totalClientes.textContent = clientesHoy;
+});
 
   onSnapshot(collection(db,"products"), snap=>{
     const stockPorProducto={};
@@ -440,7 +461,5 @@ btnPDF?.addEventListener("click", async () => {
     .save()
     .finally(() => { reporte.style.display = "none"; });
 });
-
 })();
-
 

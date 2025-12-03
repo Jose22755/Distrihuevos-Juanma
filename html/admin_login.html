@@ -390,7 +390,7 @@
 <div class="card growth-card text-center mx-auto mt-4 p-4" style="max-width:320px;">
   <div class="card-body">
     <h6 class="text-white mt-2">Tasa de Crecimiento</h6>
-    <p id="growthRate" class="fs-5 fw-bold mb-1 text-white">—</p>
+<p id="growthRate" class="fs-5 fw-bold mb-1 text-success">—</p>
     <small id="growthSub" class="text-muted">Comparado con ayer</small>
   </div>
 </div>
@@ -428,28 +428,29 @@
 
   <!-- ===== TARJETAS DE RESUMEN HISTÓRICO ===== -->
   <div class="ventas-totales d-flex flex-wrap gap-3 mt-4 justify-content-center">
+
+    <div class="card total-card text-center bg-gradient-pedidos cursor-pointer p-3">
+      <h5 class="text-white mt-2">Total Pedidos</h5>
+      <h3 id="ventas_totalPedidos" class="fs-3 fw-bold text-white">0</h3>
+      <i class="bi bi-bag-fill total-icon fs-2 mt-2 text-white"></i>
+    </div>
+
+    <div class="card total-card text-center bg-gradient-clientes cursor-pointer p-3">
+      <h5 class="text-white mt-2">Total de Clientes</h5>
+      <h3 id="ventas_totalClientes" class="fs-3 fw-bold text-white">0</h3>
+      <i class="bi bi-people-fill total-icon fs-2 mt-2 text-white"></i>
+    </div>
+
 <div class="card total-card text-center bg-gradient-ventas cursor-pointer p-3">
       <h5 class="text-white mt-2">Total Ventas ($)</h5>
       <h3 id="ventas_totalVentas" class="fs-3 fw-bold text-white">0</h3>
       <i class="bi bi-currency-dollar total-icon fs-2 mt-2 text-white"></i>
     </div>
 
-<div class="card total-card text-center bg-gradient-pedidos cursor-pointer p-3">
-      <h5 class="text-white mt-2">Total Pedidos</h5>
-      <h3 id="ventas_totalPedidos" class="fs-3 fw-bold text-white">0</h3>
-      <i class="bi bi-bag-fill total-icon fs-2 mt-2 text-white"></i>
-    </div>
-
 <div class="card total-card text-center bg-gradient-productos cursor-pointer p-3">
       <h5 class="text-white mt-2">Total Productos Vendidos</h5>
       <h3 id="ventas_totalProductos" class="fs-3 fw-bold text-white">0</h3>
       <i class="bi bi-box-seam total-icon fs-2 mt-2 text-white"></i>
-    </div>
-
-<div class="card total-card text-center bg-gradient-clientes cursor-pointer p-3">
-      <h5 class="text-white mt-2">Total de Clientes</h5>
-      <h3 id="ventas_totalClientes" class="fs-3 fw-bold text-white">0</h3>
-      <i class="bi bi-people-fill total-icon fs-2 mt-2 text-white"></i>
     </div>
   </div>
 

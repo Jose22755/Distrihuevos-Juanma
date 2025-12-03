@@ -128,3 +128,9 @@ h5 {
   margin-bottom: 15px;
   text-align: left; /* o center, o right */
 }
+
+#fechaHoy {
+  text-align: center !important;
+  display: block;
+  width: 100%;
+}

@@ -16,91 +16,110 @@ import { collection, onSnapshot, getDocs } from "https://www.gstatic.com/firebas
   const historialVentasEl = document.getElementById("historialVentasDiarias");
   const tablaPedidosDiaEl = document.getElementById("tablaPedidosDia");
   const modalDiaTitulo = document.getElementById("modalDiaTitulo");
-  // Tabla de historial de ventas por día
   const tablaHistorialEl = document.getElementById("historialVentasTabla")?.querySelector("tbody");
 
   let chartVentas = null;
   let chartVentasDiarias = null;
   let chartHistorial = null;
-  let tablaHistorialVentas = null;
 
   const ventasPorProducto = {};
   const ventasUltimos7Dias = {};
-  const historialVentas = {}; // { "2025-11-29": [pedido1, pedido2, ...] }
+  const historialVentas = {}; // { "YYYY-MM-DD": [pedido1,...] }
+
+  let productosValidos = new Set(); // productos existentes hoy
 
   // ===== Cards clickeables =====
-// seleccionar cada card dentro de la sección ventas
-const cardVentas    = document.querySelector("#ventas .bg-gradient-ventas");
-const cardPedidos   = document.querySelector("#ventas .bg-gradient-pedidos");
-const cardProductos = document.querySelector("#ventas .bg-gradient-productos");
-const cardClientes  = document.querySelector("#ventas .bg-gradient-clientes");
+  const cardVentas    = document.querySelector("#ventas .bg-gradient-ventas");
+  const cardPedidos   = document.querySelector("#ventas .bg-gradient-pedidos");
+  const cardProductos = document.querySelector("#ventas .bg-gradient-productos");
+  const cardClientes  = document.querySelector("#ventas .bg-gradient-clientes");
 
-function mostrarSeccion(id) {
-  document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
-  const s = document.getElementById(id);
-  if (s) s.classList.add("active");
-  s?.scrollIntoView({ behavior: "smooth" });
+  function mostrarSeccion(id) {
+    document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
+    const s = document.getElementById(id);
+    if (s) s.classList.add("active");
+    s?.scrollIntoView({ behavior: "smooth" });
 
-  document.querySelectorAll(".menu li").forEach(li => li.classList.remove("active"));
-  const menuItem = document.querySelector(`.menu li[data-section="${id}"]`);
-  if (menuItem) menuItem.classList.add("active");
-}
+    document.querySelectorAll(".menu li").forEach(li => li.classList.remove("active"));
+    const menuItem = document.querySelector(`.menu li[data-section="${id}"]`);
+    if (menuItem) menuItem.classList.add("active");
+  }
 
-if (cardVentas)    cardVentas.addEventListener("click", () => mostrarSeccion("ventas"));
-if (cardPedidos)   cardPedidos.addEventListener("click", () => mostrarSeccion("pedidos"));
-if (cardProductos) cardProductos.addEventListener("click", () => mostrarSeccion("productos"));
-if (cardClientes)  cardClientes.addEventListener("click", () => mostrarSeccion("clientes"));
+  if (cardVentas)    cardVentas.addEventListener("click", () => mostrarSeccion("ventas"));
+  if (cardPedidos)   cardPedidos.addEventListener("click", () => mostrarSeccion("pedidos"));
+  if (cardProductos) cardProductos.addEventListener("click", () => mostrarSeccion("productos"));
+  if (cardClientes)  cardClientes.addEventListener("click", () => mostrarSeccion("clientes"));
 
-  // ===== Fechas últimos 7 días =====
+  // ===== Fechas últimos 7 días (orden fijo) =====
   const dias7 = [];
   for (let i = 6; i >= 0; i--) {
     const f = new Date();
     f.setDate(f.getDate() - i);
-    const diaStr = f.toISOString().slice(0,10);
+    const diaStr = f.getFullYear() + "-" + String(f.getMonth() + 1).padStart(2, "0") + "-" + String(f.getDate()).padStart(2, "0");
     dias7.push(diaStr);
     ventasUltimos7Dias[diaStr] = 0;
   }
+
+  // ---------------- utility: parsear fechas firestore/string/date ----------------
+  function parseFechaToDate(fecha) {
+    if (!fecha) return null;
+    if (typeof fecha === "object" && fecha.seconds !== undefined) return new Date(fecha.seconds * 1000);
+    if (typeof fecha === "object" && typeof fecha.toDate === "function") return fecha.toDate();
+    if (typeof fecha === "string") {
+      const d = new Date(fecha);
+      if (!isNaN(d)) return d;
+    }
+    if (fecha instanceof Date) return fecha;
+    return null;
+  }
+
+  function formatDateKey(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  // ===== Normalizar nombres =====
+  const normalizarNombre = nombre => nombre.trim().toLowerCase().replace(/\s+/g, " ");
+
+ // ===== Cargar productos válidos =====
+let mapaProductos = {}; // normalizado => nombre exacto de la BD
+
+const cargarProductosValidos = async () => {
+  const productosCol = collection(db, "products");
+  const snapshot = await getDocs(productosCol);
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    const nombreReal = data.Nombre; // nombre exacto en BD
+    const nombreNorm = normalizarNombre(nombreReal);
+    mapaProductos[nombreNorm] = nombreReal; // guardamos en el mapa
+    productosValidos.add(nombreNorm); // también llenamos el set
+  });
+};
 
   // ===== Funciones gráficos =====
   function actualizarGraficoVentas() {
     const etiquetas = Object.keys(ventasPorProducto);
     const cantidades = Object.values(ventasPorProducto);
-    const colores = etiquetas.map((_, i) => `hsl(${i * 360 / etiquetas.length}, 70%, 50%)`);
-
+    const colores = etiquetas.map((_, i) => `hsl(${i * 360 / Math.max(1, etiquetas.length)}, 70%, 50%)`);
     if (!graficoVentasEl) return;
 
     if (chartVentas) {
       chartVentas.data.labels = etiquetas;
       chartVentas.data.datasets[0].data = cantidades;
+      chartVentas.data.datasets[0].backgroundColor = colores;
       chartVentas.update();
     } else {
       chartVentas = new Chart(graficoVentasEl, {
         type: "bar",
-        data: {
-          labels: etiquetas,
-          datasets: [{
-            label: "Unidades vendidas",
-            data: cantidades,
-            backgroundColor: colores
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: { y: { beginAtZero:true, grace: '10%' } },
-          plugins: {
-            legend: { display:false },
-            datalabels: { anchor:'end', align:'end', color:'#000', font:{weight:'bold'}, formatter:v=>v }
-          }
-        },
+        data: { labels: etiquetas, datasets: [{ label: "Unidades vendidas", data: cantidades, backgroundColor: colores }] },
+        options: { responsive: true, scales: { y: { beginAtZero:true, grace: '10%' } }, plugins: { legend:{display:false}, datalabels:{anchor:'end',align:'end',color:'#000',font:{weight:'bold'},formatter:v=>v}} },
         plugins: [ChartDataLabels]
       });
     }
   }
 
   function actualizarTop5() {
-    const top = Object.entries(ventasPorProducto)
-      .sort((a,b)=>b[1]-a[1])
-      .slice(0,5);
+    const top = Object.entries(ventasPorProducto).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    if (!top5ProductosEl) return;
     top5ProductosEl.innerHTML = "";
     top.forEach(([nombre, cant]) => {
       const li = document.createElement("li");
@@ -114,64 +133,28 @@ if (cardClientes)  cardClientes.addEventListener("click", () => mostrarSeccion("
     });
   }
 
-function actualizarGraficoUltimos7Dias() {
-    // Generar etiquetas de los últimos 7 días (local)
-    const hoy = new Date();
-    const etiquetas = [];
-    for (let i = 6; i >= 0; i--) {
-        const f = new Date(hoy);
-        f.setDate(f.getDate() - i);
-        const diaStr = f.getFullYear() + "-" +
-                       String(f.getMonth() + 1).padStart(2, "0") + "-" +
-                       String(f.getDate()).padStart(2, "0");
-        etiquetas.push(diaStr);
-        // Asegurarse de que ventasUltimos7Dias tenga la propiedad
-        if (!(diaStr in ventasUltimos7Dias)) ventasUltimos7Dias[diaStr] = 0;
-    }
-
+  function actualizarGraficoUltimos7Dias() {
+    const etiquetas = dias7.slice();
     const cantidades = etiquetas.map(d => ventasUltimos7Dias[d] || 0);
-
     if (!graficoVentasDiariasEl) return;
 
     if (chartVentasDiarias) {
-        chartVentasDiarias.data.labels = etiquetas;
-        chartVentasDiarias.data.datasets[0].data = cantidades;
-        chartVentasDiarias.update();
+      chartVentasDiarias.data.labels = etiquetas;
+      chartVentasDiarias.data.datasets[0].data = cantidades;
+      chartVentasDiarias.update();
     } else {
-        chartVentasDiarias = new Chart(graficoVentasDiariasEl, {
-            type: "bar",
-            data: {
-                labels: etiquetas,
-                datasets: [{
-                    label: "Ventas últimos 7 días ($)",
-                    data: cantidades,
-                    backgroundColor: "#0d6efd"
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: { y: { beginAtZero:true, grace:'10%' } },
-                plugins: {
-                    legend: { display:false },
-                    datalabels: {
-                        anchor:'end',
-                        align:'end',
-                        color:'#000',
-                        font:{weight:'bold'},
-                        formatter:v=>Number(v).toLocaleString("es-CO"),
-                        offset:-4
-                    }
-                }
-            },
-            plugins: [ChartDataLabels]
-        });
+      chartVentasDiarias = new Chart(graficoVentasDiariasEl, {
+        type: "bar",
+        data: { labels: etiquetas, datasets: [{ label: "Ventas últimos 7 días ($)", data: cantidades, backgroundColor: "#0d6efd" }] },
+        options: { responsive:true, scales:{y:{beginAtZero:true,grace:'10%'}}, plugins:{legend:{display:false}, datalabels:{anchor:'end',align:'end',color:'#000',font:{weight:'bold'},formatter:v=>`$${Number(v).toLocaleString("es-CO")}`,offset:-4}} },
+        plugins: [ChartDataLabels]
+      });
     }
-}
+  }
 
   function actualizarHistorialVentas() {
     const etiquetas = Object.keys(historialVentas).sort();
-    const cantidades = etiquetas.map(dia => historialVentas[dia].reduce((sum, p) => sum + Number(p.total||0), 0));
-
+    const cantidades = etiquetas.map(dia => historialVentas[dia].reduce((sum, p) => sum + Number(p.total||0),0));
     if (!historialVentasEl) return;
 
     if (chartHistorial) {
@@ -180,33 +163,17 @@ function actualizarGraficoUltimos7Dias() {
       chartHistorial.update();
     } else {
       chartHistorial = new Chart(historialVentasEl, {
-        type: "bar",
-        data: {
-          labels: etiquetas,
-          datasets: [{
-            label: "Ventas por día ($)",
-            data: cantidades,
-            backgroundColor: "#198754"
-          }]
-        },
-        options: {
-          responsive:true,
-          scales: { y: { beginAtZero:true, grace:'10%' } },
-          plugins: {
-            legend: { display:false },
-            datalabels: { anchor:'end', align:'end', color:'#000', font:{weight:'bold'}, formatter:v=>Number(v).toLocaleString("es-CO"), offset:-4 }
-          },
-          onClick: (evt, items) => {
-            if (items.length > 0) {
-              const index = items[0].index;
-              const dia = etiquetas[index];
-              mostrarPedidosDia(dia);
-            }
-          }
-        },
+        type:"bar",
+        data:{labels:etiquetas,datasets:[{label:"Ventas por día ($)",data:cantidades,backgroundColor:"#198754"}]},
+        options:{responsive:true,scales:{y:{beginAtZero:true,grace:'10%'}},plugins:{legend:{display:false}, datalabels:{anchor:'end',align:'end',color:'#000',font:{weight:'bold'},formatter:v=>`$${Number(v).toLocaleString("es-CO")}`,offset:-4}},onClick:(evt,items)=>{if(items.length>0){const index=items[0].index;const dia=etiquetas[index];mostrarPedidosDia(dia);}} },
         plugins:[ChartDataLabels]
       });
     }
+  }
+
+  function convertirFecha(fecha) {
+    const d = parseFechaToDate(fecha);
+    return d ? d.toLocaleString("es-CO") : "Sin fecha";
   }
 
   function mostrarPedidosDia(dia) {
@@ -217,8 +184,8 @@ function actualizarGraficoUltimos7Dias() {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${p.id}</td>
-<td>${p.cliente || p.nombreUsuario || "Sin nombre"}</td>
-<td>${convertirFecha(p.fecha)}</td>
+        <td>${p.nombreUsuario || p.cliente || "Sin nombre"}</td>
+        <td>${convertirFecha(p.fecha)}</td>
         <td>$${Number(p.total||0).toLocaleString("es-CO")}</td>
         <td>${(p.items||[]).map(i=>`${i.nombre} (${i.cantidad})`).join(", ")}</td>
       `;
@@ -226,236 +193,243 @@ function actualizarGraficoUltimos7Dias() {
     });
     new bootstrap.Modal(document.getElementById("modalPedidosDia")).show();
   }
+
 function actualizarTablaHistorial() {
   if (!tablaHistorialEl) return;
 
-  const dias = Object.keys(historialVentas).sort((a,b)=>b.localeCompare(a)); // más reciente arriba
-  tablaHistorialEl.innerHTML = "";
+  // Crear array de filas para DataTables
+  const filas = [];
+const dias = Object.keys(historialVentas).sort((a,b)=>new Date(b) - new Date(a));
 
   dias.forEach(dia => {
     const pedidos = historialVentas[dia];
-    const totalDia = pedidos.reduce((sum, p) => sum + Number(p.total || 0), 0);
-    const totalProductos = pedidos.reduce((sum, p) => sum + (p.items?.reduce((s,i)=>s+Number(i.cantidad||0),0) || 0), 0);
-    const clientesUnicos = new Set(pedidos.map(p => p.cliente)).size;
-    const promedio = pedidos.length > 0 ? totalDia / pedidos.length : 0;
+    const totalDia = pedidos.reduce((sum,p)=>sum+Number(p.total||0),0);
+    const totalProductos = pedidos.reduce((sum,p)=>sum+(p.items?.reduce((s,i)=>s+Number(i.cantidad||0),0)||0),0);
+    const clientesUnicos = new Set(pedidos.map(p=>p.cliente||p.uid)).size;
+    const promedio = pedidos.length>0 ? totalDia/pedidos.length : 0;
 
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="text-center">${dia}</td>
-      <td class="text-center">$${totalDia.toLocaleString("es-CO")}</td>
-      <td class="text-center">${pedidos.length}</td>
-      <td class="text-center">$${promedio.toLocaleString("es-CO")}</td>
-      <td class="text-center">${totalProductos}</td>
-      <td class="text-center">${clientesUnicos}</td>
-<td class="text-center d-flex flex-column gap-1">
+    // Botones HTML
+// Botones HTML (uno encima del otro)
+const acciones = `
+  <div class="d-flex flex-column gap-1">
     <button class="btn btn-sm btn-success verPedidosDia">Ver pedidos</button>
-    <button class="btn btn-sm btn-danger descargarPDFDia">
-        <i class="bi bi-file-earmark-pdf"></i> PDF
-    </button>
-</td>
-    `;
-tr.querySelector(".descargarPDFDia").addEventListener("click", () => {
-    exportarPDFDia(dia);
-});
-    tablaHistorialEl.appendChild(tr);
+    <button class="btn btn-sm btn-danger descargarPDFDia"><i class="bi bi-file-earmark-pdf"></i> PDF</button>
+  </div>
+`;
+
+
+    filas.push([
+      dia,
+      `$${totalDia.toLocaleString("es-CO")}`,
+      pedidos.length,
+      `$${promedio.toLocaleString("es-CO")}`,
+      totalProductos,
+      clientesUnicos,
+      acciones
+    ]);
   });
 
-  // Inicializar o actualizar DataTable
-  if (!window.tablaHistorialDataTable) {
-    window.tablaHistorialDataTable = $("#historialVentasTabla").DataTable({
-      pageLength: 10,
-      lengthMenu: [5, 10, 20, 50],
-      searching: false, // <-- Esto quita el buscador
-      language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' },
-      columnDefs: [
-        { className: "text-center", targets: "_all" } // centrar todas las columnas
-      ]
-    });
-  } else {
-    window.tablaHistorialDataTable.clear().draw();
-    window.tablaHistorialDataTable.rows.add($("#historialVentasTabla tbody tr")).draw();
+  // Destruir tabla anterior si existe
+  if ($.fn.DataTable.isDataTable('#historialVentasTabla')) {
+    $('#historialVentasTabla').DataTable().destroy();
   }
+
+  // Limpiar tbody
+  tablaHistorialEl.innerHTML = "";
+
+  // Inicializar DataTable con las filas actualizadas
+window.tablaHistorialDataTable = $("#historialVentasTabla").DataTable({
+    data: filas,
+    columns: [
+      { title: "Día" },
+      { title: "Total ($)" },
+      { title: "Pedidos" },
+      { title: "Promedio ($)" },
+      { title: "Productos" },
+      { title: "Clientes" },
+      { title: "Acciones", orderable:false }
+    ],
+    order: [[0, 'desc']], // <--- aquí se fuerza la primera columna a descendente
+    pageLength: 10,
+    lengthMenu: [5,10,20,50],
+    searching: false,
+    autoWidth: false,
+    language: { url:'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' },
+    columnDefs: [{ className: "text-center", targets: "_all" }]
+  });
+
+  // Asignar eventos a botones de cada fila
+  $('#historialVentasTabla tbody').off('click'); // eliminar listeners previos
+  $('#historialVentasTabla tbody').on('click', '.verPedidosDia', function() {
+    const fila = window.tablaHistorialDataTable.row($(this).parents('tr')).data();
+    const dia = fila[0]; // primer columna = día
+    mostrarPedidosDia(dia);
+  });
+  $('#historialVentasTabla tbody').on('click', '.descargarPDFDia', function() {
+    const fila = window.tablaHistorialDataTable.row($(this).parents('tr')).data();
+    const dia = fila[0];
+    exportarPDFDia(dia);
+  });
 }
+
 
   // ===== Firestore en tiempo real =====
-  onSnapshot(collection(db,"pedidos"), snap => {
-    let sumaVentas=0, totalProdVendidos=0, totalPedidos=0;
-    Object.keys(ventasPorProducto).forEach(k=>ventasPorProducto[k]=0);
-    Object.keys(ventasUltimos7Dias).forEach(k=>ventasUltimos7Dias[k]=0);
-    Object.keys(historialVentas).forEach(k=>delete historialVentas[k]);
+  const init = async () => {
+    await cargarProductosValidos();
 
-    snap.forEach(doc => {
-      const p = doc.data();
-      totalPedidos++;
+    onSnapshot(collection(db,"pedidos"), snap => {
+      let sumaVentas=0,totalProdVendidos=0,totalPedidos=0;
+      Object.keys(ventasPorProducto).forEach(k=>delete ventasPorProducto[k]);
+      Object.keys(ventasUltimos7Dias).forEach(k=>ventasUltimos7Dias[k]=0);
+      Object.keys(historialVentas).forEach(k=>delete historialVentas[k]);
 
-      // Totales
-      sumaVentas += Number(p.total||0);
-      (p.items||[]).forEach(i => {
-        const nombre = i.nombre||"Sin nombre";
-        ventasPorProducto[nombre] = (ventasPorProducto[nombre]||0)+Number(i.cantidad||0);
-        totalProdVendidos += Number(i.cantidad||0);
+      snap.forEach(doc=>{
+        const p = doc.data();
+        totalPedidos++;
+
+        sumaVentas+=Number(p.total||0);
+
+        (p.items||[])
+        .forEach(i => {
+          const nombrePedido = i.Nombre || i.nombre || "Sin nombre";
+          const nombreNorm = normalizarNombre(nombrePedido);
+
+          // ignoramos si no está en productos actuales
+          if (!mapaProductos[nombreNorm]) return;
+
+          const nombreReal = mapaProductos[nombreNorm]; // nombre oficial de BD
+          const cantidad = Number(i.cantidad || i.Cantidad || 0);
+
+          // Guardamos usando el nombre oficial
+          ventasPorProducto[nombreReal] = (ventasPorProducto[nombreReal] || 0) + cantidad;
+          totalProdVendidos += cantidad;
+        });
+
+
+
+        const fechaObj = parseFechaToDate(p.fecha) || new Date();
+        const fechaStr = formatDateKey(fechaObj);
+
+        if(!historialVentas[fechaStr]) historialVentas[fechaStr]=[];
+        historialVentas[fechaStr].push({id:doc.id,...p});
+
+        if(ventasUltimos7Dias.hasOwnProperty(fechaStr)){
+          ventasUltimos7Dias[fechaStr]+=Number(p.total||0);
+        }
       });
 
-      // Historial de ventas por día
-let f;
-if (p.fecha?.seconds) {
-    f = new Date(p.fecha.seconds * 1000);
-} else if (typeof p.fecha === "string") {
-    f = new Date(p.fecha);
-} else {
-    f = new Date();
-}
-const fechaStr = f.toISOString().slice(0,10);
-      if (!historialVentas[fechaStr]) historialVentas[fechaStr] = [];
-      historialVentas[fechaStr].push({ id: doc.id, ...p });
+      totalVentasEl.textContent = sumaVentas.toLocaleString("es-CO");
+      totalPedidosEl.textContent = totalPedidos;
+      totalProductosEl.textContent = totalProdVendidos;
 
-      // Últimos 7 días
-      if (ventasUltimos7Dias.hasOwnProperty(fechaStr)) ventasUltimos7Dias[fechaStr] += Number(p.total||0);
+      actualizarGraficoVentas();
+      actualizarTop5();
+      actualizarGraficoUltimos7Dias();
+      actualizarHistorialVentas();
+      actualizarTablaHistorial();
     });
 
-    totalVentasEl.textContent = sumaVentas.toLocaleString("es-CO");
-    totalPedidosEl.textContent = totalPedidos;
-    totalProductosEl.textContent = totalProdVendidos;
+    onSnapshot(collection(db,"users"), snap => {
+      totalClientesEl.textContent = snap.size;
+    });
+  };
 
-    actualizarGraficoVentas();
-    actualizarTop5();
-    actualizarGraficoUltimos7Dias();
-    actualizarHistorialVentas();
-    actualizarTablaHistorial();
-  });
+  init();
 
-function convertirFecha(fecha) {
-    if (!fecha) return "Sin fecha";
-
-    // Firestore Timestamp
-    if (fecha.seconds) {
-        return new Date(fecha.seconds * 1000).toLocaleString("es-CO");
-    }
-
-    // ISO string
-    if (typeof fecha === "string") {
-        const d = new Date(fecha);
-        return isNaN(d) ? "Sin fecha" : d.toLocaleString("es-CO");
-    }
-
-    // Date object
-    if (fecha instanceof Date) {
-        return fecha.toLocaleString("es-CO");
-    }
-
-    return "Sin fecha";
-}
-
+  // ===== Funciones PDF =====
 function exportarPDFDia(dia) {
-    const pedidos = historialVentas[dia];
+  const pedidos = historialVentas[dia];
+  if (!pedidos || pedidos.length === 0) {
+    Swal.fire("Sin datos", "Este día no tiene pedidos registrados.", "info");
+    return;
+  }
 
-    if (!pedidos || pedidos.length === 0) {
-        Swal.fire("Sin datos", "Este día no tiene pedidos registrados.", "info");
-        return;
+  let contenedor = document.getElementById("pdfContent");
+  if (!contenedor) {
+    contenedor = document.createElement("div");
+    contenedor.id = "pdfContent";
+    document.body.appendChild(contenedor);
+  }
+
+  contenedor.style.display = "block";
+  contenedor.innerHTML = generarHTMLReporte(dia, pedidos);
+
+  const opt = {
+    margin: 10,
+    filename: `reporte_${dia}.pdf`,
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      dpi: 192,
+      letterRendering: true
+    },
+    jsPDF: {
+      unit: "mm",
+      format: "a4",
+      orientation: "portrait"
     }
+  };
 
-    // ===== Crear iframe oculto =====
-    const iframe = document.createElement("iframe");
-    iframe.style.position = "fixed";
-    iframe.style.left = "-9999px";
-    iframe.style.top = "-9999px";
-    iframe.width = "793";
-    iframe.height = "1122";
-    document.body.appendChild(iframe);
-
-    const doc = iframe.contentWindow.document;
-
-    // ===== HTML DEL REPORTE =====
-    let html = `
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body { font-family: Arial, sans-serif; padding: 20px; }
-                h2 { text-align: center; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                th, td { border: 1px solid #000; padding: 6px; font-size: 14px; }
-                th { background: #e2f3e9; }
-                .total { margin-top: 20px; font-size: 18px; font-weight: bold; }
-                .footer { margin-top: 40px; text-align: center; }
-            </style>
-        </head>
-        <body>
-
-            <h2>Reporte del día ${dia}</h2>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Cliente</th>
-                        <th>Fecha</th>
-                        <th>Total</th>
-                        <th>Productos</th>
-                    </tr>
-                </thead>
-                <tbody>
-    `;
-
-    pedidos.forEach(p => {
-        const fecha = convertirFecha(p.fecha);
-        const cliente = p.cliente || p.nombreUsuario || "Sin nombre";
-        const total = Number(p.total || 0).toLocaleString("es-CO");
-        const items = (p.items || []).map(i => `${i.nombre} (${i.cantidad})`).join(", ");
-
-        html += `
-            <tr>
-                <td>${p.id}</td>
-                <td>${cliente}</td>
-                <td>${fecha}</td>
-                <td>$${total}</td>
-                <td>${items}</td>
-            </tr>
-        `;
+  setTimeout(() => {
+    html2pdf().set(opt).from(contenedor).save().then(() => {
+      contenedor.style.display = "none";
+      contenedor.innerHTML = "";
     });
-
-    html += `
-                </tbody>
-            </table>
-
-            <div class="total">
-                Total del día: $${pedidos.reduce((a, b) => a + Number(b.total || 0), 0).toLocaleString("es-CO")}
-            </div>
-
-            <div class="footer">
-                Sistema Distrihuevos Juanma
-            </div>
-
-        </body>
-        </html>
-    `;
-
-    // ===== Insertar HTML en iframe =====
-    doc.open();
-    doc.write(html);
-    doc.close();
-
-    // ===== Esperar a que cargue y generar PDF =====
-    iframe.onload = () => {
-        html2pdf()
-        .set({
-            margin: 10,
-            filename: `reporte_${dia}.pdf`,
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-        })
-        .from(iframe.contentDocument.body)
-        .save()
-        .then(() => iframe.remove());
-    };
+  }, 300);
 }
 
-  onSnapshot(collection(db,"users"), snap => {
-    totalClientesEl.textContent = snap.size;
+
+function generarHTMLReporte(dia, pedidos) {
+  let rows = "";
+  pedidos.forEach(p => {
+    const fecha = convertirFecha(p.fecha);
+    const cliente = p.cliente || p.nombreUsuario || "Sin nombre";
+    const total = Number(p.total || 0).toLocaleString("es-CO");
+    const items = (p.items || []).map(i => `${i.Nombre || i.nombre} (${i.cantidad})`).join(", ");
+    rows += `
+      <tr>
+        <td>${p.id}</td>
+        <td>${cliente}</td>
+        <td>${fecha}</td>
+        <td>$${total}</td>
+        <td>${items}</td>
+      </tr>`;
   });
 
+  const totalDia = pedidos.reduce((acc, p) => acc + Number(p.total || 0), 0)
+                          .toLocaleString("es-CO");
 
+  return `
+  <div style="
+      font-family: sans-serif;
+      width: 100%;
+      max-width: 750px;
+      margin: 0 auto;
+      padding: 20px;
+      box-sizing: border-box;
+    ">
+    
+    <h2 style="text-align:center; margin-bottom:20px;">
+      Reporte del día ${dia}
+    </h2>
 
+    <table style="width:100%; border-collapse: collapse; font-size: 13px;">
+      <thead>
+        <tr style="background:#f0f0f0;">
+          <th style="border:1px solid #000; padding:6px;">ID</th>
+          <th style="border:1px solid #000; padding:6px;">Cliente</th>
+          <th style="border:1px solid #000; padding:6px;">Fecha</th>
+          <th style="border:1px solid #000; padding:6px;">Total</th>
+          <th style="border:1px solid #000; padding:6px;">Productos</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
 
+    <h3 style="margin-top:25px; text-align:right;">
+      Total del día: $${totalDia}
+    </h3>
+  </div>`;
+}
 
 })();
