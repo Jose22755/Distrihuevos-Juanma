@@ -611,4 +611,39 @@ button {
   }
 }
 
+/* Contenedor del buscador a la izquierda */
+.dataTables_filter {
+  float: left !important;
+  text-align: left !important;
+  margin-bottom: 15px;
+  position: relative;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* Input del buscador */
+.dataTables_filter input {
+  padding: 10px 12px 10px 35px; /* espacio para la lupa */
+  border-radius: 25px;
+  border: 1px solid #ccc;
+  width: 280px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  margin-left: 10px; /* separa del texto "Buscador:" */
+}
+
+/* Efecto al enfocar */
+.dataTables_filter input:focus {
+  border-color: #4CAF50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
+  outline: none;
+}
+
+/* Icono de lupa dentro del input */
+.dataTables_filter label {
+  position: relative;
+}
+
+
+
 

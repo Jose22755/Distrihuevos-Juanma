@@ -410,14 +410,11 @@ googleBtn.addEventListener("click", async () => {
     const userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {
+      // Si el usuario no existe, lo creamos
       await setDoc(userRef, {
         "Nombres": user.displayName || "",
-        "Apellidos": "",
-        "Direccion": "",
-        "Telefono": "",
         "Correo Electronico": user.email || "",
-        "rol": "usuario",
-        "fecha_registro": new Date()   // <-- FECHA DEL PRIMER ACCESO
+        "rol": "usuario"
       });
     }
 
@@ -473,7 +470,10 @@ forgotPass.addEventListener('click', async ()=>{
     }
 
     showSpinner();
+
+    
     await sendPasswordResetEmail(auth, email);
+
     hideSpinner();
 
     Swal.fire({

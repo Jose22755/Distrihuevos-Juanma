@@ -7,16 +7,6 @@ import {
   getDoc,
   updateDoc,
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
-
-import {
-  collection,
-  getDocs,
-  query,
-  orderBy,
-  limit,
-  addDoc,
-} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
-import { paymentService } from "../js/paymentService.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
 // 🧺 Variables globales

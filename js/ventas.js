@@ -337,6 +337,7 @@ window.tablaHistorialDataTable = $("#historialVentasTabla").DataTable({
   init();
 
   // ===== Funciones PDF =====
+// ===== Funciones PDF =====
 function exportarPDFDia(dia) {
   const pedidos = historialVentas[dia];
   if (!pedidos || pedidos.length === 0) {
@@ -360,8 +361,8 @@ function exportarPDFDia(dia) {
     html2canvas: {
       scale: 2,
       useCORS: true,
-      dpi: 192,
-      letterRendering: true
+      backgroundColor: "#ffffff", // ← OBLIGATORIO
+      logging: false
     },
     jsPDF: {
       unit: "mm",
@@ -370,22 +371,27 @@ function exportarPDFDia(dia) {
     }
   };
 
-  setTimeout(() => {
+  setTimeout(async () => {
+    await new Promise(r => setTimeout(r, 300)); // asegura render visual
+
     html2pdf().set(opt).from(contenedor).save().then(() => {
       contenedor.style.display = "none";
       contenedor.innerHTML = "";
     });
-  }, 300);
+  }, 100);
 }
+
 
 
 function generarHTMLReporte(dia, pedidos) {
   let rows = "";
+
   pedidos.forEach(p => {
     const fecha = convertirFecha(p.fecha);
     const cliente = p.cliente || p.nombreUsuario || "Sin nombre";
     const total = Number(p.total || 0).toLocaleString("es-CO");
     const items = (p.items || []).map(i => `${i.Nombre || i.nombre} (${i.cantidad})`).join(", ");
+
     rows += `
       <tr>
         <td>${p.id}</td>
@@ -400,36 +406,37 @@ function generarHTMLReporte(dia, pedidos) {
                           .toLocaleString("es-CO");
 
   return `
-  <div style="
+    <div style="
       font-family: sans-serif;
       width: 100%;
       max-width: 750px;
       margin: 0 auto;
       padding: 20px;
+      background: #ffffff;
       box-sizing: border-box;
     ">
-    
-    <h2 style="text-align:center; margin-bottom:20px;">
-      Reporte del día ${dia}
-    </h2>
 
-    <table style="width:100%; border-collapse: collapse; font-size: 13px;">
-      <thead>
-        <tr style="background:#f0f0f0;">
-          <th style="border:1px solid #000; padding:6px;">ID</th>
-          <th style="border:1px solid #000; padding:6px;">Cliente</th>
-          <th style="border:1px solid #000; padding:6px;">Fecha</th>
-          <th style="border:1px solid #000; padding:6px;">Total</th>
-          <th style="border:1px solid #000; padding:6px;">Productos</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>
+      <h2 style="text-align:center; margin-bottom:20px;">
+        Reporte del día ${dia}
+      </h2>
 
-    <h3 style="margin-top:25px; text-align:right;">
-      Total del día: $${totalDia}
-    </h3>
-  </div>`;
+      <table style="width:100%; border-collapse: collapse; font-size: 13px;">
+        <thead>
+          <tr style="background:#f0f0f0;">
+            <th style="border:1px solid #000; padding:6px;">ID</th>
+            <th style="border:1px solid #000; padding:6px;">Cliente</th>
+            <th style="border:1px solid #000; padding:6px;">Fecha</th>
+            <th style="border:1px solid #000; padding:6px;">Total</th>
+            <th style="border:1px solid #000; padding:6px;">Productos</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+
+      <h3 style="margin-top:25px; text-align:right;">
+        Total del día: $${totalDia}
+      </h3>
+    </div>`;
 }
 
 })();

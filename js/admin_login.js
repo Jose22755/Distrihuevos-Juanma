@@ -270,6 +270,41 @@ onSnapshot(collection(db, "products"), (snapshot) => {
     listaProductos.appendChild(fila);
   });
 
+onSnapshot(collection(db, "products"), (snapshot) => {
+  const tablaProductos = document.getElementById("tablaProductos");
+  tablaProductos.querySelector("tbody").innerHTML = "";
+
+  snapshot.forEach((docu) => {
+    const producto = docu.data();
+
+    let colorCategoria = "secondary";
+    switch ((producto.Categoria || "").toUpperCase()) {
+      case "AA": colorCategoria = "success"; break;
+      case "A": colorCategoria = "primary"; break;
+      case "B": colorCategoria = "warning"; break;
+      case "C": colorCategoria = "danger"; break;
+    }
+
+    const fila = document.createElement("tr");
+    fila.innerHTML = `
+      <td><img src="${producto.imagen || 'images/no-image.png'}" style="width:60px; height:60px; object-fit:cover; border-radius:10px;"></td>
+      <td>${producto.Nombre || "Sin nombre"}</td>
+      <td><span class="badge bg-${colorCategoria} px-3 py-2">${producto.Categoria || "N/A"}</span></td>
+      <td>$${(Number(producto.Precio) || 0).toLocaleString("es-CO")}</td>
+      <td>${producto.Stock ?? 0}</td>
+      <td>${producto.Descripción || "Sin descripción"}</td>
+      <td>
+        <div class="acciones">
+          <button class="btn-editar" data-id="${docu.id}"><i class="bi bi-pencil"></i></button>
+          <button class="btn-eliminar" data-id="${docu.id}"><i class="bi bi-trash"></i></button>
+        </div>
+      </td>
+    `;
+    tablaProductos.querySelector("tbody").appendChild(fila);
+  });
+});
+
+
   // === EVENTOS DE EDITAR ===
 // Listener robusto por delegación: captura clicks en los botones de editar dentro de la tabla
 const productosListContainer = document.getElementById("listaProductos");
@@ -411,7 +446,7 @@ if (buscador) {
     const seccionActiva = document.querySelector(".section.active")?.id;
 
     // ============================
-    // 🔍 BUSCAR EN PEDIDOS
+    // 🔍 PEDIDOS
     // ============================
     if (seccionActiva === "pedidos") {
       const filas = document.querySelectorAll("#listaPedidos tr");
@@ -427,7 +462,7 @@ if (buscador) {
     }
 
     // ============================
-    // 🔍 BUSCAR EN PRODUCTOS
+    // 🔍 PRODUCTOS
     // ============================
     else if (seccionActiva === "productos") {
       const filas = document.querySelectorAll("#listaProductos tr");
@@ -443,7 +478,7 @@ if (buscador) {
     }
 
     // ============================
-    // 🔍 BUSCAR EN CLIENTES
+    // 🔍 CLIENTES
     // ============================
     else if (seccionActiva === "clientes") {
       const filas = document.querySelectorAll("#listaClientes tr");
@@ -458,8 +493,25 @@ if (buscador) {
       });
     }
 
+    // ============================
+    // 🔍 VENTAS (TABLA HISTÓRICA)
+    // ============================
+    else if (seccionActiva === "ventas") {
+      const filas = document.querySelectorAll("#historialVentasTabla tbody tr");
+
+      filas.forEach(fila => {
+        const texto = fila.innerText
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+
+        fila.style.display = texto.includes(q) ? "" : "none";
+      });
+    }
+
   });
 }
+
 
 
 function mostrarError(campo, mensaje) {
@@ -497,29 +549,34 @@ async function obtenerNombreCompleto(uid) {
 
 
 // ===============================
-// 📌 Cargar pedidos
+// 📌 Cargar pedidos en tiempo REAL
 // ===============================
-async function cargarPedidos() {
-  const snap = await getDocs(collection(db, "pedidos"));
-  const pedidos = [];
+function cargarPedidos() {
+  const pedidosRef = collection(db, "pedidos");
 
-for (const docu of snap.docs) {
-  const data = docu.data();
+  onSnapshot(pedidosRef, async (snap) => {
+    const pedidos = [];
 
-  let nombreCompleto = null;
+    for (const docu of snap.docs) {
+      const data = docu.data();
 
-  if(data.usuarioUID){
-    nombreCompleto = await obtenerNombreCompleto(data.usuarioUID);
-  }
+      let nombreCompleto = null;
 
-  pedidos.push({
-    id: docu.id,
-    ...data,
-    nombreUsuario: (nombreCompleto ?? "").replace("undefined", "").trim() || "Sin nombre"
+      if (data.usuarioUID) {
+        nombreCompleto = await obtenerNombreCompleto(data.usuarioUID);
+      }
+
+      pedidos.push({
+        id: docu.id,
+        ...data,
+        nombreUsuario:
+          (nombreCompleto ?? "").replace("undefined", "").trim() ||
+          "Sin nombre",
+      });
+    }
+
+    mostrarPedidos(pedidos); // 🔥 ACTUALIZA LA TABLA AUTOMÁTICAMENTE
   });
-}
-
-  mostrarPedidos(pedidos);
 }
 
 
@@ -537,6 +594,7 @@ function aplicarColorEstado(select, estado) {
   if (estado === "entregado") select.classList.add("estado-entregado");
   if (estado === "cancelado") select.classList.add("estado-cancelado");
 }
+
 
 // ===============================
 // 📌 Mostrar pedidos en tabla
@@ -707,6 +765,11 @@ async function cargarClientes() {
       listaClientes.appendChild(tr);
     });
 
+
+
+    const buscador = document.getElementById("buscadorProductos");
+
+
     // Lógica para ver detalles
     document.querySelectorAll(".btn-verDetalle").forEach(btn => {
       btn.addEventListener("click", async () => {
@@ -869,7 +932,11 @@ formCliente.addEventListener("submit", async (e) => {
     console.error("Error agregando/actualizando cliente:", err);
     Swal.fire("Error", "No se pudo guardar el cliente", "error");
   }
+
+  
 });
+
+
 
 
 // === Inicializar ===
@@ -891,6 +958,8 @@ document.getElementById("btnNuevoCliente").addEventListener("click", () => {
   document.getElementById("direccionCliente").value = "";
   document.getElementById("rolCliente").value = "cliente";
 });
+
+
 
 
 

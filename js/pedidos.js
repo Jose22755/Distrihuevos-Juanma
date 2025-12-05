@@ -42,12 +42,11 @@ onAuthStateChanged(auth, async (user) => {
 
 
 // ------------------------------------------------------------
-// CARGAR PEDIDOS Y APLICAR FILTRO
+// CARGAR PEDIDOS Y APLICAR FILTRO CON DATATABLES
 // ------------------------------------------------------------
 function cargarPedidos() {
   let pedidosQuery;
 
-  // 🟡 El filtro viene directamente del select del HTML
   const filtroEstado = filtroSelect?.value || "todos";
 
   if (ADMIN_EMAILS.includes(usuarioActual.email)) {
@@ -65,6 +64,10 @@ function cargarPedidos() {
 
     if (snapshot.empty) {
       mensajeVacio.style.display = "block";
+      // Limpiar DataTable si no hay pedidos
+      if ($.fn.DataTable.isDataTable('#tablaPedidos')) {
+        $('#tablaPedidos').DataTable().clear().draw();
+      }
       return;
     } else {
       mensajeVacio.style.display = "none";
@@ -82,6 +85,9 @@ function cargarPedidos() {
     // 🔹 Si no hay resultados con el filtro
     if (pedidosFiltrados.length === 0) {
       mensajeVacio.style.display = "block";
+      if ($.fn.DataTable.isDataTable('#tablaPedidos')) {
+        $('#tablaPedidos').DataTable().clear().draw();
+      }
       return;
     }
 
@@ -93,11 +99,11 @@ function cargarPedidos() {
             timeStyle: "short",
           })
         : "Sin fecha";
-
+const fechaISO = pedido.fecha ? new Date(pedido.fecha).toISOString() : "";
       const fila = document.createElement("tr");
       fila.innerHTML = `
         <td>${pedido.codigoPedido || "N/A"}</td>
-        <td>${fechaLegible}</td>
+<td data-order="${fechaISO}">${fechaLegible}</td>
         <td>${pedido.total?.toLocaleString("es-CO", {
           style: "currency",
           currency: "COP",
@@ -111,8 +117,7 @@ function cargarPedidos() {
         </td>
         ${
           ADMIN_EMAILS.includes(usuarioActual.email)
-            ? `
-              <td>
+            ? `<td>
                 <button class="btn-estado" data-id="${pedido.id}" data-estado="entregado">✅ Entregado</button>
               </td>`
             : pedido.estado?.toLowerCase() === "pendiente"
@@ -126,15 +131,38 @@ function cargarPedidos() {
     // 🔹 Reasignar eventos
     asignarEventos();
 
-    // ----- BUSCADOR POR TRACKING ID -----
-const inputBusqueda = document.getElementById("busqueda");
-inputBusqueda?.addEventListener("input", () => {
-  const texto = inputBusqueda.value.trim().toLowerCase();
-  filtrarPorTracking(texto);
+// 🔹 Inicializar DataTables y conectar el buscador
+$(document).ready(function () {
+  if ($.fn.DataTable.isDataTable('#tablaPedidos')) {
+    $('#tablaPedidos').DataTable().destroy();
+  }
+
+  // Guardamos la instancia de la tabla
+const tablaPedidos = $('#tablaPedidos').DataTable({
+  pageLength: 10,
+  lengthChange: false,
+  searching: true, // activamos el buscador nativo
+  order: [[1, "desc"]],
+  language: {
+    search: "Buscador:", // 🔹 cambiamos "Search" por "Buscador"
+    paginate: { next: "Siguiente", previous: "Anterior" },
+    info: "Mostrando _START_ a _END_ de _TOTAL_ pedidos",
+    emptyTable: "No hay pedidos disponibles"
+  }
+});
+
+
+  // 🔹 Conectamos el input externo con DataTables
+  const inputBusqueda = document.getElementById("busqueda");
+  inputBusqueda?.addEventListener("input", () => {
+    tablaPedidos.search(inputBusqueda.value.trim()).draw(); // busca en todas las páginas
+  });
 });
 
   });
 }
+
+
 
 // 🟢 Detectar cambios en el filtro
 filtroSelect?.addEventListener("change", () => {
@@ -278,6 +306,19 @@ function filtrarPorTracking(texto) {
   // Mostrar u ocultar mensaje
   mensaje.style.display = coincidencias === 0 ? "block" : "none";
 }
+
+// --------------------------------------------------------------
+// LOGICA BOTON "VOLVER"
+// --------------------------------------------------------------
+
+document.getElementById("btnVolver")?.addEventListener("click", () => {
+  if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    window.location.href = "index.html"; // Respaldo
+  }
+});
+
 
 
 

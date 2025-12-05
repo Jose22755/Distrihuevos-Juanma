@@ -31,7 +31,7 @@ let total = 0;
 // ---------------------------------------------------------
 const qrURLs = {
   nequi: "../html/images/nequiQR.png",
-  bancolombia: "../html/images/CodigoQR_prueba.jpg"
+  bancolombia: "../html/images/BancolombiaQR.png"
 };
 
 // ---------------------------------------------------------
