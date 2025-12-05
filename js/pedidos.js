@@ -307,17 +307,7 @@ function filtrarPorTracking(texto) {
   mensaje.style.display = coincidencias === 0 ? "block" : "none";
 }
 
-// --------------------------------------------------------------
-// LOGICA BOTON "VOLVER"
-// --------------------------------------------------------------
 
-document.getElementById("btnVolver")?.addEventListener("click", () => {
-  if (window.history.length > 1) {
-    window.history.back();
-  } else {
-    window.location.href = "index.html"; // Respaldo
-  }
-});
 
 
 
