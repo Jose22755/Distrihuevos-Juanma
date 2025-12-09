@@ -8,6 +8,7 @@
   <!-- 🎨 ESTILOS -->
   <link rel="stylesheet" href="../css/productos.css" />
   <link rel="stylesheet" href="../css/cart.css" />
+  <link rel="stylesheet" href="../css/main.css">
 
   <!-- 📦 ICONOS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-…" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -26,11 +27,10 @@
   <header class="main-header shadow-sm">
     <div class="header-container">
       <div class="header-left">
-        <div class="menu-wrapper" id="menuTrigger" onclick="window.location.href='index.html'">
-          <i class="bi bi-arrow-left-circle"></i>
-          <span class="menu-label">INICIO</span>
-        </div>
-
+      <div class="menu-wrapper" id="menuTrigger">
+        <div class="hamburger"><span></span><span></span><span></span></div>
+        <span class="menu-label">MENÚ</span>
+      </div>
         <!-- 🔍 Búsqueda -->
         <form id="searchForm" class="search-form" onsubmit="return false;">
           <input type="text" id="busqueda" placeholder="Buscar productos..." />
@@ -59,6 +59,26 @@
       </div>
     </div>
   </header>
+
+
+  <!-- ===== MENÚ LATERAL ===== -->
+<nav class="side-menu" id="sideMenu">
+  <div class="menu-header">OPCIONES</div>
+  <ul>
+<li><a href="index.html"><i class="bi bi-house"></i> Inicio</a></li>
+    <li><a href="pedidos.html"><i class="bi bi-basket"></i>Pedidos</a></li>
+    <li><a href="productos.html"><i class="bi bi-box-seam"></i>Productos</a></li>
+    <li><a href="cart.html"><i class="bi bi-cart"></i>Carrito</a></li>
+    <li class="has-submenu">
+      <a href="#" id="perfilToggle"><i class="bi bi-person-circle"></i> Perfil <i class="bi bi-chevron-down arrow"></i></a>
+      <ul class="submenu" id="submenuPerfil">
+        <li><a href="update_profile.html"><i class="bi bi-pencil"></i> Actualizar perfil</a></li>
+        <li><a href="reset_password.html"><i class="bi bi-lock"></i> Cambiar contraseña</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+<div class="menu-overlay" id="menuOverlay"></div>
 
   <!-- 🛒 SECCIÓN PRINCIPAL -->
   <main class="container my-5">
@@ -210,15 +230,12 @@
             🧾 Recuerda subir el comprobante del pago.
           </p>
 
-          <!-- 📎 Subir comprobante -->
-          <div style="margin-top:10px;">
-            <label for="comprobantePago" style="display:block; margin-bottom:5px;">📎 Subir comprobante de pago:</label>
-            <input type="file" id="comprobantePago" accept="image/*,application/pdf">
-          </div>
+            <!-- Subir comprobante -->
+
         </div>
 
       </div>
-
+      
       <!-- 💰 Totales -->
       <div class="checkout-summary mt-3">
         <div class="summary-row">
@@ -297,15 +314,6 @@
 <!-- ⏳ SPINNER DE CARGA -->
 <div id="spinnerCarga" class="spinner-overlay">
   <div class="spinner"></div>
-</div>
-
-<!-- ✅ TOAST DE ÉXITO -->
-<div id="toastExito" class="toast-container">
-  <div class="toast-body">
-    <h4>✅ Pedido realizado con éxito</h4>
-    <p>Tu número de pedido es <strong>PED-001</strong>.</p>
-    <p>Gracias por tu compra 🥚</p>
-  </div>
 </div>
 
 <!-- ✨ ESTILOS PANEL CHECKOUT ACTUALIZADOS -->
@@ -617,6 +625,10 @@
   background: rgba(200,200,200,0.9);
 }
 
+.btn-vaciar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(198, 40, 40, 0.5);
+}
 
 </style>
 
@@ -625,12 +637,12 @@
   <!-- 🟡 FOOTER -->
   <footer class="footer">
     <div class="footer-container">
-      <div class="footer-info">
-        <p><span>Distrihuevos JUANMA</span></p>
-        <p>Huevos frescos del campo a tu mesa 🍳</p>
-        <p>Tel: 321 654 9870</p>
-        <p><strong>Dirección:</strong> Calle 12 #34-56, Barrio Campo Verde</p>
-      </div>
+    <div class="footer-info">
+      <p><span>Distrihuevos JUANMA</span></p>
+      <p>"Huevos frescos del campo a tu mesa"</p>
+      <p>Tel: 321 286 4555</p>
+      <p class="direccion"><strong>Dirección:</strong> Carrera 27 No 17-35 Barrio el porvenir </p>
+    </div>
 
       <div class="footer-links">
         <a href="index.html">Inicio</a>
@@ -648,7 +660,7 @@
           <a href="https://www.instagram.com" target="_blank">
             <img src="https://cdn-icons-png.flaticon.com/512/733/733558.png" alt="Instagram" class="footer-icon">
           </a>
-          <a href="https://wa.me/573216549870" target="_blank">
+          <a href="https://wa.me/573212864555" target="_blank">
             <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" class="footer-icon">
           </a>
           <a href="mailto:contacto@distrihuevosjuanma.com">
@@ -665,6 +677,8 @@
   <script type="module" src="../js/cart.js"></script>
   <script type="module" src="../js/checkout.js"></script>
   <script type="module" src="../js/pago.js"></script>
+  <script type="module" src="../js/catalog.js"></script>
+
 
 </body>
 </html>

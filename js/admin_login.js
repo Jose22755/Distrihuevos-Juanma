@@ -610,6 +610,7 @@ function mostrarPedidos(pedidos) {
 
       const tr = document.createElement("tr");
 
+
       tr.innerHTML = `
         <td>${pedido.codigoPedido}</td>
         <td>${pedido.nombreUsuario}</td>
@@ -622,6 +623,11 @@ function mostrarPedidos(pedidos) {
           </select>
         </td>
         <td>$${Number(pedido.total || 0).toLocaleString("es-CO")}</td>
+        <td>
+          ${pedido.comprobanteURL 
+              ? `<button class="btn btn-sm btn-primary btn-verComprobante" data-url="${pedido.comprobanteURL}">Ver comprobante</button>` 
+              : "Sin comprobante"}
+        </td>
         <td class="detalles-col">
           <button class="btn-verDetalle" data-id="${pedido.id}">
             Ver detalles
@@ -631,43 +637,77 @@ function mostrarPedidos(pedidos) {
 
       listaPedidos.appendChild(tr);
 
+      // Modal comprobante
+const modalComprobante = new bootstrap.Modal(document.getElementById("modalComprobante"));
+const imagenComprobante = document.getElementById("imagenComprobante");
+// Inicializar modal
+
+// Forzar que la X cierre el modal
+document.querySelector("#modalComprobante .btn-close").addEventListener("click", () => {
+  modalComprobante.hide();
+});
+
+
+tr.querySelectorAll(".btn-verComprobante").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const url = btn.dataset.url;
+    if(url){
+      imagenComprobante.src = url;
+      modalComprobante.show();
+    }
+  });
+});
+
       const selectEstado = tr.querySelector(".estadoPedido");
 
       // Aplicar color inicial
       aplicarColorEstado(selectEstado, pedido.estado);
 
       // Cambiar estado
-      selectEstado.addEventListener("change", async (e) => {
-        const nuevoEstado = e.target.value;
+// Cambiar estado
+selectEstado.addEventListener("change", async (e) => {
+  const nuevoEstado = e.target.value;
 
-        try {
-          await updateDoc(doc(db, "pedidos", pedido.id), { estado: nuevoEstado });
+  try {
 
-          aplicarColorEstado(selectEstado, nuevoEstado); // Actualizar color
+    let updateData = { estado: nuevoEstado };
 
-          // Toast igual al de productos
-          Swal.fire({
-            toast: true,
-            position: "top-end",
-            icon: "success",
-            title: "Estado actualizado",
-            text: `Nuevo estado: ${nuevoEstado}`,
-            showConfirmButton: false,
-            timer: 1400,
-          });
+    // 🟢 Si se entrega → actualizar fecha a HOY para que cuente en ventas
+    if (nuevoEstado === "entregado") {
+      updateData.fecha = new Date().toISOString();
+    }
 
-        } catch (err) {
-          Swal.fire({
-            toast: true,
-            position: "top-end",
-            icon: "error",
-            title: "Error",
-            text: "No se pudo actualizar el estado",
-            showConfirmButton: false,
-            timer: 1500
-          });
-        }
-      });
+    // 🟡 Si se cancela → no toca la fecha, así NO suma en ventas
+    if (nuevoEstado === "cancelado") {
+      // no cambiar fecha
+    }
+
+    await updateDoc(doc(db, "pedidos", pedido.id), updateData);
+
+    aplicarColorEstado(selectEstado, nuevoEstado);
+
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "success",
+      title: "Estado actualizado",
+      text: `Nuevo estado: ${nuevoEstado}`,
+      showConfirmButton: false,
+      timer: 1400,
+    });
+
+  } catch (err) {
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "error",
+      title: "Error",
+      text: "No se pudo actualizar el estado",
+      showConfirmButton: false,
+      timer: 1500
+    });
+  }
+});
 
       // Ver detalles
       tr.querySelector(".btn-verDetalle").addEventListener("click", () => {
@@ -676,40 +716,48 @@ function mostrarPedidos(pedidos) {
     });
 }
 
+
+
+
 // ===============================
 // 📌 Modal detalles
 // ===============================
 function mostrarDetallePedido(pedido) {
   const productosHTML = pedido.items?.length
-  
     ? pedido.items.map(item => `
-        <div class="detalle-producto">
-          <span><strong>${item.nombre}</strong></span>
-          <span>Cantidad: ${item.cantidad}</span>
+        <div class="detalle-producto" style="text-align:center; margin-bottom:5px;">
+          <span><strong>${item.nombre}</strong></span><br>
+          <span>Cantidad: ${item.cantidad}</span><br>
           <span>Precio: $${Number(item.precio || 0).toLocaleString("es-CO")}</span>
         </div>
       `).join("")
     : "<p>No hay productos registrados.</p>";
 
   detallePedidoContent.innerHTML = `
-    <p><strong>Código:</strong> ${pedido.codigoPedido || "Sin código"}</p>
-    <p><strong>Usuario:</strong> ${pedido.nombreUsuario || pedido.usuario || "Desconocido"}</p>
-    <p><strong>Fecha:</strong> ${pedido.fecha}</p>
-    <p><strong>Estado:</strong> ${pedido.estado}</p>
-    <p><strong>Método de Pago:</strong> ${pedido.metodoPago || "No registrado"}</p>
-    <p><strong>Referencia Pago:</strong> ${pedido.referenciaPago || "---"}</p>
+    <div style="text-align:center; color:#000;">
+      <p><strong>Código:</strong> ${pedido.codigoPedido || "Sin código"}</p>
+      <p><strong>Usuario:</strong> ${pedido.nombreUsuario || pedido.usuario || "Desconocido"}</p>
+      <p><strong>Fecha:</strong> ${pedido.fecha}</p>
+      <p><strong>Estado:</strong> ${pedido.estado}</p>
+      <p><strong>Método de Pago:</strong> ${pedido.metodoPago || "No registrado"}</p>
+      <p><strong>Comprobante:</strong></p>
+      ${pedido.comprobanteURL 
+          ? `<img src="${pedido.comprobanteURL}" style="width:120px; border-radius:5px;">` 
+          : "<span>Sin comprobante</span>"}
 
-    <h5 class="titulo-productos mt-3 mb-2">Productos</h5>
-    ${productosHTML}
+      <h5 class="titulo-productos mt-3 mb-2">Productos</h5>
+      ${productosHTML}
 
-    <p class="detalle-total">
-      <span class="total-label">Total:</span>
-      <span class="total-valor">$${Number(pedido.total || 0).toLocaleString("es-CO")}</span>
-    </p>
+      <p class="detalle-total">
+        <span class="total-label"><strong>Total:</strong></span><br>
+        <span class="total-valor">$${Number(pedido.total || 0).toLocaleString("es-CO")}</span>
+      </p>
+    </div>
   `;
 
   detalleModal.show();
 }
+
 
 
 // ===============================
@@ -755,10 +803,10 @@ async function cargarClientes() {
             <i class="bi bi-trash"></i>
           </button>
         </td>
-        <td class="text-center">
-          <span class="btn-verDetalle" style="color:black; cursor:pointer; font-weight:500;" data-id="${doc.id}">
+        <td class="detalles-col">
+          <button class="btn-verDetalle" data-id="${doc.id}">
             Ver detalles
-          </span>
+          </button>
         </td>
       `;
 

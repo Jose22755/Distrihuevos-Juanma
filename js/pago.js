@@ -26,6 +26,9 @@ let subtotal = 0;
 let impuesto = 0;
 let total = 0;
 
+
+
+
 // ---------------------------------------------------------
 // QR REALES (por ahora siguen siendo imágenes)
 // ---------------------------------------------------------
@@ -119,6 +122,50 @@ function actualizarTotales() {
   const textoMontoPagar = document.getElementById("textoMontoPagar");
   if (textoMontoPagar) textoMontoPagar.textContent = `$${total.toLocaleString()}`;
 }
+
+// ---------- Registrar listeners del comprobante UNA sola vez (inicialización) ----------
+function initComprobanteListeners() {
+  const btnSubir = document.getElementById("btnSubirComprobante");
+  const inputComprobante = document.getElementById("comprobantePago");
+  const nombreComprobante = document.getElementById("nombreComprobante");
+
+  if (!btnSubir || !inputComprobante || !nombreComprobante) {
+    // Si por alguna razón aún no están en el DOM, intentamos más tarde (opcional)
+    document.addEventListener("DOMContentLoaded", initComprobanteListeners, { once: true });
+    return;
+  }
+
+  // Asegurarnos de remover listeners previos (por si se recarga el módulo)
+  btnSubir.replaceWith(btnSubir.cloneNode(true));
+  const newBtnSubir = document.getElementById("btnSubirComprobante");
+
+  newBtnSubir.addEventListener("click", (e) => {
+    e.preventDefault();
+    // limpiamos valor anterior para forzar 'change' aunque sea el mismo archivo
+    inputComprobante.value = "";
+    inputComprobante.click();
+  });
+
+  inputComprobante.addEventListener("change", () => {
+    const archivo = inputComprobante.files[0];
+    nombreComprobante.textContent = archivo?.name || "";
+
+    if (!archivo) return;
+
+    if (!archivo.type.startsWith("image/")) {
+      Swal.fire({
+        icon: "error",
+        title: "Formato no permitido",
+        text: "Solo puedes subir imágenes (JPG, PNG, etc).",
+      });
+      inputComprobante.value = "";
+      nombreComprobante.textContent = "";
+      return;
+    }
+
+    // aquí procesa el archivo (p. ej. subir a Cloudinary), pero NO dispares input.click de nuevo
+  });
+};
 
 
 // ---------------------------------------------------------
@@ -305,33 +352,7 @@ btn?.addEventListener("click", () => {
   }
 });
 
-
-  // Botón personalizado para subir comprobante
-  const btnSubir = document.getElementById("btnSubirComprobante");
-  const inputComprobante = document.getElementById("comprobantePago");
-  const nombreComprobante = document.getElementById("nombreComprobante");
-
-  btnSubir.addEventListener("click", () => inputComprobante.click());
-inputComprobante.addEventListener("change", () => {
-  const archivo = inputComprobante.files[0];
-  nombreComprobante.textContent = archivo?.name || "";
-
-  if (!archivo) return;
-
-  const tipo = archivo.type;
-
-  if (!tipo.startsWith("image/")) {
-    Swal.fire({
-      icon: "error",
-      title: "Formato no permitido",
-      text: "Solo puedes subir imágenes (JPG, PNG, etc).",
-    });
-
-    inputComprobante.value = "";
-    nombreComprobante.textContent = "";
-    return;
-  }
-});
+initComprobanteListeners();
 
 }
 
@@ -365,27 +386,31 @@ confirmPayment.addEventListener("click", async () => {
 // 1️⃣ Validar que haya comprobante si no es efectivo
 // El bloque de subida a Storage se repite `if (metodoSel !== "efectivo")` dos veces.
 // Puedes unir validación + subida para que quede más limpio:
-/*if (metodoSel !== "efectivo") {
+if (metodoSel !== "efectivo") {
   const comprobanteInput = document.getElementById("comprobantePago");
   if (!comprobanteInput?.files?.length) {
-    return Swal.fire({ icon: "warning", title: "Sube tu comprobante", text: "Debes subir el comprobante de pago antes de confirmar el pedido." });
-  }
-  const archivoComprobante = comprobanteInput.files[0];
-  const storage = getStorage();
-  const storageRef = ref(storage, `comprobantes/${usuarioActual}_${Date.now()}_${archivoComprobante.name}`);
-  const snapshot = await uploadBytes(storageRef, archivoComprobante);
-  urlComprobante = await getDownloadURL(snapshot.ref);
-} */
-  // ---------------------------------------------------------
-  // 🔥 Validación REAL del pago (antes la querías reactivar)
-  // ---------------------------------------------------------
-  /* if (metodoSel !== "efectivo" && !metodoPagoValidado) {
     return Swal.fire({
       icon: "warning",
-      title: "Confirma el pago",
-      text: "Debes abrir Nequi o Bancolombia para validar el pago 📱"
+      title: "Sube tu comprobante",
+      text: "Debes subir el comprobante de pago antes de confirmar el pedido."
     });
-  } */
+  }
+
+  const archivoComprobante = comprobanteInput.files[0];
+  const formData = new FormData();
+  formData.append("file", archivoComprobante);
+  formData.append("upload_preset", "distribuevos_unsigned"); // ← el que creaste en Cloudinary
+
+  const cloudinaryURL = "https://api.cloudinary.com/v1_1/dcpgkqoae/image/upload";
+
+  const response = await fetch(cloudinaryURL, {
+    method: "POST",
+    body: formData
+  });
+
+  const data = await response.json();
+  urlComprobante = data.secure_url; // ← esta es la URL que guardas en Firestore
+}
 
   try {
     const pedidosRef = collection(db, "pedidos");
@@ -417,17 +442,18 @@ const userRef = doc(db, "users", usuarioActual);
   }
 }
 
-    await setDoc(doc(db, "pedidos", codigoPedido), {
-      pedidoNumero: nuevoNumero,
-      codigoPedido,
-      usuarioUID: usuarioActual,
-      nombreUsuario,       // ← AGREGAS ESTO
-      items: carrito,
-      total,
-      metodoPago: metodoSel,
-      estado: "pendiente",
-      fecha: new Date().toISOString()
-    });
+await setDoc(doc(db, "pedidos", codigoPedido), {
+  pedidoNumero: nuevoNumero,
+  codigoPedido,
+  usuarioUID: usuarioActual,
+  nombreUsuario,
+  items: carrito,
+  total,
+  metodoPago: metodoSel,
+  estado: "pendiente",
+  fecha: new Date().toISOString(),
+  comprobanteURL: urlComprobante // ← aquí va la URL de Cloudinary
+});
 
     await setDoc(doc(db, "carritos", usuarioActual), { items: [] });
     carrito = [];
@@ -438,7 +464,7 @@ const userRef = doc(db, "users", usuarioActual);
 
     Swal.fire({
       icon: "success",
-      title: "Pedido creado 🎉",
+      title: "Pedido finalizado",
       text: `Tu pedido fue registrado correctamente. Número: ${codigoPedido}`
     }).then(() => window.location.href = "pedidos.html");
 

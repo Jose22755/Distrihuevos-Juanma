@@ -1638,31 +1638,7 @@ body {
   font-weight: bold;
 }
 
-/* ===================== */
-/* 📱 HEADER RESPONSIVO  */
-/* ===================== */
-@media (max-width: 1024px) {
-  .header-container {
-    flex-wrap: wrap;
-    padding: 0.8rem 1.5rem;
-  }
-  .menu-label {
-    font-size: 1rem;
-  }
-}
 
-@media (max-width: 768px) {
-  .search-form { display: none; }
-  .user-greeting { display: none; }
-  .logo h1 { font-size: 1.4rem; }
-  .cart-btn { padding: 0.45rem 1.5rem; font-size: 1rem; }
-}
-
-@media (max-width: 480px) {
-  .header-container { flex-direction: column; align-items: center; gap: 0.6rem; }
-  .logo { position: static; transform: none; margin-bottom: 0.5rem; }
-  .cart-btn { width: 100%; justify-content: center; }
-}
 
 /* ===================== */
 /* 📱 HERO RESPONSIVO    */
@@ -1725,5 +1701,337 @@ body {
   .footer-container { flex-direction: column; text-align: center; gap: 1rem; }
   .footer-info, .footer-links, .footer-icons { transform: none; }
   .footer-links { flex-direction: column; gap: 0.2rem; }
+}
+
+
+/* ========================================================= */
+/* 📱 RESPONSIVE DEL HEADER — ARREGLADO Y AISLADO           */
+/* ========================================================= */
+
+/* Tablet */
+@media (max-width: 992px) {
+
+  .main-header .header-container {
+    padding: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .main-header .header-left,
+  .main-header .header-right,
+  .main-header .logo {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .main-header .search-form {
+    display: none !important;
+  }
+
+  .main-header .logo-img {
+    width: 75px;
+  }
+
+  .main-header .logo h1 {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* Celulares */
+@media (max-width: 576px) {
+
+  .main-header .header-container {
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  .main-header .logo-img {
+    width: 60px;
+  }
+
+  .main-header .logo h1 {
+    font-size: 1.2rem !important;
+    margin: 0;
+  }
+
+  .main-header .cart-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.7rem;
+  }
+
+  .main-header .logout-btn,
+  .main-header .ver-pedidos {
+    width: 100%;
+    text-align: center;
+    padding: 0.5rem 0;
+  }
+}
+
+
+/* PALABRA CANTIDAD */
+/* SOLO para celular */
+/* SOLO para celular */
+@media (max-width: 600px) {
+  .quantity label {
+    font-size: 14px !important;
+    font-weight: 700 !important; /* NEGRITA */
+  }
+
+  .cantidad-control button {
+    font-size: 14px !important;
+    font-weight: 600 !important; /* un poquito más fuerte */
+    padding: 4px 10px !important;
+  }
+
+  .cantidad-control span {
+    font-size: 14px !important;
+    font-weight: 700 !important; /* valor también negrita */
+  }
+}
+
+/* PADDING MAS CERCA PARA EL TITULO BENEFICIOS */
+/* 🔧 Reducir espacio entre características y Beneficios */
+.nutritional-details {
+  margin-top: 15px !important;   /* antes seguro estaba en 40px o más */
+}
+
+/* Ajustar también el título para que no se vea tan separado */
+.nutritional-title-box {
+  margin-top: 0 !important;
+  padding-top: 10px;  /* tú puedes subirlo o bajarlo un poquito */
+}
+
+/* 🔧 Reducir espacio entre BENEFICIOS y COMENTARIOS */
+.reviews-section {
+  margin-top: 10px !important;  /* antes está seguro en 50–80px */
+}
+
+/* Ajustar el título para que no quede tan separado */
+.reviews-section .product-title-box {
+  margin-top: 0 !important;
+  padding-top: 10px;
+}
+
+/* 💬 Comentarios compactos y sin romper el diseño */
+.reviews-container > * {
+  max-width: 100%;
+  width: 100%;
+  padding: 8px 10px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e5e5;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+}
+
+/* 🟡 Avatar del usuario en los comentarios */
+.reviews-container .review-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.review-avatar {
+  width: 38px;
+  height: 38px;
+  background-color: #4CAF50;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+
+.reviews-section {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+
+.product-title-box {
+  background: #48a23f;
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  padding: 12px 0;
+  border-radius: 18px;
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+}
+
+.reviews-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* --- CONTENEDOR DE RESEÑAS --- */
+.reviews-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* --- FORMULARIO --- */
+.review-form {
+  width: 100%;
+  background: #fff;
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  box-sizing: border-box;
+}
+
+.field {
+  margin-bottom: 14px;
+}
+
+#review-text {
+  width: 100%;
+  min-height: 90px;
+  resize: none;
+  border: 2px solid #e6e6e6;
+  border-radius: 14px;
+  padding: 14px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  outline: none;
+  transition: 0.2s;
+}
+
+#review-text:focus {
+  border-color: #48a23f;
+  box-shadow: 0 0 5px rgba(72,162,63,0.4);
+}
+
+.error {
+  display: block;
+  margin-top: 4px;
+  color: red;
+  font-size: 0.85rem;
+}
+
+/* Botón */
+.btn-review {
+  width: 100%;
+  border: none;
+  padding: 14px;
+  border-radius: 16px;
+  background: #d62828;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-review:active {
+  transform: scale(0.97);
+}
+
+/* --- MOBILE FIX PARA QUE NADA SE SALGA --- */
+@media (max-width: 480px) {
+  .review-form {
+    padding: 14px;
+  }
+
+  #review-text {
+    min-height: 85px;
+  }
+}
+
+/* 🔥 Anti-desbordes globales */
+* {
+  box-sizing: border-box !important;
+}
+
+body, html {
+  overflow-x: hidden !important;
+  width: 100%;
+}
+
+/* 🔥 Evita que sombras y bordes creen scroll horizontal */
+.reviews-section,
+.reviews-layout,
+.review-form,
+.reviews-container {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  margin: 0 auto !important;
+}
+
+/* 🧱 Ajuste del contenedor del formulario */
+.review-form {
+  background: #fff;
+  border-radius: 20px;
+  padding: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  width: 100%;
+}
+
+/* 📝 Textarea perfectamente ajustado */
+#review-text {
+  width: 100%;
+  min-height: 90px;
+  border: 2px solid #e6e6e6;
+  border-radius: 14px;
+  padding: 14px;
+  resize: none;
+  display: block;
+}
+
+/* Botón que no se sale */
+.btn-review {
+  width: 100%;
+  display: block;
+  margin-top: 10px;
+}
+
+
+.product-details-container {
+  background: #ffffff; /* tu verde */
+  padding-top: 30px;  /* 🔥 crea espacio para que el verde se vea */
+  padding-bottom: 20px;
+}
+
+.product-details {
+  background: #F1FFF4;
+  padding: 25px;
+  border-radius: 18px;
+  margin: 0 15px;     /* 🔥 recorte lateral suave */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  position: relative;
+  top: -10px;         /* 🔥 levanta la tarjeta para que el verde se vea */
+}
+.footer-info .direccion {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.footer-info .direccion strong {
+  display: block;
+  width: 100%;
+  text-align: center;
 }
 

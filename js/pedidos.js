@@ -60,14 +60,16 @@ function cargarPedidos() {
   }
 
   onSnapshot(pedidosQuery, (snapshot) => {
+
+    // 🔥 DESTROY ANTES DE RECONSTRUIR
+    if ($.fn.DataTable.isDataTable('#tablaPedidos')) {
+      $('#tablaPedidos').DataTable().clear().destroy();
+    }
+
     pedidosContainer.innerHTML = "";
 
     if (snapshot.empty) {
       mensajeVacio.style.display = "block";
-      // Limpiar DataTable si no hay pedidos
-      if ($.fn.DataTable.isDataTable('#tablaPedidos')) {
-        $('#tablaPedidos').DataTable().clear().draw();
-      }
       return;
     } else {
       mensajeVacio.style.display = "none";
@@ -82,12 +84,8 @@ function cargarPedidos() {
             (p) => p.estado?.toLowerCase() === filtroEstado.toLowerCase()
           );
 
-    // 🔹 Si no hay resultados con el filtro
     if (pedidosFiltrados.length === 0) {
       mensajeVacio.style.display = "block";
-      if ($.fn.DataTable.isDataTable('#tablaPedidos')) {
-        $('#tablaPedidos').DataTable().clear().draw();
-      }
       return;
     }
 
@@ -99,11 +97,13 @@ function cargarPedidos() {
             timeStyle: "short",
           })
         : "Sin fecha";
-const fechaISO = pedido.fecha ? new Date(pedido.fecha).toISOString() : "";
+
+      const fechaISO = pedido.fecha ? new Date(pedido.fecha).toISOString() : "";
+
       const fila = document.createElement("tr");
       fila.innerHTML = `
         <td>${pedido.codigoPedido || "N/A"}</td>
-<td data-order="${fechaISO}">${fechaLegible}</td>
+        <td data-order="${fechaISO}">${fechaLegible}</td>
         <td>${pedido.total?.toLocaleString("es-CO", {
           style: "currency",
           currency: "COP",
@@ -131,36 +131,29 @@ const fechaISO = pedido.fecha ? new Date(pedido.fecha).toISOString() : "";
     // 🔹 Reasignar eventos
     asignarEventos();
 
-// 🔹 Inicializar DataTables y conectar el buscador
-$(document).ready(function () {
-  if ($.fn.DataTable.isDataTable('#tablaPedidos')) {
-    $('#tablaPedidos').DataTable().destroy();
-  }
+    // 🔥 RECREAR DATATABLES CADA VEZ QUE EL SNAPSHOT CAMBIA
+    const tablaPedidos = $('#tablaPedidos').DataTable({
+      pageLength: 10,
+      lengthChange: false,
+      searching: true,
+      order: [[1, "desc"]],
+      language: {
+        search: "Buscador:",
+        paginate: { next: "Siguiente", previous: "Anterior" },
+        info: "Mostrando _START_ a _END_ de _TOTAL_ pedidos",
+        emptyTable: "No hay pedidos disponibles"
+      }
+    });
 
-  // Guardamos la instancia de la tabla
-const tablaPedidos = $('#tablaPedidos').DataTable({
-  pageLength: 10,
-  lengthChange: false,
-  searching: true, // activamos el buscador nativo
-  order: [[1, "desc"]],
-  language: {
-    search: "Buscador:", // 🔹 cambiamos "Search" por "Buscador"
-    paginate: { next: "Siguiente", previous: "Anterior" },
-    info: "Mostrando _START_ a _END_ de _TOTAL_ pedidos",
-    emptyTable: "No hay pedidos disponibles"
-  }
-});
-
-
-  // 🔹 Conectamos el input externo con DataTables
-  const inputBusqueda = document.getElementById("busqueda");
-  inputBusqueda?.addEventListener("input", () => {
-    tablaPedidos.search(inputBusqueda.value.trim()).draw(); // busca en todas las páginas
-  });
-});
+    // 🔹 Conectar el input externo
+    const inputBusqueda = document.getElementById("busqueda");
+    inputBusqueda?.addEventListener("input", () => {
+      tablaPedidos.search(inputBusqueda.value.trim()).draw();
+    });
 
   });
 }
+
 
 
 

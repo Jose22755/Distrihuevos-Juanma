@@ -571,32 +571,34 @@ body {
   text-align: center;
 }
 
-/* Botón de ver detalles */
+/* Botón de ver detalles simple y moderno */
 .btn-verDetalle {
-  padding: 6px 14px;
-  font-size: 13px;
-  background: #e8f3ff;          /* azul suave */
-  border: 1px solid #b5d4ff;
-  color: #1a73e8;                /* azul Google */
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  background-color: #4CAF50;  /* verde agradable */
+  color: #fff;
+  border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* jogger */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-verDetalle:hover {
-  background: #d4e7ff;
-  border-color: #8bb7ff;
-  color: #0b5fd3;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0,0,0,0.15);
 }
 
 .btn-verDetalle:active {
   transform: scale(0.97);
+  box-shadow: 0 3px 4px rgba(0,0,0,0.1);
 }
 
 td.detalles-col {
   background: transparent !important;
 }
+
 
 
 /* Modal estilizado */
@@ -742,24 +744,6 @@ td.detalles-col {
   border: none !important;
 }
 
-.btn-verDetalle {
-  display: inline-block;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  color: #000;
-  background: transparent;   /* SIN FONDO AZUL */
-  white-space: nowrap;       /* EVITA QUE SE PARTA EN 2 LÍNEAS */
-  transition: 0.2s ease;
-}
-
-.btn-verDetalle:hover {
-  background: #a8d5be;       /* Verde súper suave */
-  color: #2c7a4b;            /* Verde bonito */
-}
- 
-
 #btnNuevoCliente {
   border-radius: 10px;
   padding: 10px 18px;
@@ -769,6 +753,8 @@ td.detalles-col {
 #btnNuevoCliente:hover {
   transform: translateY(-2px);
 }
+
+
 
 
 

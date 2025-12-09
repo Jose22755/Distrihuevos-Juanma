@@ -223,30 +223,51 @@ async function cargarCategoriasChart() {
     pedidosHoy = 0; // 🟢 reiniciar el contador
 
 
-    snap.forEach(doc=>{
-      const p = doc.data();
-      const fechaPedido = new Date(p.fecha);
-      const fechaStr =
-        fechaPedido.getFullYear() +
-        "-" +
-        String(fechaPedido.getMonth() + 1).padStart(2, "0") +
-        "-" +
-        String(fechaPedido.getDate()).padStart(2, "0");
+snap.forEach(doc => {
+  const p = doc.data();
 
-      if(fechaPedido>=hoy){
-        pedidosHoy++; // 🟢 contamos el pedido
+  // 🛑 Ignorar pedidos cancelados (no cuentan como venta NI como producto vendido)
+  const estado = String(p.estado || "").toLowerCase();
+  if (estado === "cancelado") {
+    return;
+  }
 
-        (p.items||[]).forEach(item=>{
-          const nombre = item.nombre||"Sin nombre";
-          const cant = Number(item.cantidad||0);
-          ventasPorProducto[nombre] = (ventasPorProducto[nombre]||0)+cant;
-          totalProdVendidos+=cant;
-        });
-        sumaVentas += Number(p.total||0);
-      }
+  // ================================
+  // 🕒 Fecha del pedido
+  // ================================
+  const fechaPedido = new Date(p.fecha);
+  const fechaStr =
+    fechaPedido.getFullYear() + "-" +
+    String(fechaPedido.getMonth() + 1).padStart(2, "0") + "-" +
+    String(fechaPedido.getDate()).padStart(2, "0");
 
-      if(ventasUltimos7Dias.hasOwnProperty(fechaStr)) ventasUltimos7Dias[fechaStr]+=Number(p.total||0);
+  // ================================
+  // 📌 Pedidos de HOY
+  // ================================
+  if (fechaPedido >= hoy) {
+    pedidosHoy++;
+
+    // Contar productos vendidos
+    (p.items || []).forEach(item => {
+      const nombre = item.nombre || "Sin nombre";
+      const cant = Number(item.cantidad || 0);
+
+      ventasPorProducto[nombre] = (ventasPorProducto[nombre] || 0) + cant;
+      totalProdVendidos += cant;
     });
+
+    // Sumar dinero vendido hoy
+    sumaVentas += Number(p.total || 0);
+  }
+
+  // ================================
+  // 📌 Ventas de los últimos 7 días
+  // ================================
+  if (ventasUltimos7Dias.hasOwnProperty(fechaStr)) {
+    ventasUltimos7Dias[fechaStr] += Number(p.total || 0);
+  }
+
+});
 
     // --- Después de procesar todos los pedidos dentro de snap.forEach(...) ---
 
@@ -265,6 +286,13 @@ let ventasHoy = 0;
 let ventasAyer = 0;
 snap.forEach(doc => {
   const p = doc.data();
+
+  // 🛑 Ignorar pedidos cancelados en la tasa de crecimiento
+  const estado = String(p.estado || "").toLowerCase();
+  if (estado === "cancelado") {
+    return;
+  }
+
   const fechaPedido = new Date(p.fecha);
   const fechaStr =
     fechaPedido.getFullYear() + "-" +
@@ -281,6 +309,7 @@ snap.forEach(doc => {
     ventasAyer += Number(p.total || 0);
   }
 });
+
 
 // calcular tasa de crecimiento (evitar división por cero)
 let growthRate = 0;

@@ -1066,6 +1066,204 @@ box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
 }
 
 
+/* 📱 ————————————————————————— */
+/* RESPONSIVE GENERAL            */
+/* ———————————————————————————— */
+
+/* ===================== */
+/* 1024px (tablets grandes) */
+/* ===================== */
+@media (max-width: 1024px) {
+
+  .header-container {
+    padding: 0.8rem 1rem;
+    gap: 1rem;
+  }
+
+  .logo h1 { font-size: 1.6rem; }
+  .menu-label { font-size: 1rem; }
+  .search-form input {
+    font-size: 0.95rem;
+    padding: 8px;
+  }
+}
+
+/* ===================== */
+/* 768px (tablets / móviles ancho) */
+/* ===================== */
+@media (max-width: 768px) {
+
+  .header-container {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+  }
+
+  /* 🔥 Asegura que NO se crucen */
+  .header-left,
+  .logo,
+  .header-right {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .header-left {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  /* Ocultar búsqueda (está bien) */
+  .search-form { display: none; }
+
+  .logo {
+    margin: 0;
+    position: static;
+    transform: none;
+  }
+
+  .logo-img {
+    max-width: 70px;
+  }
+
+  .logo h1 {
+    font-size: 1.4rem;
+  }
+
+  .user-greeting { display: none; }
+}
+
+/* ===================== */
+/* 480px (celulares) */
+/* ===================== */
+@media (max-width: 480px) {
+
+  .header-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  .header-left {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .logo h1 {
+    font-size: 1.2rem;
+  }
+
+  .cart-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.6rem;
+    font-size: 1rem;
+  }
+
+  .logout-btn {
+    width: 100%;
+    margin-top: 0.3rem;
+  }
+}
+
+
+/* ========================================================= */
+/* 📱 Escalado general para móviles                          */
+/* ========================================================= */
+@media (max-width: 576px) {
+
+  :root {
+    --fs-title: 1.2rem;
+    --fs-subtitle: 1rem;
+    --fs-text: 0.9rem;
+    --fs-small: 0.8rem;
+
+    --pad-box: 0.8rem;
+    --pad-btn: 0.6rem 1rem;
+
+    --radius-box: 12px;
+  }
+
+  /* Reglas globales */
+  body, p, span, a, button, input {
+    font-size: var(--fs-text) !important;
+  }
+
+  h1 { font-size: var(--fs-title) !important; }
+  h2 { font-size: var(--fs-subtitle) !important; }
+  h3 { font-size: var(--fs-subtitle) !important; }
+
+  .btn,
+  button {
+    padding: var(--pad-btn) !important;
+    border-radius: var(--radius-box) !important;
+  }
+
+  .card,
+  .product-details,
+  .nutritional-cards,
+  .reviews-section,
+  .product-title-box {
+    padding: var(--pad-box) !important;
+  }
+}
+/* =============================== */
+/* 📱 Ajuste SOLO para el título "Detalles del producto" */
+/* =============================== */
+@media (max-width: 576px) {
+  .product-title-box {
+    font-size: 1.1rem !important;
+    text-align: center !important;
+    padding: 0.6rem 0 !important;
+  }
+}
+
+/* =============================== */
+/* 📱 Ampliar el contenedor principal en móviles */
+/* =============================== */
+@media (max-width: 576px) {
+  .product-details-container .container {
+    width: 100% !important;
+    max-width: 95% !important;   /* antes era 90% ó menos → se veía apretado */
+    padding: 0 10px !important;  /* más espacio a los lados */
+  }
+
+  /* También a las cajas internas */
+  .product-details,
+  .product-images,
+  .nutritional-details,
+  .reviews-section {
+    padding: 15px !important;
+    border-radius: 12px;
+  }
+
+  /* Para que nada quede pegado */
+  .product-details-container .container > div {
+    margin-bottom: 1.3rem;
+  }
+}
+/* =============================== */
+/* 📱 Ampliar el FONDO VERDE en móvil */
+/* =============================== */
+@media (max-width: 576px) {
+  .product-details-container {
+    width: 100% !important;
+    max-width: 100% !important; 
+    padding: 20px 15px !important;  /* aire a los lados */
+  }
+
+  /* Para evitar que algo interno limite el ancho */
+  .product-details-container .container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+}
+
+
+
+
 
 
 
