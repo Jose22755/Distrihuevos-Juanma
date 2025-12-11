@@ -10,6 +10,7 @@ import {
   onSnapshot,
   setDoc
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
 import {
   onAuthStateChanged,
@@ -555,25 +556,24 @@ function cargarPedidos() {
   const pedidosRef = collection(db, "pedidos");
 
   onSnapshot(pedidosRef, async (snap) => {
-    const pedidos = [];
 
-    for (const docu of snap.docs) {
-      const data = docu.data();
+  const pedidosPromises = snap.docs.map(async (docu) => {
+    const data = docu.data();
+    let nombreCompleto = "";
 
-      let nombreCompleto = null;
-
-      if (data.usuarioUID) {
-        nombreCompleto = await obtenerNombreCompleto(data.usuarioUID);
-      }
-
-      pedidos.push({
-        id: docu.id,
-        ...data,
-        nombreUsuario:
-          (nombreCompleto ?? "").replace("undefined", "").trim() ||
-          "Sin nombre",
-      });
+    if (data.usuarioUID) {
+      nombreCompleto = await obtenerNombreCompleto(data.usuarioUID);
     }
+
+    return {
+      id: docu.id,
+      ...data,
+      nombreUsuario: (nombreCompleto ?? "").replace("undefined","").trim() || "Sin nombre",
+    };
+  });
+
+    const pedidos = await Promise.all(pedidosPromises);
+
 
     mostrarPedidos(pedidos); // 🔥 ACTUALIZA LA TABLA AUTOMÁTICAMENTE
   });
@@ -789,27 +789,27 @@ async function cargarClientes() {
       const cliente = doc.data();
       const tr = document.createElement("tr");
 
-      tr.innerHTML = `
-        <td>${(cliente.Nombres || "") + " " + (cliente.Apellidos || "")}</td>
-        <td>${cliente["Correo Electronico"] || "-"}</td>
-        <td>${cliente.Telefono || "-"}</td>
-        <td>${cliente.Direccion || "-"}</td>
-        <td>${cliente.rol || "cliente"}</td>
-        <td class="text-center">
-          <button class="btn-editar btn btn-sm btn-primary" data-id="${doc.id}">
-            <i class="bi bi-pencil"></i>
-          </button>
-          <button class="btn-eliminar btn btn-sm btn-danger" data-id="${doc.id}">
-            <i class="bi bi-trash"></i>
-          </button>
-        </td>
-        <td class="detalles-col">
-          <button class="btn-verDetalle" data-id="${doc.id}">
-            Ver detalles
-          </button>
-        </td>
-      `;
-
+    tr.innerHTML = `
+      <td>${(cliente.Nombres || "") + " " + (cliente.Apellidos || "")}</td>
+      <td>${cliente["Correo Electronico"] || "-"}</td>
+      <td>${cliente.Telefono || "-"}</td>
+      <td>${cliente.Direccion || "-"}</td>
+<td>${cliente.rol || "usuario"}</td>
+      <td>${cliente.fecha_registro ? new Date(cliente.fecha_registro.seconds * 1000).toLocaleString() : "-"}</td>
+      <td class="text-center">
+        <button class="btn-editar btn btn-sm btn-primary" data-id="${doc.id}">
+          <i class="bi bi-pencil"></i>
+        </button>
+        <button class="btn-eliminar btn btn-sm btn-danger" data-id="${doc.id}">
+          <i class="bi bi-trash"></i>
+        </button>
+      </td>
+      <td class="detalles-col">
+        <button class="btn-verDetalle" data-id="${doc.id}">
+          Ver detalles
+        </button>
+      </td>
+    `;
       listaClientes.appendChild(tr);
     });
 
@@ -832,15 +832,17 @@ async function cargarClientes() {
         const modalTitle = document.getElementById("modalTitle");
         if(modalTitle) modalTitle.textContent = "Detalles del cliente";
 
-        detallePedidoContent.innerHTML = `
-          <div style="text-align:center; color:#000;">
-            <p><strong>Nombre:</strong> ${(c.Nombres || "") + " " + (c.Apellidos || "")}</p>
-            <p><strong>Correo:</strong> ${c["Correo Electronico"] || "-"}</p>
-            <p><strong>Teléfono:</strong> ${c.Telefono || "-"}</p>
-            <p><strong>Dirección:</strong> ${c.Direccion || "-"}</p>
-            <p><strong>Rol:</strong> ${c.rol || "cliente"}</p>
-          </div>
-        `;
+detallePedidoContent.innerHTML = `
+  <div style="text-align:center; color:#000;">
+    <p><strong>Nombre:</strong> ${(c.Nombres || "") + " " + (c.Apellidos || "")}</p>
+    <p><strong>Correo:</strong> ${c["Correo Electronico"] || "-"}</p>
+    <p><strong>Teléfono:</strong> ${c.Telefono || "-"}</p>
+    <p><strong>Dirección:</strong> ${c.Direccion || "-"}</p>
+<p><strong>Rol:</strong> ${c.rol || "usuario"}</p>
+    <p><strong>Fecha de Registro:</strong> ${c.fecha_registro ? new Date(c.fecha_registro.seconds * 1000).toLocaleString() : "-"}</p>
+  </div>
+`;
+
         detalleModal.show();
       });
     });
@@ -849,6 +851,31 @@ async function cargarClientes() {
     console.error("Error cargando clientes:", error);
   }
 }
+
+// ===============================
+// Listener para botón "Nuevo Cliente"
+document.getElementById("btnNuevoCliente").addEventListener("click", () => {
+  // ... tu lógica para mostrar el formulario
+});
+
+// ===============================
+// FILTRO POR ROL
+const filtroRol = document.getElementById("filtroRol");
+
+filtroRol.addEventListener("change", () => {
+  const valor = filtroRol.value.toLowerCase();
+  const filas = listaClientes.querySelectorAll("tr");
+
+  filas.forEach(tr => {
+    const rol = tr.querySelector("td:nth-child(5)").textContent.toLowerCase(); // columna Rol ahora es la 6
+    if (valor === "todos" || rol === valor) {
+      tr.style.display = ""; // mostrar fila
+    } else {
+      tr.style.display = "none"; // ocultar fila
+    }
+  });
+});
+
 
 // === Mostrar formulario y llenar datos al editar ===
 listaClientes.addEventListener("click", async (e) => {
@@ -933,6 +960,26 @@ btnCancelarCliente.addEventListener("click", () => {
 });
 
 // === Agregar / Actualizar cliente ===
+const passwordInput = document.getElementById("passwordCliente");
+const passwordHelp = document.getElementById("passwordHelp");
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
+
+// Listeners fuera del submit
+passwordInput.addEventListener("focus", () => {
+  passwordHelp.style.display = "block";
+});
+
+// Listener en tiempo real
+passwordInput.addEventListener("input", () => {
+  if(passwordRegex.test(passwordInput.value)){
+    passwordHelp.style.color = "green";
+    passwordHelp.textContent = "Contraseña válida ✔";
+  } else {
+    passwordHelp.style.color = "red";
+    passwordHelp.textContent = "Contraseña: mínimo 8 caracteres, mayúscula, minúscula, número y símbolo (!@#$%^&*)";
+  }
+});
+
 formCliente.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -942,49 +989,78 @@ formCliente.addEventListener("submit", async (e) => {
   const Telefono = document.getElementById("telefonoCliente").value.trim();
   const Direccion = document.getElementById("direccionCliente").value.trim();
   const Rol = document.getElementById("rolCliente").value;
+  const Password = passwordInput.value.trim();
 
-  if (!Nombres || !Apellidos || !Correo) {
-    Swal.fire("Error", "Nombres, Apellidos y Correo son obligatorios", "warning");
+  // Validaciones básicas
+  if (!Nombres || !Apellidos || !Correo || (!clienteEditando && !Password)) {
+    Swal.fire("Error", "Nombres, Apellidos, Correo y Contraseña son obligatorios", "warning");
     return;
   }
 
-  try {
-    const idAUsar = clienteEditando || Correo;
-    await setDoc(doc(db, "users", idAUsar), {
-      Nombres,
-      Apellidos,
-      "Correo Electronico": Correo,
-      Telefono,
-      Direccion,
-      rol: Rol,
-      fecha_registro: new Date()
-    });
-
-    Swal.fire({
-      icon: "success",
-      title: clienteEditando ? "Cliente actualizado" : "Cliente agregado",
-      timer: 1500,
-      showConfirmButton: false
-    });
-
-    formCliente.reset();
-    formCliente.style.display = "none";
-    clienteEditando = null;
-    btnAgregarCliente.textContent = "Agregar Cliente";
-    btnAgregarCliente.classList.remove("modo-edicion");
-    btnCancelarCliente.style.display = "none";
-
-
-    cargarClientes();
-  } catch (err) {
-    console.error("Error agregando/actualizando cliente:", err);
-    Swal.fire("Error", "No se pudo guardar el cliente", "error");
+  // Validación de contraseña si hay
+  if (Password && !passwordRegex.test(Password)) {
+    Swal.fire("Error", "Contraseña: mínimo 8 caracteres, mayúscula, minúscula, número y símbolo (!@#$%^&*)", "warning");
+    return;
   }
 
-  
+  // Todo OK, ocultamos mensaje de ayuda
+  passwordHelp.style.display = "none";
+
+try {
+  let idAUsar = clienteEditando || Correo;
+
+  // Datos a guardar en Firestore
+  const clienteData = {
+    Nombres,
+    Apellidos,
+    "Correo Electronico": Correo,
+    Telefono,
+    Direccion,
+    rol: Rol,
+    fecha_registro: new Date()
+  };
+
+  if (!clienteEditando) {
+    // ============================
+    // CREAR USUARIO EN AUTH (nuevo cliente)
+    // ============================
+    const userCredential = await createUserWithEmailAndPassword(auth, Correo, Password);
+    const user = userCredential.user;
+    idAUsar = user.uid; // usar UID generado por Auth
+  }
+
+  // Guardar/actualizar en Firestore
+  await setDoc(doc(db, "users", idAUsar), clienteData);
+
+  Swal.fire({
+    icon: "success",
+    title: clienteEditando ? "Cliente actualizado" : "Cliente agregado",
+    timer: 1500,
+    showConfirmButton: false
+  });
+
+  formCliente.reset();
+  formCliente.style.display = "none";
+  clienteEditando = null;
+  btnAgregarCliente.textContent = "Agregar Cliente";
+  btnAgregarCliente.classList.remove("modo-edicion");
+  btnCancelarCliente.style.display = "none";
+
+  cargarClientes();
+
+} catch (err) {
+  console.error("Error agregando/actualizando cliente:", err);
+  Swal.fire("Error", err.message || "No se pudo guardar el cliente", "error");
+}
 });
 
 
+const togglePass = document.querySelector(".toggle-pass");
+
+togglePass.addEventListener("click", () => {
+  const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+  passwordInput.setAttribute("type", type);
+});
 
 
 // === Inicializar ===
@@ -996,16 +1072,18 @@ cargarClientes();
 document.getElementById("btnNuevoCliente").addEventListener("click", () => {
   document.getElementById("formCliente").style.display = "block";
   document.getElementById("btnCancelarEdicionCliente").style.display = "none";
-  document.getElementById("btnAgregarCliente").textContent = "Agregar Cliente";
+  btnAgregarCliente.textContent = "Agregar Cliente";
 
-  // limpiar campos
+  // Limpiar campos
   document.getElementById("nombreCliente").value = "";
   document.getElementById("apellidoCliente").value = "";
   document.getElementById("correoCliente").value = "";
   document.getElementById("telefonoCliente").value = "";
   document.getElementById("direccionCliente").value = "";
-  document.getElementById("rolCliente").value = "cliente";
+  document.getElementById("rolCliente").value = "usuario"; // valor interno correcto
+  document.getElementById("passwordCliente").value = ""; // limpiar contraseña
 });
+
 
 
 

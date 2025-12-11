@@ -291,6 +291,24 @@
       <input type="email" id="correoCliente" class="form-control" placeholder="correo@ejemplo.com">
     </div>
 
+<div class="col-md-6">
+  <label for="passwordCliente" class="form-label fw-semibold">Contraseña</label>
+  <div class="password-wrapper" style="position: relative;">
+    <input type="password" id="passwordCliente" class="form-control" placeholder="Escribe la contraseña">
+    <span class="toggle-pass" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#333" viewBox="0 0 24 24">
+        <path d="M12 5c-7.633 0-11.531 7-11.531 7s3.898 7 11.531 7 11.531-7 11.531-7-3.898-7-11.531-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z"/>
+      </svg>
+    </span>
+  </div>
+  <small id="passwordHelp" class="text-danger" style="display:none;">
+    Contraseña: mínimo 8 caracteres, mayúscula, minúscula, número y símbolo (!@#$%^&*)
+  </small>
+</div>
+
+
+
+
     <div class="col-md-6">
       <label for="telefonoCliente" class="form-label fw-semibold">Teléfono</label>
       <input type="text" id="telefonoCliente" class="form-control" placeholder="3212345678">
@@ -304,7 +322,7 @@
     <div class="col-md-6">
       <label for="rolCliente" class="form-label fw-semibold">Rol</label>
       <select id="rolCliente" class="form-select">
-        <option value="cliente">Cliente</option>
+        <option value="usuario">Cliente</option>
         <option value="admin">Admin</option>
       </select>
     </div>
@@ -325,29 +343,30 @@
 
         <select id="filtroRol" style="padding:6px 10px; border-radius:6px;">
           <option value="todos">Todos</option>
-          <option value="cliente">Cliente</option>
-          <option value="admin">Admin</option>
+          <option value="usuario">Cliente</option>
+          <option value="admin">Administrador</option>
         </select>
 
       </div>
 
-      <table class="table table-hover align-middle text-center" id="tablaClientes">
-        <thead class="table-success">
-          <tr>
-            <th>Nombre</th>
-            <th>Correo electrónico</th>
-            <th>Teléfono</th>
-            <th>Direccion</th>
-            <th>Rol</th>
-            <th>Acciones</th>
-            <th>Detalles</th>
+<table class="table table-hover align-middle text-center" id="tablaClientes">
+  <thead class="table-success">
+    <tr>
+      <th>Nombre</th>
+      <th>Correo electrónico</th>
+      <th>Teléfono</th>
+      <th>Dirección</th>
+      <th>Rol</th>
+      <th>Fecha de Registro</th> <!-- nueva columna -->
+      <th>Acciones</th>
+      <th>Detalles</th>
+    </tr>
+  </thead>
+  <tbody id="listaClientes">
+    <!-- clientes cargados dinámicamente -->
+  </tbody>
+</table>
 
-          </tr>
-        </thead>
-        <tbody id="listaClientes">
-          <!-- clientes cargados dinámicamente -->
-        </tbody>
-      </table>
     </div>
   </div>
 </section>
