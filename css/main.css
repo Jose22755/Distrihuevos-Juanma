@@ -2035,3 +2035,143 @@ body, html {
   text-align: center;
 }
 
+.mobile-extra-info {
+  display: none; /* oculto en PC */
+}
+
+/* ========================================= */
+/* 📱 HEADER COMPLETAMENTE ARREGLADO EN MÓVIL */
+/* ========================================= */
+
+@media (max-width: 768px) {
+
+  /* Contenedor principal vertical */
+  .main-header .header-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* izquierda - centro - derecha */
+    align-items: center;
+    padding: 10px;
+    position: relative;
+  }
+
+  /* IZQUIERDA → MENÚ */
+  .header-left {
+    grid-column: 1 / 2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* ocultamos la barra de búsqueda */
+  .search-form {
+    display: none !important;
+  }
+
+  /* CENTRO → LOGO */
+  .logo {
+    grid-column: 2 / 3;
+    justify-content: center;
+    display: flex;
+    position: relative;
+    left: 0;
+    transform: none !important;
+  }
+
+  .logo-img {
+    width: 55px;
+    height: 55px;
+  }
+
+  .logo h1 {
+    display: none; /* ocultamos el texto para móvil, queda solo el logo */
+  }
+
+  /* DERECHA → CARRITO */
+  .header-right {
+    grid-column: 3 / 4;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* carrito más pequeño */
+  .cart-btn {
+    padding: 6px 14px;
+    font-size: 1rem;
+  }
+
+  /* saludo y logout no van aquí en móvil */
+  .user-greeting,
+  .logout-btn {
+    display: none !important;
+  }
+
+  /* ------------------------------------- */
+  /* 📌 SEGUNDA FILA: saludo + logout      */
+  /* ------------------------------------- */
+  .main-header::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 1px;
+    background: #e0e0e0;
+    margin-top: 8px;
+  }
+
+  .mobile-extra-info {
+    display: flex !important;
+    flex-direction: column;
+    text-align: center;
+    padding: 10px 0 5px;
+    gap: 6px;
+  }
+
+  /* estilo saludo */
+  .mobile-extra-info .user-greeting {
+    display: block !important;
+    font-size: 1rem;
+    background: none;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  /* botón cerrar sesión debajo */
+  .mobile-extra-info .logout-btn {
+    display: inline-block !important;
+    margin: 0 auto;
+    padding: 6px 16px;
+    font-size: 0.9rem;
+    width: auto;
+  }
+}
+
+/* ===== BOTÓN DEL CARRITO MÁS PEQUEÑITO SOLO EN MÓVIL ===== */
+@media (max-width: 576px) {
+  .main-header .cart-btn {
+    padding: 0.45rem 1.1rem;
+    font-size: 0.95rem;
+    gap: 4px;
+    border-radius: 25px;
+  }
+
+  .main-header .cart-btn i {
+    font-size: 1rem;
+  }
+
+  .main-header .cart-count {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+    top: -4px;
+    right: -4px;
+  }
+}
+
+/* ===== SEPARAR CARRITO DEL BORDE EN MÓVIL ===== */
+@media (max-width: 576px) {
+  .main-header .cart-btn {
+    margin-right: 8px; /* ✨ separadito y elegante */
+  }
+}
+

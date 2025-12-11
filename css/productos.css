@@ -1024,3 +1024,43 @@ body.productos-page {
     text-align: center;
   }
 }
+
+.volver-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: #2ca84a;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.volver-link:hover {
+  opacity: 0.7;
+}
+.volver-link {
+  position: relative;
+  top: 8px;  /* Súper leve, elegante */
+}
+.volver-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--gris-oscuro);
+  text-decoration: none;
+}
+
+.volver-link i {
+  font-size: 1.1rem;
+  color: var(--gris-oscuro);
+}
+.volver-link:hover {
+  color: var(--color-principal);
+}
+.volver-link:hover i {
+  color: var(--color-principal);
+}
+

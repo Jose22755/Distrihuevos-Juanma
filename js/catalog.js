@@ -114,35 +114,48 @@ document.addEventListener("DOMContentLoaded", () => {
 /* ==========================
    👤 AUTENTICACIÓN / LOGOUT
    ========================== */
-const logoutBtn = document.getElementById("logoutBtn");
-const userNameElement = document.getElementById("userName");
+// Versión extendida para desktop + mobile
+const userNameDesktop = document.getElementById("userNameDesktop");
+const userNameMobile = document.getElementById("userNameMobile");
+
+const logoutBtnDesktop = document.getElementById("logoutBtnDesktop");
+const logoutBtnMobile = document.getElementById("logoutBtnMobile");
+
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
     const name = user.displayName || user.email?.split("@")[0] || "Usuario";
-    if (userNameElement) userNameElement.textContent = name;
+
+    if (userNameDesktop) userNameDesktop.textContent = name;
+    if (userNameMobile) userNameMobile.textContent = name;
+
   } else {
-    if (userNameElement) userNameElement.textContent = "Usuario";
+    if (userNameDesktop) userNameDesktop.textContent = "Usuario";
+    if (userNameMobile) userNameMobile.textContent = "Usuario";
   }
 });
 
-if (logoutBtn) {
+
+function logoutUser() {
   const spinnerOverlay = document.getElementById("logout-spinner");
-  logoutBtn.addEventListener("click", async () => {
+
+  if (spinnerOverlay) spinnerOverlay.style.display = "flex";
+
+  setTimeout(async () => {
     try {
-      if (spinnerOverlay) spinnerOverlay.style.display = "flex";
-      await new Promise((res) => setTimeout(res, 700));
       await signOut(auth);
-      if (spinnerOverlay)
-        spinnerOverlay.querySelector("p").textContent =
-          "¡Sesión cerrada correctamente ✅";
-      setTimeout(() => (window.location.href = "login.html"), 1000);
+      window.location.href = "login.html";
     } catch (err) {
       console.error("Logout error:", err);
       if (spinnerOverlay) spinnerOverlay.style.display = "none";
     }
-  });
+  }, 700);
 }
+
+// Inicializar listeners
+if (logoutBtnDesktop) logoutBtnDesktop.addEventListener("click", logoutUser);
+if (logoutBtnMobile) logoutBtnMobile.addEventListener("click", logoutUser);
+
 
 /* ==========================
    🔄 SPINNER UTILS
