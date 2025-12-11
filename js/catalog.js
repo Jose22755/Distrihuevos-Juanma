@@ -1059,5 +1059,3 @@ cont.innerHTML = `
 `;
 
 }
-
-

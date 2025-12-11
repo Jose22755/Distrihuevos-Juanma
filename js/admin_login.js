@@ -153,6 +153,8 @@ formProducto?.addEventListener("submit", async (e) => {
   const Stock = document.getElementById("stockProducto").value.trim();
   const Categoria = document.getElementById("categoriaProducto").value.trim();
   const imagen = document.getElementById("imagenProducto").value.trim();
+  const imagen2 = document.getElementById("imagen2Producto").value.trim();
+const imagen3 = document.getElementById("imagen3Producto").value.trim();
   const Descripción = document.getElementById("descripcionProducto").value.trim();
 
   // Limpiar mensajes previos
@@ -191,6 +193,8 @@ formProducto?.addEventListener("submit", async (e) => {
       Precio: parseFloat(Precio),
       Stock: parseInt(Stock),
       imagen,
+      imagen2,
+      imagen3,
       fecha_registro: new Date()
     });
 
@@ -336,6 +340,8 @@ productosListContainer.addEventListener("click", async (event) => {
     document.getElementById("stockProducto").value = data.Stock ?? "";
     document.getElementById("categoriaProducto").value = data.Categoria || "";
     document.getElementById("imagenProducto").value = data.imagen || "";
+    document.getElementById("imagen2Producto").value = data.imagen2 || "";
+    document.getElementById("imagen3Producto").value = data.imagen3 || "";
     document.getElementById("descripcionProducto").value = data.Descripción || "";
 
     // Marcar que estamos editando este producto
@@ -404,28 +410,31 @@ if (btnCancelar) {
 }
 
 
-  // === EVENTOS DE ELIMINAR ===
-  document.querySelectorAll(".btn-eliminar").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const id = btn.dataset.id;
+// === EVENTO DE ELIMINAR PRODUCTOS (delegación) ===
+listaProductos.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".btn-eliminar");
+  if (!btn) return; // No es un botón eliminar
 
-      const confirm = await Swal.fire({
-        title: "¿Eliminar producto?",
-        text: "Esta acción no se puede deshacer.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Sí, eliminar",
-        cancelButtonText: "Cancelar",
-        confirmButtonColor: "#dc3545",
-        cancelButtonColor: "#6c757d"
-      });
+  const id = btn.dataset.id;
+  if (!id) return;
 
-      if (confirm.isConfirmed) {
-        await deleteDoc(doc(db, "products", id));
-        Swal.fire("Eliminado", "El producto fue eliminado.", "success");
-      }
-    });
+  const confirm = await Swal.fire({
+    title: "¿Eliminar producto?",
+    text: "Esta acción no se puede deshacer.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Sí, eliminar",
+    cancelButtonText: "Cancelar",
+    confirmButtonColor: "#dc3545",
+    cancelButtonColor: "#6c757d"
   });
+
+  if (confirm.isConfirmed) {
+    await deleteDoc(doc(db, "products", id));
+    Swal.fire("Eliminado", "El producto fue eliminado.", "success");
+  }
+});
+
 
 });
 
@@ -1083,7 +1092,6 @@ document.getElementById("btnNuevoCliente").addEventListener("click", () => {
   document.getElementById("rolCliente").value = "usuario"; // valor interno correcto
   document.getElementById("passwordCliente").value = ""; // limpiar contraseña
 });
-
 
 
 
