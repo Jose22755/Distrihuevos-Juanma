@@ -213,7 +213,6 @@ const dias = Object.keys(historialVentas).sort((a,b)=>new Date(b) - new Date(a))
 const acciones = `
   <div class="d-flex flex-column gap-1">
     <button class="btn btn-sm btn-success verPedidosDia">Ver pedidos</button>
-    <button class="btn btn-sm btn-danger descargarPDFDia"><i class="bi bi-file-earmark-pdf"></i> PDF</button>
   </div>
 `;
 

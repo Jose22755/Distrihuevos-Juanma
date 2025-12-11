@@ -2175,3 +2175,82 @@ body, html {
   }
 }
 
+/* ===== CARRUSEL CENTRADO ===== */
+.catalogo {
+  text-align: center;
+  background-color: var(--gris-claro);
+  overflow: hidden;
+  padding: 60px 0;
+}
+
+.productos-titulo {
+  font-size: 2.4rem;
+  color: var(--gris-oscuro);
+  font-weight: 700;
+  margin-bottom: 60px;
+  position: relative;
+}
+
+.productos-titulo::after {
+  content: '';
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--verde-campo), #5edb6b);
+  display: block;
+  margin: 12px auto 0;
+  border-radius: 2px;
+}
+
+/* ===== SWIPER SLIDES ===== */
+.swiper {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding-bottom: 60px;
+}
+
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: auto; /* ajusta al tamaño de la card */
+  padding-top: 20px;
+}
+
+/* ===== CARD ===== */
+.card {
+  width: 340px; /* desktop base */
+  background-color: var(--blanco);
+  border-radius: var(--radius);
+  box-shadow: var(--sombra);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.card img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.card:hover img {
+  transform: scale(1.08);
+}
+
+.card:hover {
+  transform: translateY(-10px) scale(1.03);
+  box-shadow: 0 20px 45px rgba(0, 100, 0, 0.55),
+              0 0 25px rgba(76, 175, 80, 0.25);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .card { width: 280px; }
+}
+
+@media (max-width: 768px) {
+  .card { width: 90%; }
+}
+

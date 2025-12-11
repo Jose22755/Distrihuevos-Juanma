@@ -38,18 +38,15 @@ const inputBusqueda = document.querySelector("#busqueda");
 const searchForm = document.querySelector("#searchForm");
 
 // 👤 Detectar usuario
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (user) {
-    usuarioActual = user.uid;
-    cargarCarrito();
+    usuarioActual = user;
+    cargarPedidos();
   } else {
-    cartContainer.innerHTML = `
-      <div class="text-center mt-5">
-        <h5 class="text-danger">Por favor inicia sesión para ver tu carrito 🥚</h5>
-      </div>
-    `;
+    window.location.href = "login.html";
   }
 });
+
 
 // 🔥 Escuchar cambios del carrito sin parpadeos
 function cargarCarrito() {

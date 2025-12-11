@@ -573,14 +573,15 @@ checkoutBtn?.addEventListener("click", () => {
   const logoutBtn = document.getElementById("logoutBtn");
   const userNameElement = document.getElementById("userName");
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      const name = user.displayName || user.email?.split("@")[0] || "Usuario";
-      if (userNameElement) userNameElement.textContent = `Hola, ${name}`;
-    } else {
-      if (userNameElement) userNameElement.textContent = "Hola, Usuario";
-    }
-  });
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    usuarioActual = user;
+    cargarPedidos();
+  } else {
+    window.location.href = "login.html";
+  }
+});
+
 
   logoutBtn?.addEventListener("click", () => {
     window.location.href = "index.html";

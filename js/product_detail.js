@@ -460,15 +460,15 @@ function actualizarSemaforo(stock) {
     let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     let usuarioUID = null;
 
-    onAuthStateChanged(auth, (user) => {
-      usuarioUID = user ? user.uid : null;
-    });
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    usuarioActual = user;
+    cargarPedidos();
+  } else {
+    window.location.href = "login.html";
+  }
+});
 
-    async function guardarCarritoFirestore() {
-      if (!usuarioUID) return;
-      const docRefCarrito = doc(db, "carritos", usuarioUID);
-      await setDoc(docRefCarrito, { items: carrito }, { merge: true });
-    }
 
 // ------------------------------------------------------------
 // BOTÓN: AGREGAR AL CARRITO

@@ -136,6 +136,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 
+
 function logoutUser() {
   const spinnerOverlay = document.getElementById("logout-spinner");
 
@@ -743,6 +744,7 @@ function actualizarStockCard(productId, nuevoStockArg) {
     cantidadEl.textContent = cant;
   }
 }
+
 
 /* ==========================
    🔹 RENDER PRODUCTOS (optimizado)
