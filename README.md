@@ -1,5 +1,4 @@
-Sistema DistriHuevos JUANMA
-
+Sistema DistriHuevos
 Descripción del proyecto
 
 Distrihuevos es una plataforma web para la compra de productos con carrito interactivo, métodos de pago simulados y panel de administración.
@@ -8,7 +7,7 @@ Funciones principales:
 
 Visualizar productos y detalles.
 
-Agregar al carrito y calcular subtotal/total automáticamente.
+Agregar productos al carrito y calcular subtotal/total automáticamente.
 
 Seleccionar métodos de pago (Nequi, Bancolombia, efectivo).
 
@@ -20,7 +19,11 @@ Persistencia del carrito en LocalStorage.
 
 Tecnologías utilizadas
 
-HTML5, CSS3, JavaScript
+HTML5
+
+CSS3
+
+JavaScript
 
 Firebase (Auth, Firestore, Hosting)
 
@@ -35,9 +38,9 @@ Clonar el repositorio:
 git clone https://github.com/TU_USUARIO/NOMBRE_REPOSITORIO.git
 
 
-Abrir en VS Code.
+Abrir el proyecto en VS Code o cualquier editor.
 
-Abrir páginas desde /HTML con Live Server o navegador.
+Abrir páginas desde la carpeta /HTML con Live Server o navegador.
 
 Configurar variables de entorno de Firebase en .env:
 
@@ -50,17 +53,17 @@ FIREBASE_APP_ID=...
 
 Versión del proyecto
 
-Versión: 1.0
+Versión actual: 1.0
 
-Funcionalidad básica completa: login, registro, catálogo, carrito, pedidos y panel administrador.
+Funcionalidad básica: login, registro, catálogo, carrito, pedidos y panel administrador.
 
 Organización actual: carpetas /HTML, /CSS, /JS.
 
-MVC planeado para futuras versiones.
+Arquitectura MVC planeada para futuras versiones.
 
 Integrantes
 
-Johan Sánchez – Desarrollo, interfaces y conexión a Firebase.
+Johan Sánchez – Desarrollo del proyecto, diseño de interfaces y conexión a Firebase.
 
 Estructura y rutas principales
 Tipo	Archivo / Carpeta	Descripción
@@ -79,3 +82,30 @@ CSS	/CSS/	Archivos de estilos
 JS	/JS/	Scripts de interactividad y lógica
 
 Nota: Actualmente no se aplica MVC, pero está planeado para futuras versiones.
+
+Seguridad y cumplimiento
+
+Cumple Ley Habeas Data (Colombia).
+
+Solo se almacenan datos necesarios (nombre, correo y teléfono).
+
+Firebase Authentication con cifrado.
+
+Acceso a administrador restringido.
+
+Validaciones de entrada para evitar datos corruptos.
+
+Conclusión
+
+Distrihuevos entrega una plataforma funcional, segura y responsive, con carrito interactivo, panel administrativo y persistencia en tiempo real.
+La integración con Firebase permite simplificar el backend y mantener un control eficiente de productos, pedidos y usuarios.
+
+💡 Tip para tu commit:
+Cuando subas esto a GitHub, un buen mensaje sería:
+
+git add README.md
+git commit -m "README completo: descripción, tecnologías, rutas, versión e integrantes"
+git push
+
+
+Esto deja claro en el historial de commits que agregaste el README profesional y completo.
