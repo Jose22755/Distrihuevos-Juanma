@@ -105,19 +105,19 @@ Puedes modificar los estilos en la carpeta `/css` o los scripts en `/js` para ad
 
 | Tipo | Archivo / Carpeta | Descripción |
 |------|-----------------|------------|
-| HTML | /HTML/login.html | Inicio de sesión cliente |
-| HTML | /HTML/index.html | Página principal cliente |
-| HTML | /HTML/productos.html | Catálogo de productos |
-| HTML | /HTML/product_detail.html | Detalle de producto |
-| HTML | /HTML/cart.html | Interfaz principal del carrito y pago |
-| HTML | /HTML/pedidos.html | Historial de pedidos |
-| HTML | /HTML/update_profile.html | Edición de perfil |
-| HTML | /HTML/forgot_password.html | Recuperación de contraseña |
-| HTML | /HTML/reset_password.html | Cambio de contraseña |
-| HTML | /HTML/register.html | Registro de clientes |
-| HTML | /HTML/admin_login.html | Panel de administración (todas las gestiones) |
-| CSS  | /CSS/             | Archivos de estilos |
-| JS   | /JS/              | Scripts de interactividad y lógica |
+| HTML | /html/login.html | Inicio de sesión cliente |
+| HTML | /html/index.html | Página principal cliente |
+| HTML | /html/productos.html | Catálogo de productos |
+| HTML | /html/product_detail.html | Detalle de producto |
+| HTML | /html/cart.html | Interfaz principal del carrito y pago |
+| HTML | /html/pedidos.html | Historial de pedidos |
+| HTML | /html/update_profile.html | Edición de perfil |
+| HTML | /html/forgot_password.html | Recuperación de contraseña |
+| HTML | /html/reset_password.html | Cambio de contraseña |
+| HTML | /html/register.html | Registro de clientes |
+| HTML | /html/admin_login.html | Panel de administración (todas las gestiones) |
+| CSS  | /css/             | Archivos de estilos |
+| JS   | /js/              | Scripts de interactividad y lógica |
 
 **Nota:** Actualmente no se aplica MVC, pero está planeado para futuras versiones.
 
