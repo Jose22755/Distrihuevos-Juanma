@@ -10,21 +10,73 @@ La página permite a los usuarios visualizar los productos disponibles, seleccio
 
 ## Instrucciones de instalación
 
-- Abrir el proyecto en VS Code o cualquier editor.
-- Abrir páginas desde la carpeta `/HTML` con Live Server o navegador.
-- Configurar variables de entorno de Firebase en `.env`:
+Sigue estos pasos para configurar y ejecutar el proyecto Distrihuevos en tu máquina local:
 
+---
+
+### 1. Clonar el repositorio
+
+Abre tu terminal y ejecuta el siguiente comando:
+
+git clone https://github.com/Jose2275/Distrihuevos-Juanma.git
+
+---
+
+### 2. Abrir el proyecto en un editor
+
+Abre la carpeta del proyecto en tu editor de código preferido, por ejemplo, **VS Code**.  
+Esto te permitirá explorar los archivos HTML, CSS y JS, y hacer modificaciones si lo deseas.
+
+---
+
+### 3. Instalar Live Server (opcional pero recomendado)
+
+Para visualizar la página correctamente y que los scripts funcionen, se recomienda usar la extensión **Live Server** de VS Code.  
+Esta extensión permite abrir las páginas HTML en un servidor local con recarga automática.
+
+---
+
+### 4. Abrir las páginas
+
+Navega a la carpeta `/html` y abre cualquier archivo `.html` usando Live Server o directamente en tu navegador:
+
+- `index.html` → Página principal del cliente  
+- `admin_login.html` → Panel de administración
+
+---
+
+### 5. Configurar Firebase
+
+El proyecto utiliza Firebase para autenticación y base de datos.  
+Crea un archivo `.env` en la raíz del proyecto y agrega tus credenciales:
+
+```env
 FIREBASE_API_KEY=AIzaSyBdSAJNELZLQl_IUEj3Vz_loxpIInqBdro
-
 FIREBASE_AUTH_DOMAIN=distrihuevos-juanma.firebaseapp.com
-
 FIREBASE_PROJECT_ID=distrihuevos-juanma
-
 FIREBASE_STORAGE_BUCKET=distrihuevos-juanma.appspot.com
-
-FIREBASE_MESSAGING_SENDER_ID=1022538352131
-
+FIREBASE_MESSAGING_SENDER_ID=102253835213
 FIREBASE_APP_ID=1:1022538352131:web:d471df1b8530fa9d96f036
+```
+
+---
+
+### 6. Verificar la conexión
+
+Una vez abiertas las páginas y configuradas las credenciales de Firebase, prueba:
+
+- **Inicio de sesión**  
+- **Registro de usuarios**  
+- **Carrito de compras**  
+- **Panel de administración**  
+
+para asegurarte de que todo funciona correctamente.
+
+---
+
+### 7. Opcional: Personalización
+
+Puedes modificar los estilos en la carpeta `/css` o los scripts en `/js` para adaptar el proyecto a tus necesidades.
 
 
 ## Versión del proyecto
